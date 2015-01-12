@@ -57,7 +57,7 @@ void main()
 {% endhighlight %}
 
 
-If you print this something strange is happening. It will output 
+It will output 
 {% highlight d %}
 
 Array!int(RefCounted!(Payload, cast(RefCountedAutoInitialize)0)(RefCountedStore(20D9590)))
@@ -145,7 +145,7 @@ void main()
 }
 {% endhighlight %}
 
-This almost looks exactly like the C++. Note that the 'if' between the function definition and the function body is called a 'constrain'.
+This almost looks exactly like C++. Note that the 'if' between the function definition and the function body is called a 'constrain'.
 
 {% highlight d %}
 returnType functionName(param) 
@@ -276,7 +276,7 @@ Unfortunately this showed me how much of the standard library relies on the GC. 
 
 I assume that RefCounted must use some nongc function under the hood which prevents me from using it without the GC.
 
-Before I go on I have to do some research of how the GC in D is actually implemented. Maybe the implementation is not that bad and if I only rely on a very small amount of allocations that might not even be noticeable.
+Before I go on I have to do some research of how the GC in D is actually implemented. Maybe the implementation is not that bad and if I only rely on a very small amount of allocations the GC might not even be noticeable.
 
 It is actually very hard to find some details of how the GC works, but I found this quote from the official D website.
 
