@@ -7,13 +7,13 @@ excerpt_separator:   ''
 #
 # Use of `relative_permalinks` ensures post links from the index work properly.
 permalink:           pretty
-relative_permalinks: true
+relative_permalinks: false
 
 # Setup
 title:               Maik Klein's
 tagline:             'Blog'
 description:         'Blog'
-url:                 http://lanyon.getpoole.com
+url:                 maikklein.github.io
 baseurl:             /
 paginate:            5
 
