@@ -13,7 +13,6 @@ relative_permalinks: false
 title:               Maik Klein's
 tagline:             'Blog'
 description:         'Blog'
-url:                 maikklein.github.io
 baseurl:             /
 paginate:            5
 
@@ -23,5 +22,7 @@ author:
   url:               https://github.com/MaikKlein
   email:             maikklein@googlemail.com
 
+github:
+  repo:              https://github.com/MaikKlein
 # Custom vars
 version:             1.0.0
