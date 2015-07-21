@@ -144,7 +144,7 @@ UE4 in contrast marks individual properties as reliable/unreliable and creates a
 You can then control the priority of an actor with [GetNetPriority](https://docs.unrealengine.com/latest/INT/API/Runtime/Engine/GameFramework/AActor/GetNetPriority/2/index.html).
 
 #Pricing 
-UE4 comes without any restrictions but wants a cut from your revenue. Unity ships with two different version, Personal and Professional. The Personal edition has almost no restrictions besides that you have to earn less than $100k a year, a non customizable splash screen and no dark editor ui. The Professional includes a bunch of services. You can read more about it [here](https://unity3d.com/get-unity).
+UE4 comes without any restrictions but wants a cut from your revenue. Unity ships with two different versions, Personal and Professional. The Personal edition has almost no restrictions besides that you have to earn less than $100k a year, a non customizable splash screen and no dark editor ui. The Professional includes a bunch of services. You can read more about it [here](https://unity3d.com/get-unity).
 
 What I find really annoying is that you can not customize the splash screen in Unity Personal. I don't really care if my users can see the Unity splash screen, what I care about is that I have to build a standalone game to develop with Unity UNet. That means I have two watch the splash screen every time I want to test something. Unity should allow you to disable the splash screen in dev builds.
 
