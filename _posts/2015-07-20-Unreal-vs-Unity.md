@@ -24,7 +24,7 @@ Unity also crashed several times while I was developing my editor script.
 
 UE4 has frequent editor crashes and the hot reloading system is not very reliable. Changes to blueprints sometimes just don't get detected which means that you have to restart the editor very often. The same thing applies to C++ changes but at least you get a visual representation that something is wrong because the compile button in the editor will have disappeared.
 
-UE4 always crashes when you mess up. For example if you forgot to do nullptr check and you access a nullptr the editor will crash.You should always be in debug mode because you get very weird messages if you are not.
+UE4 always crashes when you mess up. For example if you forgot to do a nullptr check and you access a nullptr the editor will crash.You should always be in debug mode because you get very weird messages if you are not.
 
 I haven't had a code crash in Unity so far. If you access a nullptr in Unity it will just log it.
 
