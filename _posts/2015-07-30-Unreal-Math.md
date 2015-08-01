@@ -57,7 +57,7 @@ which is the same thing as
 
 $$cos(\alpha) * ||\vec{a}|| = \dfrac{\vec{a} {\cdot} \vec{b}} {||\vec{b}||}$$
 
-Now remeber that we can compute \\(b\\) in a triangle 
+Now remember that we can compute \\(b\\) in a triangle 
 
 $$ cos(\alpha) * a = b $$
 
