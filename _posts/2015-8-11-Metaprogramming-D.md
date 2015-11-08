@@ -173,7 +173,7 @@ void updateAll(){
   }
 }
 {% endhighlight %}
-The first forloop loops over all containers at compile time, the second for loop will update every GameObject at run time.
+The first forloop loops over all containers at compile time, the second for loop will update every `GameObject` at run time.
 
 We are now storing every `GameObject` in its own container which gives us several benefits. All `GameObjects` are stored contiguously in memory without any indirection and we have now a lot of type information. It's is now very simple to loop over all `Monsters`, or maybe you want to apply damage to nearby players.
 
@@ -206,7 +206,7 @@ Tuple!(int,float) sumIntFloat(Ts...)(Ts ts){
 
 `isIntegral` will take a value and check with `typeof` if it is an integer. `Filter` is a metafuction that will filter our variadic sequence `Ts...`. Combining `Filter` with `isIntegral` will filter the sequence `Ts...` so that it will only contain integer values. `only()` transforms the sequence to a [range](http://dlang.org/phobos/std_range.html) which allows us to reuse functions from [std.algorithm](http://dlang.org/phobos/std_algorithm.html) like `reduce`.
 
-I think it looks quite elegeant but sadly `only()` will result in a copy. Let us see if we can improve on that.
+I think it looks quite elegant but sadly `only()` will result in a copy. Let us see if we can improve on that.
 
 Before we start, let us generalize our isIntegral and isFloatingPoint "functions".
 
@@ -299,9 +299,9 @@ void main() {
         writeln(SumIntFloatV4(1,1,2,3,1.0,2.0));
 }
 {% endhighlight %}
-I knew before hand that I could do it like this but in my opinion this looks much worse compared to version 1 and 2. I really wanted to reuse staticFold in my run time version but it didn't seem possible amd I almost quit.
+I knew before hand that I could do it like this but in my opinion this looks much worse compared to version 1 and 2. I really wanted to reuse staticFold in my run time version but it didn't seem possible and I almost quit.
 
-Luckily I went back to the drawing board and redfined what my goal was. 
+Luckily I went back to the drawing board and redefined what my goal was.
 
 `Goal:` Generate an efficient function at compile time that can be called at run/compile time.
 
