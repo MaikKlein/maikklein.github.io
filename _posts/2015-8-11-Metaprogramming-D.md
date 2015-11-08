@@ -299,7 +299,7 @@ void main() {
         writeln(SumIntFloatV4(1,1,2,3,1.0,2.0));
 }
 {% endhighlight %}
-I knew before hand that I could do it like this but in my opionion this looks much worse compared to version 1 and 2. I really wanted to reuse staticFold in my run time version but it didn't seem possible amd I almost quit.
+I knew before hand that I could do it like this but in my opinion this looks much worse compared to version 1 and 2. I really wanted to reuse staticFold in my run time version but it didn't seem possible amd I almost quit.
 
 Luckily I went back to the drawing board and redfined what my goal was. 
 
