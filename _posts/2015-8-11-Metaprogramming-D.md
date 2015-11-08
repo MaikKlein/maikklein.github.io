@@ -319,12 +319,12 @@ B fold(F, B, Ts...)(F f, B init, Ts ts){
 {% endhighlight %}
 
 {% highlight d %}
-Tuple!(int,float) sumIntFloatV3(Ts...)(Ts ts){
+Tuple!(int, float) sumIntFloatV3(Ts...)(Ts ts){
   int intSum = fold((int a, int b) => a + b
-                   ,0,Filter!(Is!int.SameAs,ts));
+                   ,0, Filter!(Is!int.SameAs, ts));
   float floatSum = fold((float a, float b) => a + b
-                   ,0.0f,Filter!(Is!float.SameAs,ts));
-  return tuple(intSum,floatSum);
+                   ,0.0f, Filter!(Is!float.SameAs, ts));
+  return tuple(intSum, floatSum);
 }
 void main()
 {
