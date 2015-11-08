@@ -38,12 +38,12 @@ struct Engine{
 {% endhighlight %}
 You could do this by hand, but it would be very tedious and error prone. This could be easily implemented in C++ but from now on we will make use of D's metaprogramming features. Don't worry if you don't understand every thing, I will go over everything in detail.
 {% highlight d %}
-class Engine(alias Container,GameObjects...){
-  alias GameObjectsContainer = staticMap!(Container,GameObjects);
+class Engine(alias Container, GameObjects...){
+  alias GameObjectsContainer = staticMap!(Container, GameObjects);
   GameObjectsContainer gameObjectsContainer;
 
   ref Container!T getContainer(T)(){
-    enum indexOfT = IndexOf!(T,GameObjects);
+    enum indexOfT = IndexOf!(T, GameObjects);
     return gameObjectsContainer[indexOfT];
   }
 
@@ -78,7 +78,7 @@ struct Monster{
     this.name = name;
   }
   void update(){
-    writeln("Updating Monster: ",name);
+    writeln("Updating Monster: ", name);
   }
 }
 struct Player{
@@ -87,13 +87,13 @@ struct Player{
     this.name = name;
   }
   void update(){
-    writeln("Updating Player: ",name);
+    writeln("Updating Player: ", name);
   }
 }
 void main()
 {
-  alias GameObjects = AliasSeq!(Monster,Player);
-  alias ArrayEngine = Engine!(Array,GameObjects);
+  alias GameObjects = AliasSeq!(Monster, Player);
+  alias ArrayEngine = Engine!(Array, GameObjects);
   auto engine = new ArrayEngine;
   auto monster1Id = engine.spawn(Monster("Monster1"));
   auto player1Id = engine.spawn(Player("Player1"));
@@ -116,24 +116,24 @@ Updating Player: Player2
 I am aware that this code won't win any awards, I tried to keep it simple and short and don't go into specifics like invalidating the handles.
 
 {% highlight d %}
-class Engine(alias Container,GameObjects...){
-  alias GameObjectsContainer = staticMap!(Container,GameObjects);
+class Engine(alias Container, GameObjects...){
+  alias GameObjectsContainer = staticMap!(Container, GameObjects);
   GameObjectsContainer gameObjectsContainer;
 {% endhighlight %}
 
 This is the heart of our `Engine` class and it makes use of type-level metaprogramming. Everything in the parentheses are `templates` while `Container`is a symbol and `GameObjects...` is a variadic template.
 
 {% highlight d %}
-(alias Container,GameObjects...)
+(alias Container, GameObjects...)
 
 {% endhighlight %}
 `Container` will be our type function which will transform a type into a container of that type. For example it will transform from `T to Container!T`. Note the `!` in D is a template invocation. In C++ you would use `<>`.
 `map` is usually well know to functional programmers, it takes a list and a function and applies that function to every element of that list. `staticMap` is a `map` for types and type values.
 
 {% highlight d %}
-  alias GameObjectsContainer = staticMap!(Container,GameObjects);
+  alias GameObjectsContainer = staticMap!(Container, GameObjects);
 {% endhighlight %}
-If we call `staticMap` with `AliasSeq!(Monster,Player,Weapon)` as our list of types and `Container` as the type level function. The resulting type would be `AliasSeq!(Container!(Monster),Container!(Player),Container!(Weapon))`
+If we call `staticMap` with `AliasSeq!(Monster, Player, Weapon)` as our list of types and `Container` as the type level function. The resulting type would be `AliasSeq!(Container!(Monster), Container!(Player), Container!(Weapon))`
 
 D has a thin wrapper for variadic sequences called `AliasSeq`. If you are coming from C++ this would roughly be
 {% highlight d%}
@@ -144,7 +144,7 @@ struct AliasSeq{};
 We now have a small problem, we can not access `gameObjectsContainer` directly and we need to create a small helper function.
 {% highlight d %}
 ref Container!T getContainer(T)(){
-  enum indexOfT = IndexOf!(T,GameObjects);
+  enum indexOfT = IndexOf!(T, GameObjects);
   return gameObjectsContainer[indexOfT];
 }
 {% endhighlight %}
@@ -185,7 +185,7 @@ Usually when I learn a new language I also try to come up with some strange idea
 
 Example:
 {% highlight d %}
-writeln(sumIntFloat(1,2.0f,3,4.0f,5.0f,6,7));
+writeln(sumIntFloat(1, 2.0f, 3, 4.0f, 5.0f, 6, 7));
 //Tuple!(int, float)(17, 11)
 {% endhighlight %}
 
@@ -193,14 +193,14 @@ The first version of this function is rather elegant:
 {% highlight d %}
 enum isIntegral(alias i) = std.traits.isIntegral!(typeof(i));
 enum isFloatingPoint(alias f) = std.traits.isFloatingPoint!(typeof(f));
-Tuple!(int,float) sumIntFloat(Ts...)(Ts ts){
-  int intSum = Filter!(isIntegral,ts)
+Tuple!(int, float) sumIntFloat(Ts...)(Ts ts){
+  int intSum = Filter!(isIntegral, ts)
     .only()
     .reduce!((a,b) => a + b);
-  float floatSum = Filter!(isFloatingPoint,ts)
+  float floatSum = Filter!(isFloatingPoint, ts)
     .only()
     .reduce!((a,b) => a + b);
-  return tuple(intSum,floatSum);
+  return tuple(intSum, floatSum);
 }
 {% endhighlight %}
 
@@ -226,24 +226,24 @@ Is!int.SamAs(i);
 Sequences can be wrapped in an `AliasSeq` as we have seen before.
 
 {% highlight d %}
-alias IntFloatString = AliasSeq!(int,float,string);
+alias IntFloatString = AliasSeq!(int, float, string);
 {% endhighlight %}
 
 But it is also possible to actually pass values into templates
 
 {% highlight d %}
-alias IntFloatString = AliasSeq!(1,2.0f,"Hello World");
+alias IntFloatString = AliasSeq!(1, 2.0f, "Hello World");
 {% endhighlight %}
 
 We need to create a new functon that takes a sequence and produces a value, just like `reduce`.
 
 {% highlight d %}
-template staticFold(alias Func, alias B,Ts...){
+template staticFold(alias Func, alias B, Ts...){
   static if(Ts.length == 0){
     alias staticFold = B;
   }
   else{
-    alias staticFold = staticFold!(Func,Func!(B,Ts[0]),Ts[1..$]);
+    alias staticFold = staticFold!(Func, Func!(B,Ts[0]), Ts[1..$]);
   }
 }
 {% endhighlight %}
@@ -255,12 +255,12 @@ template Sum(alias A, alias B){
   alias Sum = AliasSeq!(A + B);
 }
 template SumIntFloatV2(Ts...){
-  alias IntSum   = staticFold!(Sum,0,Filter!(Is!int.SameAs,Ts));
-  alias FloatSum = staticFold!(Sum,0.0f,Filter!(Is!float.SameAs,Ts));
+  alias IntSum   = staticFold!(Sum, 0, Filter!(Is!int.SameAs, Ts));
+  alias FloatSum = staticFold!(Sum, 0.0f, Filter!(Is!float.SameAs, Ts));
 }
 void main()
 {
-  alias IntFloat = SumIntFloatV2!(1,2.0f,3,4.0f,5.0f,6,7);
+  alias IntFloat = SumIntFloatV2!(1, 2.0f, 3, 4.0f, 5.0f, 6, 7);
   writeln(IntFloat.IntSum);
   writeln(IntFloat.FloatSum);
 }
@@ -308,12 +308,12 @@ Luckily I went back to the drawing board and redefined what my goal was.
 With a much better defined goal I was able to create a new version of `staticFold`.
 
 {% highlight d %}
-B fold(F,B,Ts...)(F f,B init, Ts ts){
+B fold(F, B, Ts...)(F f, B init, Ts ts){
   static if(ts.length == 0){
     return init;
   }
   else{
-    return fold(f,f(init,ts[0]),ts[1..$]);
+    return fold(f, f(init, ts[0]), ts[1..$]);
   }
 }
 {% endhighlight %}
@@ -328,7 +328,7 @@ Tuple!(int,float) sumIntFloatV3(Ts...)(Ts ts){
 }
 void main()
 {
-  writeln(sumIntFloatV3(1,2.0f,3,4.0f,5.0f,6,7));
+  writeln(sumIntFloatV3(1, 2.0f, 3, 4.0f, 5.0f, 6, 7));
 }
 {% endhighlight %}
 The nice thing about `fold` is that it can be called with almost anything.
@@ -336,15 +336,14 @@ The nice thing about `fold` is that it can be called with almost anything.
 {% highlight d %}
 void main()
 {
-  writeln(sumIntFloatV3(1,2.0f,3,4.0f,5.0f,6,7));
-  writeln(sumIntFloatV3(AliasSeq!(1,2.0f,3.0f)));
-  auto t = tuple(1,2,3,4.0f,5.0f);
+  writeln(sumIntFloatV3(AliasSeq!(1, 2.0f, 3.0f)));
+  auto t = tuple(1, 2, 3, 4.0f, 5.0f);
   writeln(sumIntFloatV3(t.expand));
   int i = 5;
   int i2 = 10;
   float f = 5.0f;
   float f2 = 10.0f;
-  writeln(sumIntFloatV3(i,f,i2,f2));
+  writeln(sumIntFloatV3(i, f, i2, f2));
 }
 {% endhighlight %}
 I have experimented a lot metaprogramming in various languages. For example macros, AST manipulation, two phase compilation with substitution and I think that template metaprogramming in D is rather elegant.
