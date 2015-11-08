@@ -74,7 +74,7 @@ FORCEINLINE FVector FVector::ProjectOnTo( const FVector& A ) const
 }
 {% endhighlight %}
 
-I hope that you understand know how this function works.
+I hope that you understand now how this function works.
 
 
 
