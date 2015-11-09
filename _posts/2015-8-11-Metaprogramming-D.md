@@ -16,7 +16,7 @@ Let us create a small gameplay framework that can update `GameObjects`. Sometime
 std::vector<GameObjects*>;
 {% endhighlight %}
 
-There are a few problems with this code, one problem would be that only the pointers are stored contiguously in memory. This could lead to a memory fragmentation problem which could be solved by using a custom alloactor. Another problem is that only the pointers are prefetched and not the objects themselves which might result in a performance penalty.
+There are a few problems with this code, one problem would be that only the pointers are stored contiguously in memory. This could lead to a memory fragmentation problem which could be solved by using a custom allocator. Another problem is that only the pointers are prefetched and not the objects themselves which might result in a performance penalty.
 
 We are going to address this problem in D with metaprogramming. Every `GameObject` will get it's own container.
 
