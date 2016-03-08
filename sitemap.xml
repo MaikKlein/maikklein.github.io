@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  
+  <url>
+    <loc>https://maikklein.github.io/</loc>
+    <lastmod>2016-03-05T15:35:12+01:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://maikklein.github.io/about/</loc>
+    <lastmod>2016-03-05T15:35:12+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maikklein.github.io/post/CppAndD/</loc>
+    <lastmod>2016-03-01T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maikklein.github.io/2016/03/01/metaprogramming-typeobject</loc>
+    <lastmod>2016-03-01T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maikklein.github.io/post/2016-01-14-Entity-Component-System/</loc>
+    <lastmod>2016-01-14T11:27:27-04:00</lastmod>
+  </url>
+  
+</urlset>

@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>D on Blog</title>
+    <link>https://maikklein.github.io/tags/d/</link>
+    <description>Recent content in D on Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Tue, 01 Mar 2016 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://maikklein.github.io/tags/d/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>A comparison between C&#43;&#43; and D</title>
+      <link>https://maikklein.github.io/post/CppAndD/</link>
+      <pubDate>Tue, 01 Mar 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://maikklein.github.io/post/CppAndD/</guid>
+      <description>
+
+&lt;h1 id=&#34;general:0cb2d9f6a8190c19d85664260328e5f6&#34;&gt;General&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;D has &lt;code&gt;modules&lt;/code&gt; which results in faster build times compared to C++. C++ might get modules after C++17. Clang and MSVC also have experimental support for &lt;code&gt;modules&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;D supports local imports which makes it easy to move functions into different files.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;void foo(){
+    import std.stdio: writeln;
+    writeln(&amp;quot;foo&amp;quot;);
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;D has integrated &lt;code&gt;unittests&lt;/code&gt; and can be written directly in the source file that you want to test. This means you can write &lt;code&gt;unittests&lt;/code&gt; directly under the function that you are testing.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;code&gt;class&lt;/code&gt; and &lt;code&gt;struct&lt;/code&gt; have a different meaning in C++ and D. In C++ they almost identical, just with different visibility defaults. In D structs can not use inheritance or interfaces. While classes can have inheritance and interfaces but lack support for deterministic destructors. A full list of differences can be found &lt;a href=&#34;https://dlang.org/spec/struct.html&#34;&gt;here&lt;/a&gt;. Classes in D are usually dynamically allocated, but they can also be allocated on the stack. Classes are by default reference types. If &lt;code&gt;T&lt;/code&gt; is a class then it implicitly is &lt;code&gt;T*&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;D comes with a default GC while C++ is GC free. D can also be used without a GC but there are a few inconveniences. First the standard library(phobos) in D is not move aware. This means you can not have a &lt;code&gt;std::vector&amp;lt;std::unique_ptr&amp;gt;&lt;/code&gt; in phobos. It is possible to write your own containers that are move aware which means it is possible to have an array or vector with unique pointers.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Moving in C++ is just an rvalue cast while in D it really moves. In C++ you would write a function &lt;code&gt;template&amp;lt;class T&amp;gt; void foo(T&amp;amp;&amp;amp; t){}&lt;/code&gt;, it moves if &lt;code&gt;t&lt;/code&gt; is an rvalue and takes &lt;code&gt;t&lt;/code&gt; by ref if it is an lvalue. In D you would create two functions &lt;code&gt;void foo(T)(ref T t){}&lt;/code&gt; which always captures lvalues by references and &lt;code&gt;void foo(T)(T t){}&lt;/code&gt; which only captures rvalues. As far as I know moving in D is also not exception safe. D moves objects with a bitwise copy, this means you should not have
+internal pointers.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;code&gt;structs&lt;/code&gt; in D don&amp;rsquo;t have a default constructor because every type needs exception free default construction and this must be known at compile time. But it is possible to initalize structs with custom values.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;struct Foo{
+  int i = 42;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Variables in D are always initialized unless explicity told not to &lt;code&gt;Foo f = void;&lt;/code&gt;. Initialization rules are bit more complicated in C++ and depend on the context.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;C++ has a &lt;code&gt;static_cast&lt;/code&gt; while D does not. As far as I know it is possible to create a static cast at compile time with meta programming in D, see this &lt;a href=&#34;http://stackoverflow.com/a/35701007/944430&#34;&gt;answer&lt;/a&gt; for more information.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;D as well as C++ can disable default construction, copy construction and copy assignment. Note that in D it is still possible to call &lt;code&gt;T.init&lt;/code&gt; even if the default constructor is disabled.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;In C++ local references can escape the scope while in D they can&amp;rsquo;t.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;The allocator in C++ is a template argument (at least in the STL) while in D it can be changed at runtime. This means that you can have different allocators inside an array. You can find more information &lt;a href=&#34;https://dlang.org/phobos/std_experimental_allocator.html&#34;&gt;here&lt;/a&gt;. The allocator in D is still experimental.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;C++ needs explicit function specifiers such as &lt;code&gt;noexcept&lt;/code&gt; &lt;code&gt;const&lt;/code&gt; &lt;code&gt;constexpr&lt;/code&gt; while in D they are inferred if the function/method is a template. This means that &lt;code&gt;void foo(T)(...)nothrow, const, pure, @nogc{}&lt;/code&gt; can just be &lt;code&gt;void foo(T)(...)&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Functions and methods in D can be called without parenthesis if they have no arguments. &lt;code&gt;void foo(){}; foo;&lt;/code&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;C++ as well as D have anonymous functions. C++: &lt;code&gt;[](auto a, auto b){ return a + b;}&lt;/code&gt; , D: &lt;code&gt;(a, b) =&amp;gt; a + b&lt;/code&gt; or &lt;code&gt;(a, b){return a + b;}&lt;/code&gt;. As far as I know capturing other variables requires the GC in D. In C++ you can explicitly capture variables by copy, ref or move. Lambda functions in D can not return references. C++17 will also make lambda functions available with &lt;code&gt;constexpr&lt;/code&gt;. Lambda functions can also be used at compile time in D.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Unlike in C++ the order of declarations doesn&amp;rsquo;t matter in D.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;D has built in documentation comments. In C++ you have to use an external tool such as doxygen.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;D has &lt;code&gt;alias this&lt;/code&gt; which makes composition of types without inheritance really easy.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;struct Foo{
+  Bar bar;
+  alias bar this;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The code above forwards all methods and members from &lt;code&gt;Bar&lt;/code&gt; to &lt;code&gt;Foo&lt;/code&gt; and makes &lt;code&gt;Foo&lt;/code&gt; implicitly convertible to &lt;code&gt;Bar&lt;/code&gt;. The implicit conversion can be removed by using &lt;code&gt;Proxy&lt;/code&gt; instead of alias this.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Operator of overloading in C++ &lt;code&gt;Foo Foo::operator+(Foo const&amp;amp; foo){}&lt;/code&gt;. Operator overloading in D &lt;code&gt;Foo opBinary(string op)(in Foo f)&lt;/code&gt;. This allows the &lt;a href=&#34;http://wiki.dlang.org/Mixin_Macros_Pattern&#34;&gt;mixin macros pattern&lt;/a&gt; which can remove a lot of boilerplate code for you.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;D has universal function call syntax (ufcs). This just means that functions can also be called like methods &lt;code&gt;foo(bar)&lt;/code&gt; or &lt;code&gt;bar.foo()&lt;/code&gt;. This is similar to extension methods in C#. C++17 might also get some form of ufcs.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;C++ has &lt;code&gt;user defined literals&lt;/code&gt; like &lt;code&gt;1_seconds&lt;/code&gt;. D doesn&amp;rsquo;t have this feature but it can be emualted with ufcs &lt;code&gt;1.seconds&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Interfaces can not be templated in C++ but they can be templated in D.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Conditonal compilation uses the pre-processor in C++ &lt;code&gt;#if, #elif, #else, and #endif Directives&lt;/code&gt;. In D it is &lt;code&gt;version(YourKeywork){...}&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Exceptions in D require the GC.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;C++ has &lt;code&gt;namepspaces&lt;/code&gt; and are used like this &lt;code&gt;namespace Foo{ namespace Bar{ namespace Baz{..}}}&lt;/code&gt;. D uses modules with a file structure. To get &lt;code&gt;foo.bar.baz&lt;/code&gt; you can create &lt;code&gt;baz.d&lt;/code&gt; inside the &lt;code&gt;bar&lt;/code&gt; folder and &lt;code&gt;bar&lt;/code&gt; inside the &lt;code&gt;foo&lt;/code&gt; folder.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Globals in D are only thread local by default unless they are immutable. To get thread safe global access you would mark the global variable as &lt;code&gt;shared&lt;/code&gt;. To get the same global variables as in C++ you would used &lt;code&gt;__gshared&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;code&gt;const&lt;/code&gt; in D is &lt;a href=&#34;https://dlang.org/const-faq.html#transitive-const&#34;&gt;transitive&lt;/a&gt;. It is &lt;code&gt;undefined behaviour&lt;/code&gt; in D to cast away the &lt;code&gt;const&lt;/code&gt; and modify the object.&lt;/p&gt;
+
+&lt;h1 id=&#34;meta-programming:0cb2d9f6a8190c19d85664260328e5f6&#34;&gt;Meta programming&lt;/h1&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;It is possible to pass almost anything to a template in D. C++ is limited to integrals and chars.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Template instantiations are done in C++ with &lt;code&gt;&amp;lt;Foo,Bar&amp;gt;&lt;/code&gt; and in D with &lt;code&gt;!(Foo,bar)&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;D has no fold expressions like C++ &lt;code&gt;foo(f(args)...);&lt;/code&gt;, although they can be implemented as a library.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;D can evaluate almost any function at compile time, where in C++ those functions need to be marked as &lt;code&gt;constexpr&lt;/code&gt; and have a restrictions such as no allocations.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;C++ can have multiple variadic templates &lt;code&gt;template&amp;lt;class... As, class... Bs&amp;gt;&lt;/code&gt; but they need to be inferred. This is not possible in D but you can have templates of templates &lt;code&gt;contains!SomeTypes.all!SomeOtherTypes&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;D can generate strings at compile time and compile them at compile time with &lt;code&gt;mixin&lt;/code&gt;, this is not possible in C++.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;C++ has macros while D does not. &lt;code&gt;mixins&lt;/code&gt; are capable of replacing macros.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;D has static reflection/introspection, this feature might come to C++ after C++17. This can currently be emulated to some extent with &lt;code&gt;libclang&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;D also has &lt;code&gt;user defined attributes&lt;/code&gt; &lt;code&gt;@Encrypted string name;&lt;/code&gt; which can be used by D&amp;rsquo;s static introspection. C++17 gets &lt;code&gt;user defined attributes&lt;/code&gt; in the form of &lt;code&gt;[[YourKeyWord]]&lt;/code&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;D can print any type at compile time or runtime with &lt;code&gt;writeln(SomeType.stringof)&lt;/code&gt; or &lt;code&gt;writeln(typeof(somevar).stringof)&lt;/code&gt;. Anything that is available at compile time can be printed at compile time with &lt;code&gt;pragma(msg, SomeType)&lt;/code&gt;. This is very useful for debugging meta programs. C++ can only do this with some compiler hacks as far as I know.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;It is possible to pass &lt;code&gt;symbols&lt;/code&gt; to templates in D. &lt;code&gt;template Foo(alias someSymbol)&lt;/code&gt; This just means that it is possible to pass anything that is available at compile time into &lt;code&gt;Foo&lt;/code&gt;. Examples would be other templates, functions, lambdas, constants etc. This is similar to Lisp.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;D has &lt;code&gt;static if&lt;/code&gt;. It is possible to use template specialization in C++ to achieve something similar.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;em&gt;Unsure, need more benchmarks&lt;/em&gt; Compile times for meta programming seems to be roughly equivalent between C++ and D.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;In D it is possible to iterate over variadic types with a foreach loop. In C++ this can be achieved as a library, for example with &lt;a href=&#34;https://github.com/boostorg/hana&#34;&gt;Boost hana&lt;/a&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-d&#34;&gt;foreach(index, type; VaradicTypes){
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Variadics in D are automatically expanded while in C++ you expand them explicitly with fold expressions.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Variadics in D can be sliced &lt;code&gt;VariadicTypes[1 .. $]&lt;/code&gt; this creates a variadic type list without the first type.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

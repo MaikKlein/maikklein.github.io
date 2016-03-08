@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Ecs on Blog</title>
+    <link>https://maikklein.github.io/tags/ecs/</link>
+    <description>Recent content in Ecs on Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Thu, 14 Jan 2016 11:27:27 -0400</lastBuildDate>
+    <atom:link href="https://maikklein.github.io/tags/ecs/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>The general design of my flawed compile time entity component system in C&#43;&#43;14</title>
+      <link>https://maikklein.github.io/post/2016-01-14-Entity-Component-System/</link>
+      <pubDate>Thu, 14 Jan 2016 11:27:27 -0400</pubDate>
+      
+      <guid>https://maikklein.github.io/post/2016-01-14-Entity-Component-System/</guid>
+      <description>
+
+&lt;p&gt;A lot of people are talking about entity component systems and how they could potentially improve your code base. Most of the articles are theoretical and it is hard to find examples that actually convey some advantages.&lt;/p&gt;
+
+&lt;p&gt;There are actually a lot of entity component systems available for many different programming languages, but most seem to sacrifice performance for expressiveness.&lt;/p&gt;
+
+&lt;p&gt;But I am curious and I really like the general idea of an entity component system but I don&amp;rsquo;t want to just accept the opinion of other game developers. It&amp;rsquo;s time to get some actual experience and I have implemented a very small entity component system in C++14 with template metaprogramming.&lt;/p&gt;
+
+&lt;p&gt;This post will be about the general design of my entity component system.&lt;/p&gt;
+
+&lt;h2 id=&#34;features:571954f8d33aced3458d08b62ec3636d&#34;&gt;Features&lt;/h2&gt;
+
+&lt;p&gt;The core features of my entity component system are:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;Contiguous memory layout
+Components are grouped at compile time
+Compile time filtering of components
+Components are always added in the correct group automatically
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;overview:571954f8d33aced3458d08b62ec3636d&#34;&gt;Overview&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;struct world{
+  //component_group &#39;moveable_object&#39;
+  std::vector&amp;lt;position&amp;gt; moveable_object_position;
+  std::vector&amp;lt;velocity&amp;gt; moveable_object_velocity;
+
+  //component_group &#39;entity&#39;
+  std::vector&amp;lt;position&amp;gt; entity_position;
+  std::vector&amp;lt;velocity&amp;gt; entity_velocity;
+  std::vector&amp;lt;name&amp;gt; entity_name;
+  ...
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This is the core of the entity component system, we group components together at compile time. The layout is called &lt;code&gt;SoA&lt;/code&gt; (structures of arrays) and a specific object is referred to by id.&lt;/p&gt;
+
+&lt;p&gt;For example instead of having&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;struct moveable_object{
+  velocity vel;
+  position pos;
+};
+std::vector&amp;lt;moveable_object&amp;gt; mv_objects;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;we have&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;std::vector&amp;lt;position&amp;gt; moveable_object_position;
+std::vector&amp;lt;velocity&amp;gt; moveable_object_velocity;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And I refer to &lt;code&gt;moveable_object_position[index], moveable_object_velocity[index]&lt;/code&gt; as an object in this post.&lt;/p&gt;
+
+&lt;p&gt;Each &lt;code&gt;component_group&lt;/code&gt; has a list of constrains, for example an &lt;code&gt;entity&lt;/code&gt; needs to have a &lt;code&gt;position&lt;/code&gt;, &lt;code&gt;velocity&lt;/code&gt; and &lt;code&gt;name&lt;/code&gt; component. The advantage of this approach is that filtering is essentially free, because we can just iterate over &lt;code&gt;entity_position&lt;/code&gt;,&lt;code&gt;entity_velocity&lt;/code&gt; and&lt;code&gt;entity_name&lt;/code&gt; at the same time. Another advantage is that we don&amp;rsquo;t have to worry about the memory layout as much, because we group everything at compile time.&lt;/p&gt;
+
+&lt;p&gt;It is also possible to filter &lt;code&gt;component_groups&lt;/code&gt; based on the components they own. For example if we want to iterate over every &lt;code&gt;object&lt;/code&gt; that has a &lt;code&gt;position&lt;/code&gt; and &lt;code&gt;velocity&lt;/code&gt; component, we would have to iterate over &lt;code&gt;entity_position&lt;/code&gt;, &lt;code&gt;entity_velocity&lt;/code&gt; and &lt;code&gt;moveable_object_position&lt;/code&gt;, &lt;code&gt;moveable_object_velocity&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Obviously maintaining something like this by hand is extremely tedious. This is where metaprogramming will help us to convey our meaning. The following code snippet is a small example from my experimental entity component system.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;struct position {
+  float x, y;
+};
+struct velocity {
+  float x, y;
+};
+struct name {
+  std::string name;
+};
+
+struct print_name {
+  template &amp;lt;class World&amp;gt; void update(World&amp;amp; w) {
+    w.template update&amp;lt;name&amp;gt;([](auto&amp;amp; name) { print(name.name); });
+  }
+};
+struct print_pos_vel {
+  template &amp;lt;class World&amp;gt; void update(World&amp;amp; w) {
+    w.template update&amp;lt;position, velocity&amp;gt;([](auto&amp;amp; pos, auto&amp;amp; vel) {
+      print(pos.x, pos.y);
+      print(vel.x, vel.y);
+    });
+  }
+};
+auto make_monster(float x, float y, std::string n) {
+  return hana::make_tuple(position{ x, y }, velocity{ 0, 0 }, name{ n });
+}
+
+template &amp;lt;class... Ts&amp;gt;
+using component_group_handle = ecs::core::component_group&amp;lt;
+    breeze::util::container::handle_container, Ts...&amp;gt;;
+
+int main() {
+  using moveable_object = component_group_handle&amp;lt;position, velocity&amp;gt;;
+  using entity = component_group_handle&amp;lt;position, velocity, name&amp;gt;;
+  using cg = ecs::core::component_groups&amp;lt;moveable_object, entity&amp;gt;;
+  auto w = ecs::core::world&amp;lt;cg&amp;gt;{};
+  auto sg = ecs::core::make_systems_group(w, print_name{}, print_pos_vel{});
+  w.add(make_monster(10, 5, &amp;quot;Monster3&amp;quot;));
+  w.add(make_monster(11, 5, &amp;quot;Monster2&amp;quot;));
+  w.add(position{ 42, 24 }, velocity{ 5, 5 }, name{ &amp;quot;Monster1&amp;quot; });
+
+  // moveable_object
+  w.add(position{ 0, 0 }, velocity{ 10, 5 });
+  sg.update();
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Don&amp;rsquo;t worry if you don&amp;rsquo;t understand what is going on, I&amp;rsquo;ll try to explain everything you need to know in the following section.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;struct print_pos_vel {
+  template &amp;lt;class World&amp;gt; void update(World&amp;amp; w) {
+    w.template update&amp;lt;position, velocity&amp;gt;([](auto&amp;amp; pos, auto&amp;amp; vel) {
+      print(pos.x, pos.y);
+      print(vel.x, vel.y);
+    });
+  }
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This is a simple system, which filters out every &lt;code&gt;component_group&lt;/code&gt;that does not have a &lt;code&gt;position&lt;/code&gt; and &lt;code&gt;velocity&lt;/code&gt; component, it then extracts the correct components for every &lt;code&gt;component_group&lt;/code&gt; that we are interested in. We then zip the iterators for &lt;code&gt;position&lt;/code&gt; and &lt;code&gt;velocity&lt;/code&gt; together and we repeat this for every &lt;code&gt;component_group&lt;/code&gt; that satisfies the &lt;code&gt;position&lt;/code&gt; and &lt;code&gt;velocity&lt;/code&gt; constrain. We are then left with a tuple of zipped iterators which we
+concatenate into one big iterator. After that we can iterate over every &lt;code&gt;position&lt;/code&gt; and &lt;code&gt;velocity&lt;/code&gt; component and print it to the console.&lt;/p&gt;
+
+&lt;p&gt;The only thing that is done at runtime is accessing the iterator for every component and concatenate them.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;using moveable_object = component_group_handle&amp;lt;position, velocity&amp;gt;;
+using entity = component_group_handle&amp;lt;position, velocity, name&amp;gt;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;These are our &lt;code&gt;component_groups&lt;/code&gt; which we have to declare once. Technically those could be inferred but I decided that it would serve as a good way to document all the different &lt;code&gt;component_groups&lt;/code&gt; that are used by the entity component system.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;using cg = ecs::core::component_groups&amp;lt;moveable_object, entity&amp;gt;;
+auto w = ecs::core::world&amp;lt;cg&amp;gt;{};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;After declaring all the &lt;code&gt;component_group&lt;/code&gt;&amp;rsquo;s that we want to use, we can finally create our &lt;code&gt;world&lt;/code&gt; object.&lt;/p&gt;
+
+&lt;p&gt;The world object itself doesn&amp;rsquo;t do much and its purpose is to store our data.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;auto sg = ecs::core::make_systems_group(w, print_name{}, print_pos_vel{});
+...
+sg.update();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;A &lt;code&gt;system_group&lt;/code&gt; just groups different systems together and allows to call &lt;code&gt;update&lt;/code&gt; on every system that has been registered at compile-time.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;// entity
+w.add(position{ 42, 24 }, velocity{ 5, 5 }, name{ &amp;quot;Monster1&amp;quot; });
+
+// moveable_object
+w.add(position{ 0, 0 }, velocity{ 10, 5 });
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Every &lt;code&gt;object&lt;/code&gt; is added into the correct &lt;code&gt;component_group&lt;/code&gt;. If you call add with &lt;code&gt;&amp;lt;position, velocity&amp;gt;&lt;/code&gt; it will look at all the &lt;code&gt;component_group&lt;/code&gt;&amp;rsquo;s and that were declared before and insert it into the correct one.
+Because we have declared &lt;code&gt;using moveable_object = component_group_handle&amp;lt;position, velocity&amp;gt;;&lt;/code&gt;  the components &lt;code&gt;w.add(position{ 0, 0 }, velocity{ 10, 5 });&lt;/code&gt; will be inserted into the &lt;code&gt;component_group&lt;/code&gt; &lt;code&gt;moveable_object&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Deleting &lt;code&gt;objects&lt;/code&gt; is also very simple. Because we have grouped everything at compile-time, we just have to look at the &lt;code&gt;component_group&lt;/code&gt; that the object belongs to and delete it. To preserve contiguous elements we swap the last element with the element that we want to delete and then we simply remove the last element.&lt;/p&gt;
+
+&lt;p&gt;Most entity component system allow to add and remove components from &lt;code&gt;objects&lt;/code&gt; at runtime. If we want to take a &lt;code&gt;moveable_object&lt;/code&gt; and add a &lt;code&gt;name&lt;/code&gt; component, it would become an &lt;code&gt;entity&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;We would need to move the components from the &lt;code&gt;component_group&lt;/code&gt; &lt;code&gt;moveable_object&lt;/code&gt; to the &lt;code&gt;component_group&lt;/code&gt; &lt;code&gt;entity&lt;/code&gt; and add then simply add the &lt;code&gt;name&lt;/code&gt; component.&lt;/p&gt;
+
+&lt;h2 id=&#34;dealbreaker:571954f8d33aced3458d08b62ec3636d&#34;&gt;Dealbreaker&lt;/h2&gt;
+
+&lt;p&gt;The biggest problem is the compilation time. Every query of update &lt;code&gt;w.template update&amp;lt;T0,T1,...TN&amp;gt;&lt;/code&gt; costs around 2 seconds on my machine, that is just unacceptable.&lt;/p&gt;
+
+&lt;p&gt;You can find the code &lt;a href=&#34;https://github.com/BreezeEngine/breeze/blob/master/src/ecs/core/core.hpp&#34;&gt;here&lt;/a&gt; and &lt;a href=&#34;https://github.com/BreezeEngine/breeze/blob/master/examples/ecs/main.cpp&#34;&gt;here&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Please note that the code is in a highly experimental state and will most likely not even compile on your machine.&lt;/p&gt;
+
+&lt;h2 id=&#34;what-have-i-learned:571954f8d33aced3458d08b62ec3636d&#34;&gt;What have I learned?&lt;/h2&gt;
+
+&lt;p&gt;I really love metaprogramming in C++ with &lt;a href=&#34;https://github.com/boostorg/hana&#34;&gt;hana&lt;/a&gt;. It is expressive, concise and doesn&amp;rsquo;t look odd if you are familiar with functional conecpts.&lt;/p&gt;
+
+&lt;p&gt;Compile errors are horrifying and tools for compile-time debugging/profiling are pretty much non existent.&lt;/p&gt;
+
+&lt;p&gt;Compile times can quickly blow up and it&amp;rsquo;s hard to track down where and why they are blowing up.&lt;/p&gt;
+
+&lt;p&gt;I don&amp;rsquo;t think the entity component system that I envision is practical to create in C++ and I will most likely abandon it. I am not quite ready the abandon the idea and I will try to create a similar entity component system in &lt;code&gt;D&lt;/code&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

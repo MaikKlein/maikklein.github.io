@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>A comparison between C&#43;&#43; and D &middot; </title>
+        <meta name="description" content="">
+        <meta name="HandheldFriendly" content="True">
+        <meta name="MobileOptimized" content="320">
+        <meta name="generator" content="Hugo 0.15" />
+        <meta name="robots" content="index,follow">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://maikklein.github.io/css/normalize.css">
+        <link rel="stylesheet" href="https://maikklein.github.io/css/highlight.css">
+        <link rel="stylesheet" href="https://maikklein.github.io/css/style.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&subset=latin,cyrillic-ext,latin-ext,cyrillic">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    </head>
+    <body>
+        
+
+        <div id="wrapper">
+            <header class="site-header">
+                <div class="container">
+                    <div class="site-title-wrapper">
+                        
+                            <h1 class="site-title">
+                                <a title="Blog" href="https://maikklein.github.io/">Blog</a>
+                            </h1>
+                        
+                        <a class="button-square" href="https://maikklein.github.io/index.xml"><i class="fa fa-rss"></i></a>
+                        
+                        
+                        
+                        
+                        
+                    </div>
+
+                    <ul class="site-nav">
+                        
+                    </ul>
+                </div>
+            </header>
+
+            <div id="container">
+
+
+<div class="container">
+    <article class="post-container" itemscope="" itemtype="http://schema.org/BlogPosting">
+        <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">A comparison between C&#43;&#43; and D</h1>
+    
+    <p class="post-date">
+        <span>Published <time datetime="2016-03-01" itemprop="datePublished">Tue, Mar 1, 2016</time></span>
+        <span>by</span>
+        <span itemscope="" itemprop="author" itemtype="http://schema.org/Person">
+            <span itemprop="name">
+                <a href="" itemprop="url" rel="author"></a>
+            </span>
+        </span>
+    </p>
+</header>
+
+        <div class="post-content clearfix" itemprop="articleBody">
+    
+
+    
+
+<h1 id="general:0cb2d9f6a8190c19d85664260328e5f6">General</h1>
+
+<ul>
+<li><p>D has <code>modules</code> which results in faster build times compared to C++. C++ might get modules after C++17. Clang and MSVC also have experimental support for <code>modules</code>.</p></li>
+
+<li><p>D supports local imports which makes it easy to move functions into different files.</p></li>
+</ul>
+
+<pre><code class="language-cpp">void foo(){
+    import std.stdio: writeln;
+    writeln(&quot;foo&quot;);
+}
+</code></pre>
+
+<ul>
+<li><p>D has integrated <code>unittests</code> and can be written directly in the source file that you want to test. This means you can write <code>unittests</code> directly under the function that you are testing.</p></li>
+
+<li><p><code>class</code> and <code>struct</code> have a different meaning in C++ and D. In C++ they almost identical, just with different visibility defaults. In D structs can not use inheritance or interfaces. While classes can have inheritance and interfaces but lack support for deterministic destructors. A full list of differences can be found <a href="https://dlang.org/spec/struct.html">here</a>. Classes in D are usually dynamically allocated, but they can also be allocated on the stack. Classes are by default reference types. If <code>T</code> is a class then it implicitly is <code>T*</code>.</p></li>
+
+<li><p>D comes with a default GC while C++ is GC free. D can also be used without a GC but there are a few inconveniences. First the standard library(phobos) in D is not move aware. This means you can not have a <code>std::vector&lt;std::unique_ptr&gt;</code> in phobos. It is possible to write your own containers that are move aware which means it is possible to have an array or vector with unique pointers.</p></li>
+
+<li><p>Moving in C++ is just an rvalue cast while in D it really moves. In C++ you would write a function <code>template&lt;class T&gt; void foo(T&amp;&amp; t){}</code>, it moves if <code>t</code> is an rvalue and takes <code>t</code> by ref if it is an lvalue. In D you would create two functions <code>void foo(T)(ref T t){}</code> which always captures lvalues by references and <code>void foo(T)(T t){}</code> which only captures rvalues. As far as I know moving in D is also not exception safe. D moves objects with a bitwise copy, this means you should not have
+internal pointers.</p></li>
+
+<li><p><code>structs</code> in D don&rsquo;t have a default constructor because every type needs exception free default construction and this must be known at compile time. But it is possible to initalize structs with custom values.</p></li>
+</ul>
+
+<pre><code class="language-cpp">struct Foo{
+  int i = 42;
+}
+</code></pre>
+
+<ul>
+<li><p>Variables in D are always initialized unless explicity told not to <code>Foo f = void;</code>. Initialization rules are bit more complicated in C++ and depend on the context.</p></li>
+
+<li><p>C++ has a <code>static_cast</code> while D does not. As far as I know it is possible to create a static cast at compile time with meta programming in D, see this <a href="http://stackoverflow.com/a/35701007/944430">answer</a> for more information.</p></li>
+
+<li><p>D as well as C++ can disable default construction, copy construction and copy assignment. Note that in D it is still possible to call <code>T.init</code> even if the default constructor is disabled.</p></li>
+
+<li><p>In C++ local references can escape the scope while in D they can&rsquo;t.</p></li>
+
+<li><p>The allocator in C++ is a template argument (at least in the STL) while in D it can be changed at runtime. This means that you can have different allocators inside an array. You can find more information <a href="https://dlang.org/phobos/std_experimental_allocator.html">here</a>. The allocator in D is still experimental.</p></li>
+
+<li><p>C++ needs explicit function specifiers such as <code>noexcept</code> <code>const</code> <code>constexpr</code> while in D they are inferred if the function/method is a template. This means that <code>void foo(T)(...)nothrow, const, pure, @nogc{}</code> can just be <code>void foo(T)(...)</code>.</p></li>
+
+<li><p>Functions and methods in D can be called without parenthesis if they have no arguments. <code>void foo(){}; foo;</code></p></li>
+
+<li><p>C++ as well as D have anonymous functions. C++: <code>[](auto a, auto b){ return a + b;}</code> , D: <code>(a, b) =&gt; a + b</code> or <code>(a, b){return a + b;}</code>. As far as I know capturing other variables requires the GC in D. In C++ you can explicitly capture variables by copy, ref or move. Lambda functions in D can not return references. C++17 will also make lambda functions available with <code>constexpr</code>. Lambda functions can also be used at compile time in D.</p></li>
+
+<li><p>Unlike in C++ the order of declarations doesn&rsquo;t matter in D.</p></li>
+
+<li><p>D has built in documentation comments. In C++ you have to use an external tool such as doxygen.</p></li>
+
+<li><p>D has <code>alias this</code> which makes composition of types without inheritance really easy.</p></li>
+</ul>
+
+<pre><code class="language-cpp">struct Foo{
+  Bar bar;
+  alias bar this;
+}
+</code></pre>
+
+<p>The code above forwards all methods and members from <code>Bar</code> to <code>Foo</code> and makes <code>Foo</code> implicitly convertible to <code>Bar</code>. The implicit conversion can be removed by using <code>Proxy</code> instead of alias this.</p>
+
+<ul>
+<li><p>Operator of overloading in C++ <code>Foo Foo::operator+(Foo const&amp; foo){}</code>. Operator overloading in D <code>Foo opBinary(string op)(in Foo f)</code>. This allows the <a href="http://wiki.dlang.org/Mixin_Macros_Pattern">mixin macros pattern</a> which can remove a lot of boilerplate code for you.</p></li>
+
+<li><p>D has universal function call syntax (ufcs). This just means that functions can also be called like methods <code>foo(bar)</code> or <code>bar.foo()</code>. This is similar to extension methods in C#. C++17 might also get some form of ufcs.</p></li>
+
+<li><p>C++ has <code>user defined literals</code> like <code>1_seconds</code>. D doesn&rsquo;t have this feature but it can be emualted with ufcs <code>1.seconds</code>.</p></li>
+
+<li><p>Interfaces can not be templated in C++ but they can be templated in D.</p></li>
+
+<li><p>Conditonal compilation uses the pre-processor in C++ <code>#if, #elif, #else, and #endif Directives</code>. In D it is <code>version(YourKeywork){...}</code>.</p></li>
+
+<li><p>Exceptions in D require the GC.</p></li>
+
+<li><p>C++ has <code>namepspaces</code> and are used like this <code>namespace Foo{ namespace Bar{ namespace Baz{..}}}</code>. D uses modules with a file structure. To get <code>foo.bar.baz</code> you can create <code>baz.d</code> inside the <code>bar</code> folder and <code>bar</code> inside the <code>foo</code> folder.</p></li>
+
+<li><p>Globals in D are only thread local by default unless they are immutable. To get thread safe global access you would mark the global variable as <code>shared</code>. To get the same global variables as in C++ you would used <code>__gshared</code>.</p></li>
+
+<li><p><code>const</code> in D is <a href="https://dlang.org/const-faq.html#transitive-const">transitive</a>. It is <code>undefined behaviour</code> in D to cast away the <code>const</code> and modify the object.</p>
+
+<h1 id="meta-programming:0cb2d9f6a8190c19d85664260328e5f6">Meta programming</h1></li>
+
+<li><p>It is possible to pass almost anything to a template in D. C++ is limited to integrals and chars.</p></li>
+
+<li><p>Template instantiations are done in C++ with <code>&lt;Foo,Bar&gt;</code> and in D with <code>!(Foo,bar)</code>.</p></li>
+
+<li><p>D has no fold expressions like C++ <code>foo(f(args)...);</code>, although they can be implemented as a library.</p></li>
+
+<li><p>D can evaluate almost any function at compile time, where in C++ those functions need to be marked as <code>constexpr</code> and have a restrictions such as no allocations.</p></li>
+
+<li><p>C++ can have multiple variadic templates <code>template&lt;class... As, class... Bs&gt;</code> but they need to be inferred. This is not possible in D but you can have templates of templates <code>contains!SomeTypes.all!SomeOtherTypes</code>.</p></li>
+
+<li><p>D can generate strings at compile time and compile them at compile time with <code>mixin</code>, this is not possible in C++.</p></li>
+
+<li><p>C++ has macros while D does not. <code>mixins</code> are capable of replacing macros.</p></li>
+
+<li><p>D has static reflection/introspection, this feature might come to C++ after C++17. This can currently be emulated to some extent with <code>libclang</code>.</p></li>
+
+<li><p>D also has <code>user defined attributes</code> <code>@Encrypted string name;</code> which can be used by D&rsquo;s static introspection. C++17 gets <code>user defined attributes</code> in the form of <code>[[YourKeyWord]]</code></p></li>
+
+<li><p>D can print any type at compile time or runtime with <code>writeln(SomeType.stringof)</code> or <code>writeln(typeof(somevar).stringof)</code>. Anything that is available at compile time can be printed at compile time with <code>pragma(msg, SomeType)</code>. This is very useful for debugging meta programs. C++ can only do this with some compiler hacks as far as I know.</p></li>
+
+<li><p>It is possible to pass <code>symbols</code> to templates in D. <code>template Foo(alias someSymbol)</code> This just means that it is possible to pass anything that is available at compile time into <code>Foo</code>. Examples would be other templates, functions, lambdas, constants etc. This is similar to Lisp.</p></li>
+
+<li><p>D has <code>static if</code>. It is possible to use template specialization in C++ to achieve something similar.</p></li>
+
+<li><p><em>Unsure, need more benchmarks</em> Compile times for meta programming seems to be roughly equivalent between C++ and D.</p></li>
+
+<li><p>In D it is possible to iterate over variadic types with a foreach loop. In C++ this can be achieved as a library, for example with <a href="https://github.com/boostorg/hana">Boost hana</a>.</p>
+
+<pre><code class="language-d">foreach(index, type; VaradicTypes){
+}
+</code></pre></li>
+
+<li><p>Variadics in D are automatically expanded while in C++ you expand them explicitly with fold expressions.</p></li>
+
+<li><p>Variadics in D can be sliced <code>VariadicTypes[1 .. $]</code> this creates a variadic type list without the first type.</p></li>
+</ul>
+
+</div>
+
+        <footer class="post-footer clearfix">
+    
+        <p class="post-tags">
+            <span>Tagged:</span>
+            
+                 <a href="/tags/d/">D</a>
+            
+                 <a href="/tags/c/">c&#43;&#43;</a>
+            
+        </p>
+    
+
+    <div class="share">
+        <a class="icon-twitter" href="http://twitter.com/share?text=A%20comparison%20between%20C%2b%2b%20and%20D&url=https%3a%2f%2fmaikklein.github.io%2fpost%2fCppAndD%2f"
+            onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+            <i class="fa fa-twitter"></i>
+            <span class="hidden">Twitter</span>
+        </a>
+
+        <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fmaikklein.github.io%2fpost%2fCppAndD%2f"
+            onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+            <i class="fa fa-facebook"></i>
+            <span class="hidden">Facebook</span>
+        </a>
+
+        <a class="icon-google-plus" href="https://plus.google.com/share?url=https%3a%2f%2fmaikklein.github.io%2fpost%2fCppAndD%2f"
+           onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+           <i class="fa fa-google-plus"></i>
+            <span class="hidden">Google+</span>
+        </a>
+    </div>
+</footer>
+
+        
+    </article>
+</div>
+
+            </div>
+        </div>
+
+        <footer class="footer">
+            <div class="container">
+                <div class="site-title-wrapper">
+                    <h1 class="site-title">
+                        <a title="Blog" href="https://maikklein.github.io/">Blog</a>
+                    </h1>
+                    <a class="button-square button-jump-top js-jump-top" href="#">
+                        <i class="fa fa-angle-up"></i>
+                    </a>
+                </div>
+                </p>
+            </div>
+        </footer>
+
+        <script src="https://maikklein.github.io/js/jquery-1.11.3.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.5/highlight.min.js"></script>
+        <link rel="stylesheet" href="//cdn.jsdelivr.net/highlight.js/9.2.0/styles/solarized-dark.min.css">
+        <script src="https://maikklein.github.io/js/jquery.fitvids.js"></script>
+        <script src="https://maikklein.github.io/js/scripts.js"></script>
+    </body>
+</html>
+

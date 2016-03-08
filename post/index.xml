@@ -1,0 +1,601 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on Blog</title>
+    <link>https://maikklein.github.io/post/</link>
+    <description>Recent content in Posts on Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Tue, 01 Mar 2016 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://maikklein.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>A comparison between C&#43;&#43; and D</title>
+      <link>https://maikklein.github.io/post/CppAndD/</link>
+      <pubDate>Tue, 01 Mar 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://maikklein.github.io/post/CppAndD/</guid>
+      <description>
+
+&lt;h1 id=&#34;general:0cb2d9f6a8190c19d85664260328e5f6&#34;&gt;General&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;D has &lt;code&gt;modules&lt;/code&gt; which results in faster build times compared to C++. C++ might get modules after C++17. Clang and MSVC also have experimental support for &lt;code&gt;modules&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;D supports local imports which makes it easy to move functions into different files.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;void foo(){
+    import std.stdio: writeln;
+    writeln(&amp;quot;foo&amp;quot;);
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;D has integrated &lt;code&gt;unittests&lt;/code&gt; and can be written directly in the source file that you want to test. This means you can write &lt;code&gt;unittests&lt;/code&gt; directly under the function that you are testing.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;code&gt;class&lt;/code&gt; and &lt;code&gt;struct&lt;/code&gt; have a different meaning in C++ and D. In C++ they almost identical, just with different visibility defaults. In D structs can not use inheritance or interfaces. While classes can have inheritance and interfaces but lack support for deterministic destructors. A full list of differences can be found &lt;a href=&#34;https://dlang.org/spec/struct.html&#34;&gt;here&lt;/a&gt;. Classes in D are usually dynamically allocated, but they can also be allocated on the stack. Classes are by default reference types. If &lt;code&gt;T&lt;/code&gt; is a class then it implicitly is &lt;code&gt;T*&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;D comes with a default GC while C++ is GC free. D can also be used without a GC but there are a few inconveniences. First the standard library(phobos) in D is not move aware. This means you can not have a &lt;code&gt;std::vector&amp;lt;std::unique_ptr&amp;gt;&lt;/code&gt; in phobos. It is possible to write your own containers that are move aware which means it is possible to have an array or vector with unique pointers.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Moving in C++ is just an rvalue cast while in D it really moves. In C++ you would write a function &lt;code&gt;template&amp;lt;class T&amp;gt; void foo(T&amp;amp;&amp;amp; t){}&lt;/code&gt;, it moves if &lt;code&gt;t&lt;/code&gt; is an rvalue and takes &lt;code&gt;t&lt;/code&gt; by ref if it is an lvalue. In D you would create two functions &lt;code&gt;void foo(T)(ref T t){}&lt;/code&gt; which always captures lvalues by references and &lt;code&gt;void foo(T)(T t){}&lt;/code&gt; which only captures rvalues. As far as I know moving in D is also not exception safe. D moves objects with a bitwise copy, this means you should not have
+internal pointers.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;code&gt;structs&lt;/code&gt; in D don&amp;rsquo;t have a default constructor because every type needs exception free default construction and this must be known at compile time. But it is possible to initalize structs with custom values.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;struct Foo{
+  int i = 42;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Variables in D are always initialized unless explicity told not to &lt;code&gt;Foo f = void;&lt;/code&gt;. Initialization rules are bit more complicated in C++ and depend on the context.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;C++ has a &lt;code&gt;static_cast&lt;/code&gt; while D does not. As far as I know it is possible to create a static cast at compile time with meta programming in D, see this &lt;a href=&#34;http://stackoverflow.com/a/35701007/944430&#34;&gt;answer&lt;/a&gt; for more information.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;D as well as C++ can disable default construction, copy construction and copy assignment. Note that in D it is still possible to call &lt;code&gt;T.init&lt;/code&gt; even if the default constructor is disabled.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;In C++ local references can escape the scope while in D they can&amp;rsquo;t.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;The allocator in C++ is a template argument (at least in the STL) while in D it can be changed at runtime. This means that you can have different allocators inside an array. You can find more information &lt;a href=&#34;https://dlang.org/phobos/std_experimental_allocator.html&#34;&gt;here&lt;/a&gt;. The allocator in D is still experimental.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;C++ needs explicit function specifiers such as &lt;code&gt;noexcept&lt;/code&gt; &lt;code&gt;const&lt;/code&gt; &lt;code&gt;constexpr&lt;/code&gt; while in D they are inferred if the function/method is a template. This means that &lt;code&gt;void foo(T)(...)nothrow, const, pure, @nogc{}&lt;/code&gt; can just be &lt;code&gt;void foo(T)(...)&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Functions and methods in D can be called without parenthesis if they have no arguments. &lt;code&gt;void foo(){}; foo;&lt;/code&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;C++ as well as D have anonymous functions. C++: &lt;code&gt;[](auto a, auto b){ return a + b;}&lt;/code&gt; , D: &lt;code&gt;(a, b) =&amp;gt; a + b&lt;/code&gt; or &lt;code&gt;(a, b){return a + b;}&lt;/code&gt;. As far as I know capturing other variables requires the GC in D. In C++ you can explicitly capture variables by copy, ref or move. Lambda functions in D can not return references. C++17 will also make lambda functions available with &lt;code&gt;constexpr&lt;/code&gt;. Lambda functions can also be used at compile time in D.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Unlike in C++ the order of declarations doesn&amp;rsquo;t matter in D.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;D has built in documentation comments. In C++ you have to use an external tool such as doxygen.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;D has &lt;code&gt;alias this&lt;/code&gt; which makes composition of types without inheritance really easy.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;struct Foo{
+  Bar bar;
+  alias bar this;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The code above forwards all methods and members from &lt;code&gt;Bar&lt;/code&gt; to &lt;code&gt;Foo&lt;/code&gt; and makes &lt;code&gt;Foo&lt;/code&gt; implicitly convertible to &lt;code&gt;Bar&lt;/code&gt;. The implicit conversion can be removed by using &lt;code&gt;Proxy&lt;/code&gt; instead of alias this.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Operator of overloading in C++ &lt;code&gt;Foo Foo::operator+(Foo const&amp;amp; foo){}&lt;/code&gt;. Operator overloading in D &lt;code&gt;Foo opBinary(string op)(in Foo f)&lt;/code&gt;. This allows the &lt;a href=&#34;http://wiki.dlang.org/Mixin_Macros_Pattern&#34;&gt;mixin macros pattern&lt;/a&gt; which can remove a lot of boilerplate code for you.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;D has universal function call syntax (ufcs). This just means that functions can also be called like methods &lt;code&gt;foo(bar)&lt;/code&gt; or &lt;code&gt;bar.foo()&lt;/code&gt;. This is similar to extension methods in C#. C++17 might also get some form of ufcs.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;C++ has &lt;code&gt;user defined literals&lt;/code&gt; like &lt;code&gt;1_seconds&lt;/code&gt;. D doesn&amp;rsquo;t have this feature but it can be emualted with ufcs &lt;code&gt;1.seconds&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Interfaces can not be templated in C++ but they can be templated in D.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Conditonal compilation uses the pre-processor in C++ &lt;code&gt;#if, #elif, #else, and #endif Directives&lt;/code&gt;. In D it is &lt;code&gt;version(YourKeywork){...}&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Exceptions in D require the GC.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;C++ has &lt;code&gt;namepspaces&lt;/code&gt; and are used like this &lt;code&gt;namespace Foo{ namespace Bar{ namespace Baz{..}}}&lt;/code&gt;. D uses modules with a file structure. To get &lt;code&gt;foo.bar.baz&lt;/code&gt; you can create &lt;code&gt;baz.d&lt;/code&gt; inside the &lt;code&gt;bar&lt;/code&gt; folder and &lt;code&gt;bar&lt;/code&gt; inside the &lt;code&gt;foo&lt;/code&gt; folder.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Globals in D are only thread local by default unless they are immutable. To get thread safe global access you would mark the global variable as &lt;code&gt;shared&lt;/code&gt;. To get the same global variables as in C++ you would used &lt;code&gt;__gshared&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;code&gt;const&lt;/code&gt; in D is &lt;a href=&#34;https://dlang.org/const-faq.html#transitive-const&#34;&gt;transitive&lt;/a&gt;. It is &lt;code&gt;undefined behaviour&lt;/code&gt; in D to cast away the &lt;code&gt;const&lt;/code&gt; and modify the object.&lt;/p&gt;
+
+&lt;h1 id=&#34;meta-programming:0cb2d9f6a8190c19d85664260328e5f6&#34;&gt;Meta programming&lt;/h1&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;It is possible to pass almost anything to a template in D. C++ is limited to integrals and chars.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Template instantiations are done in C++ with &lt;code&gt;&amp;lt;Foo,Bar&amp;gt;&lt;/code&gt; and in D with &lt;code&gt;!(Foo,bar)&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;D has no fold expressions like C++ &lt;code&gt;foo(f(args)...);&lt;/code&gt;, although they can be implemented as a library.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;D can evaluate almost any function at compile time, where in C++ those functions need to be marked as &lt;code&gt;constexpr&lt;/code&gt; and have a restrictions such as no allocations.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;C++ can have multiple variadic templates &lt;code&gt;template&amp;lt;class... As, class... Bs&amp;gt;&lt;/code&gt; but they need to be inferred. This is not possible in D but you can have templates of templates &lt;code&gt;contains!SomeTypes.all!SomeOtherTypes&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;D can generate strings at compile time and compile them at compile time with &lt;code&gt;mixin&lt;/code&gt;, this is not possible in C++.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;C++ has macros while D does not. &lt;code&gt;mixins&lt;/code&gt; are capable of replacing macros.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;D has static reflection/introspection, this feature might come to C++ after C++17. This can currently be emulated to some extent with &lt;code&gt;libclang&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;D also has &lt;code&gt;user defined attributes&lt;/code&gt; &lt;code&gt;@Encrypted string name;&lt;/code&gt; which can be used by D&amp;rsquo;s static introspection. C++17 gets &lt;code&gt;user defined attributes&lt;/code&gt; in the form of &lt;code&gt;[[YourKeyWord]]&lt;/code&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;D can print any type at compile time or runtime with &lt;code&gt;writeln(SomeType.stringof)&lt;/code&gt; or &lt;code&gt;writeln(typeof(somevar).stringof)&lt;/code&gt;. Anything that is available at compile time can be printed at compile time with &lt;code&gt;pragma(msg, SomeType)&lt;/code&gt;. This is very useful for debugging meta programs. C++ can only do this with some compiler hacks as far as I know.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;It is possible to pass &lt;code&gt;symbols&lt;/code&gt; to templates in D. &lt;code&gt;template Foo(alias someSymbol)&lt;/code&gt; This just means that it is possible to pass anything that is available at compile time into &lt;code&gt;Foo&lt;/code&gt;. Examples would be other templates, functions, lambdas, constants etc. This is similar to Lisp.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;D has &lt;code&gt;static if&lt;/code&gt;. It is possible to use template specialization in C++ to achieve something similar.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;em&gt;Unsure, need more benchmarks&lt;/em&gt; Compile times for meta programming seems to be roughly equivalent between C++ and D.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;In D it is possible to iterate over variadic types with a foreach loop. In C++ this can be achieved as a library, for example with &lt;a href=&#34;https://github.com/boostorg/hana&#34;&gt;Boost hana&lt;/a&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-d&#34;&gt;foreach(index, type; VaradicTypes){
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Variadics in D are automatically expanded while in C++ you expand them explicitly with fold expressions.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Variadics in D can be sliced &lt;code&gt;VariadicTypes[1 .. $]&lt;/code&gt; this creates a variadic type list without the first type.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Metaprogramming with type objects in D</title>
+      <link>https://maikklein.github.io/2016/03/01/metaprogramming-typeobject</link>
+      <pubDate>Tue, 01 Mar 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://maikklein.github.io/2016/03/01/metaprogramming-typeobject</guid>
+      <description>&lt;p&gt;I am going to introduce you to &lt;code&gt;Type Objects&lt;/code&gt; and why they might be useful in combination with metaprogramming.
+This blog post is heavily inspired by &lt;a href=&#34;https://github.com/boostorg/hana&#34;&gt;Boost Hana&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Let us start with an example. If we would want to implement an &lt;code&gt;Algebraic Data Type&lt;/code&gt; we would need to find out the maximal size of the types it should contain. In D that is pretty easy&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-d&#34;&gt;import std.meta: AliasSeq;
+import std.traits: Largest;
+alias Types = AliasSeq!(int, float, char, double);
+enum maxSize = Largest!(Types).sizeof;
+writeln(maxSize);//8 bytes
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Largest is implemented like this&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-d&#34;&gt;template Largest(T...) if(T.length &amp;gt;= 1)
+{
+    static if (T.length == 1)
+    {
+        alias Largest = T[0];
+    }
+    else static if (T.length == 2)
+    {
+        static if(T[0].sizeof &amp;gt;= T[1].sizeof)
+        {
+            alias Largest = T[0];
+        }
+        else
+        {
+            alias Largest = T[1];
+        }
+    }
+    else
+    {
+        alias Largest = Largest!(Largest!(T[0 .. $/2]), Largest!(T[$/2 .. $]));
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;But if &lt;code&gt;Largest&lt;/code&gt; wouldn&amp;rsquo;t be available, it would be quite annoying to always create a new template. Alternatively we could implement &lt;code&gt;Largest&lt;/code&gt; like this&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-d&#34;&gt;import std.meta: AliasSeq, staticMap;
+import std.traits: Largest;
+import std.algorithm.comparison: max;
+alias Types = AliasSeq!(int, float, char, double);
+enum size(T) = T.sizeof;
+enum maxSize = max(staticMap!(size, Types));
+writeln(maxSize);//8 byte
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Not much worse because we can reuse the standard library but we also had to create a new template to convert types into sizes. This is a general pattern in metaprogramming. If you want to do type level metaprogramming you have to use templates but wouldn&amp;rsquo;t it be nice if we could use ordinary functions?&lt;/p&gt;
+
+&lt;p&gt;Instead of doing type computations with templates we will create &lt;code&gt;Type Objects&lt;/code&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-d&#34;&gt;import std.traits: isInstanceOf;
+enum isType(T) = isInstanceOf!(Type, T);
+struct Type(T){
+    alias type = T;
+    string toString()
+    {
+        return &amp;quot;Type!(&amp;quot;~T.stringof~&amp;quot;)&amp;quot;;
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-d&#34;&gt;enum t  = Type!(int)();
+enum t1 = Type!(string)();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You may wonder why we do this. The answer is simple, we now can use &lt;code&gt;Types&lt;/code&gt; like ordinary objects. Let us create a simple &lt;code&gt;equals&lt;/code&gt; function that checks if two &lt;code&gt;Types&lt;/code&gt; are actually the same.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-d&#34;&gt;enum equals(A,B)(Type!A, Type!B){
+    return is(A == B);
+}
+enum t  = Type!(int)();
+enum t1 = Type!(string)();
+
+writeln(t.equals(t1)); // false
+writeln(equals(t, t1)); // false
+writeln(equals(Type!int(), Type!int())); // true
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Types itself are not that interesting, let us create a &lt;code&gt;TypeTuple&lt;/code&gt; that can hold any number of &lt;code&gt;Types&lt;/code&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-d&#34;&gt;enum isTypeTuple(T) = isInstanceOf!(TypeTuple, T);
+
+struct TypeTuple(Types...){
+    import std.meta: allSatisfy;
+    static assert(allSatisfy!(isType, Types), &amp;quot;Variadic parameters need to be of type &#39;Type!&#39;&amp;quot;);
+    Types expand;
+    alias expand this;
+    string toString()
+    {
+        import std.range;
+        string[] s;
+        foreach(t; expand){
+            s~= t.toString();
+        }
+        return &amp;quot;TypeTuple!(&amp;quot; ~ s.join(&amp;quot;, &amp;quot;) ~&amp;quot;)&amp;quot;;
+    }
+}
+enum typeTuple(Types...)(Types){
+    return TypeTuple!Types();
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;By the way you may wonder why we created a &lt;code&gt;toString&lt;/code&gt; method here. This is because &lt;code&gt;D&lt;/code&gt; sometimes doesn&amp;rsquo;t like to print types that were generated and it might not print the actual type and inserts some pseudo symbols like &lt;code&gt;F!int&lt;/code&gt; instead of &lt;code&gt;Type!int&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;We can use &lt;code&gt;TypeTuple&lt;/code&gt; like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-d&#34;&gt;enum types = TypeTuple!(Type!int, Type!char, Type!float, Type!double)();
+//or
+enum types = typeTuple(Type!int, Type!char, Type!float, Type!double);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;It is just a bit of boilerplate which we can easily avoid with a helper function&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-d&#34;&gt;enum tupleFromTypes(Ts...)(){
+    import std.meta: staticMap;
+    return TypeTuple!(staticMap!(Type, Ts))();
+}
+enum types = tupleFromTypes!(int,double, int,float);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now we can start to implement some nice metafunctions. We start by implementing &lt;code&gt;filter&lt;/code&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-d&#34;&gt;enum filter(alias f, Tup)(Tup){
+    static assert(isTypeTuple!(Tup), tup.stringof~&amp;quot; is not a TypeTuple.&amp;quot;);
+    enum tup = Tup();
+    static if(tup.length == 0){
+        return typeTuple();
+    }
+    else static if(f(tup[0])){
+        return typeTuple(tup[0], filter!(f)(typeTuple(tup[1..$])).expand);
+    }
+    else{
+        return filter!(f)(typeTuple(tup[1..$]));
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We can now use it like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-d&#34;&gt;enum types = tupleFromTypes!(int, double, string, float);
+enum biggerThan4 = filter!(t =&amp;gt; t.type.sizeof &amp;gt; 4)(types);
+writeln(biggerThan4);// TypeTuple!(Type!(double), Type!(string))
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The code above filters our &lt;code&gt;TypeTuple&lt;/code&gt; with an ordinary lambda function. The resulting &lt;code&gt;Types&lt;/code&gt; must be bigger than 4 bytes. We can also implement &lt;code&gt;map&lt;/code&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-d&#34;&gt;enum map(alias f, Tup)(Tup){
+    static assert(isTypeTuple!(Tup), tup.stringof~&amp;quot; is not a TypeTuple.&amp;quot;);
+    enum tup = Tup();
+    static if(tup.length == 0){
+        return typeTuple!();
+    }
+    else{
+        return typeTuple(f(tup[0]), map!(f)(typeTuple(tup[1..$])).expand);
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-d&#34;&gt;enum types = tupleFromTypes!(int, double, string, float);
+enum onlyInts = map!(t =&amp;gt; Type!int())(types);
+writeln(onlyInts);// TypeTuple!(Type!(int), Type!(int), Type!(int), Type!(int))
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We replace every &lt;code&gt;Type&lt;/code&gt; with &lt;code&gt;Type!int&lt;/code&gt; which is probably not that useful. We could also replace only types that are actually bigger than 4 bytes with &lt;code&gt;Type!int&lt;/code&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-d&#34;&gt;enum types = tupleFromTypes!(int, double, string, float);
+enum smallerThan5 = map!((t){
+    static if(t.type.sizeof &amp;gt; 4){
+        return Type!int();
+    }
+    else{
+        return t;
+    }
+})(types);// TypeTuple!(Type!(int), Type!(int), Type!(int), Type!(float))
+writeln(smallerThan5);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The possibilities are almost endless and you can use it like any other function. Just remember that it needs to be executed at compile time which means you have to use &lt;code&gt;static if&lt;/code&gt; instead of an ordinary &lt;code&gt;if&lt;/code&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-d&#34;&gt;enum indexOf(T,Tup)(T, Tup){
+    static assert(isTypeTuple!(Tup), tup.stringof~&amp;quot; is not a TypeTuple.&amp;quot;);
+    static assert(isType!(T), T.stringof~&amp;quot; is not a Type.&amp;quot;);
+    enum t = T();
+    enum tup = Tup();
+    foreach(index, type; tup.expand){
+        if(type.equals(t)){
+            return index;
+        }
+    }
+    return -1;
+}
+enum types = tupleFromTypes!(int, double, string, float);
+enum index = indexOf(Type!string(), types);
+writeln(index);// 2
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And last but not least, we can implement quicksort for types.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-d&#34;&gt;enum partition(alias f, Tup)(Tup){
+    enum tup = Tup();
+    return partitionImpl!(f)(tup, typeTuple(), typeTuple());
+}
+
+enum partitionImpl(alias f, Tup, TupLeft, TupRight)(Tup, TupLeft, TupRight){
+    import std.typecons: tuple;
+    enum tup = Tup();
+    enum l = TupLeft();
+    enum r = TupRight();
+
+    static if(tup.length == 0){
+        return tuple(l, r);
+    }
+    else{
+        static if(f(tup[0])){
+            return partitionImpl!(f)(typeTuple(tup[1..$]), typeTuple(tup[0], l.expand), typeTuple(r.expand));
+        }
+        else{
+            return partitionImpl!(f)(typeTuple(tup[1..$]), typeTuple(l.expand), typeTuple(tup[0], r.expand));
+        }
+
+    }
+}
+
+enum sort(alias f,Tup)(Tup){
+    enum tup = Tup();
+    static if(tup.length == 0){
+        return typeTuple();
+    }
+    else static if(tup.length == 1){
+        return typeTuple(tup[0]);
+    }
+    else{
+        enum middle= tup[0];
+        enum t = partition!(t =&amp;gt; f(t, middle))(typeTuple(tup[1..$]));
+        enum left = t[0];
+        enum right = t[1];
+        return typeTuple(left.expand, middle, right.expand);
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I needed to create another helper function &lt;code&gt;partition&lt;/code&gt; which just splits a &lt;code&gt;TypeTuple&lt;/code&gt; into two &lt;code&gt;TypeTuples&lt;/code&gt; based on a predicate.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-d&#34;&gt;enum types = tupleFromTypes!(int, double, string, float);
+enum sortedTypes = sort!((t1, t2) =&amp;gt; t1.type.sizeof &amp;gt; t2.type.sizeof)(types);
+writeln(sortedTypes);// TypeTuple!(Type!(string), Type!(double), Type!(int), Type!(float))
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now it is also trivial to get the maximum size&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-d&#34;&gt;enum types = tupleFromTypes!(int, double, string, float);
+enum sortedTypes = sort!((t1, t2) =&amp;gt; t1.type.sizeof &amp;gt; t2.type.sizeof)(types);
+enum maxSize = sortedTypes[0].sizeof;
+writeln(maxSize);// 8 bytes
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;code&gt;Type Objects&lt;/code&gt; allow metaprogramming to look like normal functional programming just with types.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>The general design of my flawed compile time entity component system in C&#43;&#43;14</title>
+      <link>https://maikklein.github.io/post/2016-01-14-Entity-Component-System/</link>
+      <pubDate>Thu, 14 Jan 2016 11:27:27 -0400</pubDate>
+      
+      <guid>https://maikklein.github.io/post/2016-01-14-Entity-Component-System/</guid>
+      <description>
+
+&lt;p&gt;A lot of people are talking about entity component systems and how they could potentially improve your code base. Most of the articles are theoretical and it is hard to find examples that actually convey some advantages.&lt;/p&gt;
+
+&lt;p&gt;There are actually a lot of entity component systems available for many different programming languages, but most seem to sacrifice performance for expressiveness.&lt;/p&gt;
+
+&lt;p&gt;But I am curious and I really like the general idea of an entity component system but I don&amp;rsquo;t want to just accept the opinion of other game developers. It&amp;rsquo;s time to get some actual experience and I have implemented a very small entity component system in C++14 with template metaprogramming.&lt;/p&gt;
+
+&lt;p&gt;This post will be about the general design of my entity component system.&lt;/p&gt;
+
+&lt;h2 id=&#34;features:571954f8d33aced3458d08b62ec3636d&#34;&gt;Features&lt;/h2&gt;
+
+&lt;p&gt;The core features of my entity component system are:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;Contiguous memory layout
+Components are grouped at compile time
+Compile time filtering of components
+Components are always added in the correct group automatically
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;overview:571954f8d33aced3458d08b62ec3636d&#34;&gt;Overview&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;struct world{
+  //component_group &#39;moveable_object&#39;
+  std::vector&amp;lt;position&amp;gt; moveable_object_position;
+  std::vector&amp;lt;velocity&amp;gt; moveable_object_velocity;
+
+  //component_group &#39;entity&#39;
+  std::vector&amp;lt;position&amp;gt; entity_position;
+  std::vector&amp;lt;velocity&amp;gt; entity_velocity;
+  std::vector&amp;lt;name&amp;gt; entity_name;
+  ...
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This is the core of the entity component system, we group components together at compile time. The layout is called &lt;code&gt;SoA&lt;/code&gt; (structures of arrays) and a specific object is referred to by id.&lt;/p&gt;
+
+&lt;p&gt;For example instead of having&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;struct moveable_object{
+  velocity vel;
+  position pos;
+};
+std::vector&amp;lt;moveable_object&amp;gt; mv_objects;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;we have&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;std::vector&amp;lt;position&amp;gt; moveable_object_position;
+std::vector&amp;lt;velocity&amp;gt; moveable_object_velocity;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And I refer to &lt;code&gt;moveable_object_position[index], moveable_object_velocity[index]&lt;/code&gt; as an object in this post.&lt;/p&gt;
+
+&lt;p&gt;Each &lt;code&gt;component_group&lt;/code&gt; has a list of constrains, for example an &lt;code&gt;entity&lt;/code&gt; needs to have a &lt;code&gt;position&lt;/code&gt;, &lt;code&gt;velocity&lt;/code&gt; and &lt;code&gt;name&lt;/code&gt; component. The advantage of this approach is that filtering is essentially free, because we can just iterate over &lt;code&gt;entity_position&lt;/code&gt;,&lt;code&gt;entity_velocity&lt;/code&gt; and&lt;code&gt;entity_name&lt;/code&gt; at the same time. Another advantage is that we don&amp;rsquo;t have to worry about the memory layout as much, because we group everything at compile time.&lt;/p&gt;
+
+&lt;p&gt;It is also possible to filter &lt;code&gt;component_groups&lt;/code&gt; based on the components they own. For example if we want to iterate over every &lt;code&gt;object&lt;/code&gt; that has a &lt;code&gt;position&lt;/code&gt; and &lt;code&gt;velocity&lt;/code&gt; component, we would have to iterate over &lt;code&gt;entity_position&lt;/code&gt;, &lt;code&gt;entity_velocity&lt;/code&gt; and &lt;code&gt;moveable_object_position&lt;/code&gt;, &lt;code&gt;moveable_object_velocity&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Obviously maintaining something like this by hand is extremely tedious. This is where metaprogramming will help us to convey our meaning. The following code snippet is a small example from my experimental entity component system.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;struct position {
+  float x, y;
+};
+struct velocity {
+  float x, y;
+};
+struct name {
+  std::string name;
+};
+
+struct print_name {
+  template &amp;lt;class World&amp;gt; void update(World&amp;amp; w) {
+    w.template update&amp;lt;name&amp;gt;([](auto&amp;amp; name) { print(name.name); });
+  }
+};
+struct print_pos_vel {
+  template &amp;lt;class World&amp;gt; void update(World&amp;amp; w) {
+    w.template update&amp;lt;position, velocity&amp;gt;([](auto&amp;amp; pos, auto&amp;amp; vel) {
+      print(pos.x, pos.y);
+      print(vel.x, vel.y);
+    });
+  }
+};
+auto make_monster(float x, float y, std::string n) {
+  return hana::make_tuple(position{ x, y }, velocity{ 0, 0 }, name{ n });
+}
+
+template &amp;lt;class... Ts&amp;gt;
+using component_group_handle = ecs::core::component_group&amp;lt;
+    breeze::util::container::handle_container, Ts...&amp;gt;;
+
+int main() {
+  using moveable_object = component_group_handle&amp;lt;position, velocity&amp;gt;;
+  using entity = component_group_handle&amp;lt;position, velocity, name&amp;gt;;
+  using cg = ecs::core::component_groups&amp;lt;moveable_object, entity&amp;gt;;
+  auto w = ecs::core::world&amp;lt;cg&amp;gt;{};
+  auto sg = ecs::core::make_systems_group(w, print_name{}, print_pos_vel{});
+  w.add(make_monster(10, 5, &amp;quot;Monster3&amp;quot;));
+  w.add(make_monster(11, 5, &amp;quot;Monster2&amp;quot;));
+  w.add(position{ 42, 24 }, velocity{ 5, 5 }, name{ &amp;quot;Monster1&amp;quot; });
+
+  // moveable_object
+  w.add(position{ 0, 0 }, velocity{ 10, 5 });
+  sg.update();
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Don&amp;rsquo;t worry if you don&amp;rsquo;t understand what is going on, I&amp;rsquo;ll try to explain everything you need to know in the following section.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;struct print_pos_vel {
+  template &amp;lt;class World&amp;gt; void update(World&amp;amp; w) {
+    w.template update&amp;lt;position, velocity&amp;gt;([](auto&amp;amp; pos, auto&amp;amp; vel) {
+      print(pos.x, pos.y);
+      print(vel.x, vel.y);
+    });
+  }
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This is a simple system, which filters out every &lt;code&gt;component_group&lt;/code&gt;that does not have a &lt;code&gt;position&lt;/code&gt; and &lt;code&gt;velocity&lt;/code&gt; component, it then extracts the correct components for every &lt;code&gt;component_group&lt;/code&gt; that we are interested in. We then zip the iterators for &lt;code&gt;position&lt;/code&gt; and &lt;code&gt;velocity&lt;/code&gt; together and we repeat this for every &lt;code&gt;component_group&lt;/code&gt; that satisfies the &lt;code&gt;position&lt;/code&gt; and &lt;code&gt;velocity&lt;/code&gt; constrain. We are then left with a tuple of zipped iterators which we
+concatenate into one big iterator. After that we can iterate over every &lt;code&gt;position&lt;/code&gt; and &lt;code&gt;velocity&lt;/code&gt; component and print it to the console.&lt;/p&gt;
+
+&lt;p&gt;The only thing that is done at runtime is accessing the iterator for every component and concatenate them.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;using moveable_object = component_group_handle&amp;lt;position, velocity&amp;gt;;
+using entity = component_group_handle&amp;lt;position, velocity, name&amp;gt;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;These are our &lt;code&gt;component_groups&lt;/code&gt; which we have to declare once. Technically those could be inferred but I decided that it would serve as a good way to document all the different &lt;code&gt;component_groups&lt;/code&gt; that are used by the entity component system.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;using cg = ecs::core::component_groups&amp;lt;moveable_object, entity&amp;gt;;
+auto w = ecs::core::world&amp;lt;cg&amp;gt;{};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;After declaring all the &lt;code&gt;component_group&lt;/code&gt;&amp;rsquo;s that we want to use, we can finally create our &lt;code&gt;world&lt;/code&gt; object.&lt;/p&gt;
+
+&lt;p&gt;The world object itself doesn&amp;rsquo;t do much and its purpose is to store our data.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;auto sg = ecs::core::make_systems_group(w, print_name{}, print_pos_vel{});
+...
+sg.update();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;A &lt;code&gt;system_group&lt;/code&gt; just groups different systems together and allows to call &lt;code&gt;update&lt;/code&gt; on every system that has been registered at compile-time.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;// entity
+w.add(position{ 42, 24 }, velocity{ 5, 5 }, name{ &amp;quot;Monster1&amp;quot; });
+
+// moveable_object
+w.add(position{ 0, 0 }, velocity{ 10, 5 });
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Every &lt;code&gt;object&lt;/code&gt; is added into the correct &lt;code&gt;component_group&lt;/code&gt;. If you call add with &lt;code&gt;&amp;lt;position, velocity&amp;gt;&lt;/code&gt; it will look at all the &lt;code&gt;component_group&lt;/code&gt;&amp;rsquo;s and that were declared before and insert it into the correct one.
+Because we have declared &lt;code&gt;using moveable_object = component_group_handle&amp;lt;position, velocity&amp;gt;;&lt;/code&gt;  the components &lt;code&gt;w.add(position{ 0, 0 }, velocity{ 10, 5 });&lt;/code&gt; will be inserted into the &lt;code&gt;component_group&lt;/code&gt; &lt;code&gt;moveable_object&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Deleting &lt;code&gt;objects&lt;/code&gt; is also very simple. Because we have grouped everything at compile-time, we just have to look at the &lt;code&gt;component_group&lt;/code&gt; that the object belongs to and delete it. To preserve contiguous elements we swap the last element with the element that we want to delete and then we simply remove the last element.&lt;/p&gt;
+
+&lt;p&gt;Most entity component system allow to add and remove components from &lt;code&gt;objects&lt;/code&gt; at runtime. If we want to take a &lt;code&gt;moveable_object&lt;/code&gt; and add a &lt;code&gt;name&lt;/code&gt; component, it would become an &lt;code&gt;entity&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;We would need to move the components from the &lt;code&gt;component_group&lt;/code&gt; &lt;code&gt;moveable_object&lt;/code&gt; to the &lt;code&gt;component_group&lt;/code&gt; &lt;code&gt;entity&lt;/code&gt; and add then simply add the &lt;code&gt;name&lt;/code&gt; component.&lt;/p&gt;
+
+&lt;h2 id=&#34;dealbreaker:571954f8d33aced3458d08b62ec3636d&#34;&gt;Dealbreaker&lt;/h2&gt;
+
+&lt;p&gt;The biggest problem is the compilation time. Every query of update &lt;code&gt;w.template update&amp;lt;T0,T1,...TN&amp;gt;&lt;/code&gt; costs around 2 seconds on my machine, that is just unacceptable.&lt;/p&gt;
+
+&lt;p&gt;You can find the code &lt;a href=&#34;https://github.com/BreezeEngine/breeze/blob/master/src/ecs/core/core.hpp&#34;&gt;here&lt;/a&gt; and &lt;a href=&#34;https://github.com/BreezeEngine/breeze/blob/master/examples/ecs/main.cpp&#34;&gt;here&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Please note that the code is in a highly experimental state and will most likely not even compile on your machine.&lt;/p&gt;
+
+&lt;h2 id=&#34;what-have-i-learned:571954f8d33aced3458d08b62ec3636d&#34;&gt;What have I learned?&lt;/h2&gt;
+
+&lt;p&gt;I really love metaprogramming in C++ with &lt;a href=&#34;https://github.com/boostorg/hana&#34;&gt;hana&lt;/a&gt;. It is expressive, concise and doesn&amp;rsquo;t look odd if you are familiar with functional conecpts.&lt;/p&gt;
+
+&lt;p&gt;Compile errors are horrifying and tools for compile-time debugging/profiling are pretty much non existent.&lt;/p&gt;
+
+&lt;p&gt;Compile times can quickly blow up and it&amp;rsquo;s hard to track down where and why they are blowing up.&lt;/p&gt;
+
+&lt;p&gt;I don&amp;rsquo;t think the entity component system that I envision is practical to create in C++ and I will most likely abandon it. I am not quite ready the abandon the idea and I will try to create a similar entity component system in &lt;code&gt;D&lt;/code&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
