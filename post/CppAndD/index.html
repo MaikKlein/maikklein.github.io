@@ -143,7 +143,7 @@ internal pointers.</p></li>
 
 <li><p>Exceptions in D require the GC.</p></li>
 
-<li><p>C++ has <code>namepspaces</code> and are used like this <code>namespace Foo{ namespace Bar{ namespace Baz{..}}}</code>. D uses modules with a file structure. To get <code>foo.bar.baz</code> you can create <code>baz.d</code> inside the <code>bar</code> folder and <code>bar</code> inside the <code>foo</code> folder.</p></li>
+<li><p>C++ has <code>namespaces</code> and are used like this <code>namespace Foo{ namespace Bar{ namespace Baz{..}}}</code>. D uses modules with a file structure. To get <code>foo.bar.baz</code> you can create <code>baz.d</code> inside the <code>bar</code> folder and <code>bar</code> inside the <code>foo</code> folder.</p></li>
 
 <li><p>Globals in D are only thread local by default unless they are immutable. To get thread safe global access you would mark the global variable as <code>shared</code>. To get the same global variables as in C++ you would used <code>__gshared</code>.</p></li>
 
