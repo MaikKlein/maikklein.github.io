@@ -1,0 +1,21 @@
+# The URL the site will be built for
+base_url = "https://maikklein.github.io"
+title = "Maik Klein"
+
+# Whether to automatically compile all Sass files in the sass directory
+compile_sass = true
+generate_rss = true
+
+# Whether to do syntax highlighting
+# Theme can be customised by setting the `highlight_theme` variable to a theme supported by Gutenberg
+highlight_code = true
+highlight_theme = "gruvbox-dark"
+theme = "hyde"
+
+[extra]
+
+hyde_links = [
+    {url = "https://maikklein.github.io", name = "Home"},
+    {url = "https://github.com/MaikKlein", name = "Github"},
+    {url = "https://google.fr", name = "Google.fr"},
+]
