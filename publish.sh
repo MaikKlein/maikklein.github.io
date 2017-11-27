@@ -1,8 +1,8 @@
 gutenberg build && \
-git branch -D gh-pages && \
-git checkout -b gh-pages && \
+git branch -D master && \
+git checkout -b master && \
 cp -r public/* . && \
 git add . && \
 git commit -m "publish" && \
-git push origin gh-pages -f && \
-git checkout master
+git push origin master -f && \
+git checkout source
