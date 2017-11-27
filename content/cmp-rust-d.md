@@ -171,7 +171,7 @@ fn main() {
 
 D also has constructors
 
-```
+```D
 struct Foo{
      int i;
      this(int _i){
@@ -187,7 +187,7 @@ void main()
 
 while Rust uses functions to do object construction.
 
-```
+```Rust
 struct Foo{
     i: i32
 }
@@ -205,7 +205,7 @@ fn main() {
 
 Methods in D are implement inside the type.
 
-```
+```D
 struct Foo{
      int i;
      this(int _i){
@@ -225,7 +225,7 @@ void main()
 }
 ```
 Rust implements methods outside of the type and inside a `impl` block.
-```
+```Rust
 struct Foo{
     i: i32
 }
@@ -247,14 +247,14 @@ Also Rust doesn't implicitly capture `this / self`.
 
 Universal function call syntax allows to call print In Rust like this:
 
-```
+```Rust
 fn main() {
     let f = Foo::new(42);
     Foo::print(&f);
 }
 ```
 In D functions can be called like methods
-```
+```D
 struct Foo{
      int i;
      this(int _i){
@@ -278,7 +278,7 @@ void main()
 
 The advantage of `impl` blocks is that they reduce verbosity for constrains.
 
-```
+```Rust
 impl<T> Bar<T>
     where: T: Copy
 {
@@ -288,14 +288,14 @@ impl<T> Bar<T>
 It is also possible to have multiple `impl` for different constrains. As far as I know this is not possible in D, every function needs its own constrains.
 
 A small advantage of D is that it is possible to call those functions directly, like normal functions.
-```
+```D
 auto zippedRange = zip(r1, r2);
 auto zippedRange = r1.zip(r2);
 ```
 
 While in Rust this will be a bit more explicit.
 
-```
+```Rust
 let iter = Iterator::zip(iter1, iter2);
 //or
 let iter = iter1.zip(iter2);
