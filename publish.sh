@@ -4,4 +4,5 @@ git checkout -b gh-pages && \
 cp -r public/* . && \
 git add . && \
 git commit -m "publish" && \
+git push origin gh-pages -f && \
 git checkout master
