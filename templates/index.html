@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+        <!-- Enable responsiveness on mobile devices-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+        <title>{% block title %}{{ config.title }}{% endblock title %}</title>
+
+        <!-- CSS -->
+        <link rel="stylesheet" href="{{ config.base_url }}/print.css" media="print">
+        <link rel="stylesheet" href="{{ config.base_url }}/poole.css">
+        <link rel="stylesheet" href="{{ config.base_url }}/lanyon.css">
+        <link rel="stylesheet" href="{{ config.base_url }}/app.css">
+
+        {% if config.generate_rss %}
+        <link rel="alternate" type="application/rss+xml" title="RSS" href="{{ config.base_url }}/rss.css">
+        {% endif %}
+
+        {% block extra_head %}
+        {% endblock extra_head %}
+    </head>
+
+    <body>
+        <div class="wrap">
+            <div class="masthead">
+                <div class="container">
+                    <h3 class="masthead-title">
+                        <a href="{{config.base_url}}/" title="Home">{{config.title}}</a>
+                        <small>Blog</small>
+                        <a href="https://github.com/maikklein" target="_blank"><i class="icon-github"></i></a>
+                        <a href="https://twitter.com/MaikKlein_DEV" target="_blank"><i class="icon-twitter"></i></a>
+                        <a href="{{config.base_url}}/rss.xml" target="_blank"><i class="icon-rss"></i></a>
+                    </h3>
+                </div>
+            </div>
+        </div>
+        <div class="content container">
+            {% block content %}
+            <div class="posts">
+                {% for page in section.pages %}
+                <div class="post">
+                    <h1 class="post-title">
+                        <a href="{{ page.permalink }}">
+                            {{ page.title }}
+                        </a>
+                    </h1>
+
+                    <span class="post-date">{{ page.date | date(format="%Y-%m-%d") }}</span>
+
+                    {% endfor %}
+                </div>
+                {% endblock content %}
+            </div>
+
+    </body>
+
+</html>
