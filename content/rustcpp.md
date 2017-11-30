@@ -204,7 +204,132 @@ fn main() {
     1.say();
 }
 ```
-[Playground]()
+[Playground](https://play.rust-lang.org/?gist=5b2cbc9bdb945b0654b7da65f576a9c4&version=stable)
+
+This will implement a method `say()` on an `u32`.
+
+## Implement traits for other traits
+
+```Rust
+use std::fmt::Debug;
+trait PrintDebug {
+    fn print_debug(&self);
+}
+
+impl<T: Debug> PrintDebug for T {
+    fn print_debug(&self) {
+        println!("{:?}", self);
+    }
+}
+
+fn main() {
+    1.print_debug();
+    "Hello".print_debug();
+    vec![1, 2, 3, 4].print_debug();
+}
+```
+[Playground](https://play.rust-lang.org/?gist=8b3857944524aaf929dbaed6694706b2&version=stable)
+
+
+## Add functionality to generics with traits
+
+```Rust
+trait ToMeters {
+    fn to_meters(self) -> Meters;
+}
+
+#[derive(Debug, Copy, Clone)]
+struct Meters(f32);
+
+impl ToMeters for Meters {
+    fn to_meters(self) -> Meters {
+        self
+    }
+}
+
+#[derive(Debug, Copy, Clone)]
+struct Centimeters(f32);
+
+impl ToMeters for Centimeters {
+    fn to_meters(self) -> Meters {
+        Meters(self.0 / 100.0)
+    }
+}
+
+fn print_meters<M: ToMeters>(m: M) {
+    println!("{:?}", m.to_meters());
+}
+
+fn main() {
+    let cm = Centimeters(250.0);
+    let m = Meters(2.5);
+    print_meters(cm); // Meters(2.5)
+    print_meters(m); // Meters(2.5)
+}
+```
+[Playground](https://play.rust-lang.org/?gist=589fc01f3aaffa960a839be2758d8942&version=stable)
+
+Here `print_meters` accepts every type that implements `ToMeters`. This will automatically convert units like centimeters to meters, without user intervention. This can cause binary bloat. Imagine that you have many different unit types and every time you call `print_meters` it will monomorphize the function parameters to a concrete type like `fn print_meters(m: Centimeters){..}`. 
+
+Now I imagine a `big_fn` that would be very slow to compile.
+```Rust
+fn big_fn<M: ToMeters>(m: ToMeters) {
+    // crazy things are happening here
+}
+```
+
+There are two problems with this approach:
+
+1. If `big_fn` is inside a library it will be compiled in user code, because no monomorphized version exists. This adds compile time for the user.
+
+2. Compile times might go up because `big_fn` might be generated multiple times, for every type that the user uses.
+
+The work around is to monomorphize the function explicitly.
+
+```Rust
+trait ToMeters {
+    fn to_meters(self) -> Meters;
+}
+
+#[derive(Debug, Copy, Clone)]
+struct Meters(f32);
+
+impl ToMeters for Meters {
+    fn to_meters(self) -> Meters {
+        self
+    }
+}
+
+#[derive(Debug, Copy, Clone)]
+struct Centimeters(f32);
+
+impl ToMeters for Centimeters {
+    fn to_meters(self) -> Meters {
+        Meters(self.0 / 100.0)
+    }
+}
+
+fn big_fn<M: ToMeters>(m: M) {
+    big_fn_impl(m.to_meters());
+}
+
+fn big_fn_impl(m: Meters) {
+    // every thing is happening here
+}
+
+fn main() {
+    let cm = Centimeters(250.0);
+    let m = Meters(2.5);
+    big_fn(cm);
+}
+
+```
+
+Everything happens inside `big_fn_impl` and it only has a concrete type as a parameter. This means that `big_fn_impl` will be compiled only once inside the library, and only the calls to `big_fn` will be generated in user code.
+
+This can drastically reduce compile times in certain cases, but it shifts work to the programmer. 
+
+
 
 ## Static polymorhism / static dispatch
 
@@ -276,6 +401,22 @@ You can have a look at the generated assembly at [godbolt](https://godbolt.org/g
 
 The same concept is used for `Iterators`, `Futures` etc.
 
+## Returning traits
+```Rust
+#![feature(conservative_impl_trait)]
+use std::iter::Iterator;
+
+fn some_iter() -> impl Iterator<Item = u32> {
+    (1..).map(|i| i).filter(|i| i % 2 == 0)
+}
+
+fn main() {}
+```
+
+Static dispatch is very straight forward in Rust but it can be hard to name those types explicitly. For example the type for the iterator above would roughly be `Filter<Map<RangeFrom<u32>, fn(u32) -> u32>, fn(&u32) -> bool>`. Instead of naming the return type explicitly, the `impl trait` can be used `impl Iterator<Item = u32>`. This is not yet available on stable.
+
+
+
 # Lifetimes
 
 ## Structs
@@ -314,3 +455,37 @@ fn main() {}
 [Playground](https://play.rust-lang.org/?gist=d342f14442eb0e02c0d4ca449be023b4&version=stable)
 
 But you realize that you really wanted to use a `&str` instead of a `String`. This means that you have to explicitly add lifetime annotations to every impl block and to types that can not infer the lifetime. [This RFC](https://github.com/rust-lang/rfcs/blob/master/text/2115-argument-lifetimes.md#impl-blocks-and-lifetimes) will be a improvement.
+
+# Conventions
+
+```Rust
+struct snake_case;
+impl snake_case {
+    fn PascalCase(){}
+}
+
+fn main() {}
+```
+
+[Playground](https://play.rust-lang.org/?gist=8a4562198d490f89342766c5c0735ec2&version=stable)
+
+Warnings:
+
+```Rust
+warning: type `snake_case` should have a camel case name such as `SnakeCase`
+ --> src/main.rs:1:1
+  |
+1 | struct snake_case;
+  | ^^^^^^^^^^^^^^^^^^
+  |
+  = note: #[warn(non_camel_case_types)] on by default
+
+warning: method `PascalCase` should have a snake case name such as `pascal_case`
+ --> src/main.rs:3:5
+  |
+3 |     fn PascalCase(){}
+  |     ^^^^^^^^^^^^^^^^^
+  |
+  = note: #[warn(non_snake_case)] on by default
+
+```
