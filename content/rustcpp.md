@@ -8,6 +8,10 @@ draft = true
 * [Move semantics](#move-semantics)
 * [Mutability](#mutability)
 * [Traits](#traits)
+* [Lifetimes](#lifetimes)
+* [Conventions](#conventions)
+* [Enum](#enum)
+* [Codegen](#codegen)
 
 # Move semantics
 
@@ -388,7 +392,7 @@ Everything happens inside `big_fn_impl` and it only has a concrete type as a par
 
 This can drastically reduce compile times in certain cases, but it shifts work to the programmer. 
 
-
+*Note*: Incremental compilation should be able to reduce build times without user intervention.
 
 ## Static polymorhism / static dispatch
 
@@ -454,7 +458,7 @@ I translated the C# version straight into Rust and therefor is not completely id
 
 The biggest difference compared to the C# version is that this is a compile time visitor. It might not be the best example because an AST is usually not known at compile time but I thought that most people would be familiar with some common design patterns like the visitor pattern.
 
-To reiterate on the meaning of 'compile time' in this context: The AST has to be constructed at compile time and `ExprPrinter` is essentially a zero cost abstraction. And with zero cost abstraction I mean that the resulting code would be no different from hand written print statements.
+To reiterate on the meaning of 'compile time' in this context: The AST has to be constructed at compile time and `ExprPrinter` is essentially a zero cost abstraction. And with zero cost abstraction I mean that the code above compiles down to a single print statement.
 
 You can have a look at the generated assembly at [godbolt](https://godbolt.org/g/nR55r3).
 
@@ -471,11 +475,351 @@ fn some_iter() -> impl Iterator<Item = u32> {
 
 fn main() {}
 ```
+[Playground](https://play.rust-lang.org/?gist=772bb5eba0f1a0a69d76a95d32f1c144&version=nightly)
 
 Static dispatch is very straight forward in Rust but it can be hard to name those types explicitly. For example the type for the iterator above would roughly be `Filter<Map<RangeFrom<u32>, fn(u32) -> u32>, fn(&u32) -> bool>`. Instead of naming the return type explicitly, the `impl trait` can be used `impl Iterator<Item = u32>`. This is not yet available on stable.
 
+## Dynamic dispatch
+```Rust
+pub trait Calculate {
+    fn calculate(&self, u32) -> u32;
+}
+
+pub struct Square;
+pub struct Factorial;
+
+impl Calculate for Square {
+    fn calculate(&self, n: u32) -> u32 {
+        n * n
+    }
+}
+
+impl Calculate for Factorial {
+    fn calculate(&self, n: u32) -> u32 {
+        (1..).take(n as usize).product()
+    }
+}
+
+pub fn useless_sum<'a>(v: &[Box<Calculate>]) -> u32 {
+    (0..5)
+        .flat_map(|n| v.iter().map(move |calc| calc.calculate(n)))
+        .sum()
+}
+
+fn main() {
+    let v: Vec<Box<Calculate>> = vec![Box::new(Square), Box::new(Factorial)];
+    let sum = useless_sum(&v);
+    println!("{}", sum);
+}
+```
+[Playground](https://play.rust-lang.org/?gist=1abee467a3f3f53b379154edabf4f195&version=stable) / [Godbolt](https://godbolt.org/g/TLsxnQ)
+
+Dynamic dispatch can be achieved with traits but it causes the compiler to miss a few optimizations. An alternative to dynamic dispatch with traits is to use enums.
+
+```Rust
+pub trait Calculate {
+    fn calculate(&self, u32) -> u32;
+}
+
+pub struct Square;
+pub struct Factorial;
+
+impl Calculate for Square {
+    fn calculate(&self, n: u32) -> u32 {
+        n * n
+    }
+}
+
+impl Calculate for Factorial {
+    fn calculate(&self, n: u32) -> u32 {
+        (1..).take(n as usize).product()
+    }
+}
+
+pub enum Calc {
+    Square(Square),
+    Factorial(Factorial),
+}
+
+impl Calc {
+    pub fn calculate(&self, n: u32) -> u32 {
+        use Calc::*;
+        match *self {
+            Square(ref sq) => sq.calculate(n),
+            Factorial(ref f) => f.calculate(n),
+        }
+    }
+}
+
+pub fn useless_sum(v: &[Calc]) -> u32 {
+    (0..5)
+        .flat_map(|n| v.iter().map(move |calc| calc.calculate(n)))
+        .sum()
+}
+
+fn main() {
+    let v = vec![Calc::Square(Square), Calc::Factorial(Factorial)];
+    let sum = useless_sum(&v);
+    println!("{}", sum);
+}
+```
+
+[Playground](https://play.rust-lang.org/?gist=cbd305f4432e34250e25420222ed2bca&version=stable) / [Godbolt](https://godbolt.org/g/D3ubyc)
+
+Enums are transparent to the compiler and therefor might result in more performant code. The downside is that the variants have to be known.
 
 
+## Generic arrays and Deref
+
+```Rust
+use std::ops::{Deref, DerefMut};
+
+pub trait Unsigned<T>: Copy {
+    type Array;
+}
+
+#[derive(Copy, Clone)]
+pub struct U1;
+#[derive(Copy, Clone)]
+pub struct U2;
+#[derive(Copy, Clone)]
+pub struct U3;
+//...
+
+impl<T> Unsigned<T> for U1 {
+    type Array = [T; 1];
+}
+
+impl<T> Unsigned<T> for U2 {
+    type Array = [T; 2];
+}
+
+impl<T> Unsigned<T> for U3 {
+    type Array = [T; 3];
+}
+//...
+
+#[derive(Copy, Clone, Debug)]
+pub struct VecN<T, U: Unsigned<T>> {
+    data: U::Array,
+}
+
+impl<T, U> VecN<T, U>
+where
+    U: Unsigned<T>,
+{
+    pub fn from_array(data: U::Array) -> Self {
+        VecN { data }
+    }
+}
+
+impl<T> VecN<T, U3> {
+    pub fn new(x: T, y: T, z: T) -> Self {
+        VecN { data: [x, y, z] }
+    }
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct CVec3<T> {
+    pub x: T,
+    pub y: T,
+    pub z: T,
+}
+
+impl<T> Deref for VecN<T, U3> {
+    type Target = CVec3<T>;
+    fn deref(&self) -> &Self::Target {
+        unsafe { std::mem::transmute(self) }
+    }
+}
+
+impl<T> DerefMut for VecN<T, U3> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        unsafe { std::mem::transmute(self) }
+    }
+}
+
+pub type Vec3f = VecN<f32, U3>;
+
+fn main() {
+    let v = Vec3f::from_array([1.0, 2.0, 3.0]);
+    let mut v = Vec3f::new(1.0, 2.0, 3.0);
+    let v1 = v;
+    // Field access comes from Deref<Target = StaticVec3<T>>
+    let x = v.x;
+    // Mutable access through DerefMut
+    v.x = 42.0;
+}
+```
+[Playground](https://play.rust-lang.org/?gist=b841f0ce73be1bcbb639765f43a08200&version=stable)
+
+At the time of writing this blog post, the [const generics rfc](https://github.com/rust-lang/rfcs/blob/master/text/2000-const-generics.md) hasn't yet made it to nightly yet. This introduces a hacky workaround to have const generics for arrays on stable. 
+
+Because those vectors now have an array as their member, field access through `.x` `.y` `.z` is not possible anymore. The obvious solution would be to introduces methods such as `fn x(&self) -> &T` and `fn x(&mut self)-> &mut T`.
+
+The alternative is to define a new struct `CVec3` and then to implement `Deref` and `DerefMut`.
+
+## Methods can silently override trait methods
+
+```Rust
+pub trait Foo {
+    fn hello(&self);
+}
+
+pub mod some_module {
+    pub struct Bar;
+}
+
+use some_module::Bar;
+
+impl Foo for Bar {
+    fn hello(&self) {
+        println!("Hello Foo");
+    }
+}
+
+fn main() {
+    let b = Bar;
+    b.hello(); // prints `Hello Foo`
+}
+
+```
+[Playground](https://play.rust-lang.org/?gist=3fc3587c23dffd4b809ec69b85e83537&version=stable)
+
+If `Bar` also adds a method called `hello` in the future, then this method will be used instead of the trait method.
+
+```Rust
+pub trait Foo {
+    fn hello(&self);
+}
+
+pub mod some_module {
+    pub struct Bar;
+    impl Bar {
+        pub fn hello(&self) {
+            println!("Hello Bar");
+        }
+    }
+}
+
+use some_module::Bar;
+
+impl Foo for Bar {
+    fn hello(&self) {
+        println!("Hello Foo");
+    }
+}
+
+fn main() {
+    let b = Bar;
+    b.hello(); // prints `Hello Bar`
+}
+```
+[Playground](https://play.rust-lang.org/?gist=58c188c3db6d66873fdd8a09570cf013&version=stable)
+
+This is not a problem in generic code 
+
+```Rust
+fn foo<F: Foo>(f: F){...}
+```
+
+
+## Adding methods to a trait can be a breaking change
+
+```Rust
+pub trait Foo {
+    fn hello(&self);
+}
+
+pub struct Bar;
+
+pub mod some_module {
+    pub trait Baz {}
+}
+
+use some_module::Baz;
+
+impl Foo for Bar {
+    fn hello(&self) {
+        println!("Hello Foo");
+    }
+}
+
+impl Baz for Bar {}
+
+fn main() {
+    let b = Bar;
+    b.hello();
+}
+
+```
+[Playground](https://play.rust-lang.org/?gist=11b2e422805940971a6321dded55dce0&version=stable)
+
+If `Baz` also exposes a `hello` method, then those two methods will be in conflict.
+```Rust
+pub trait Foo {
+    fn hello(&self);
+}
+
+pub struct Bar;
+
+pub mod some_module {
+    pub trait Baz {
+        fn hello(&self){
+            // Err
+        }
+    }
+}
+
+use some_module::Baz;
+
+impl Foo for Bar {
+    fn hello(&self) {
+        println!("Hello Foo");
+    }
+}
+
+impl Baz for Bar {}
+
+fn main() {
+    let b = Bar;
+    b.hello();
+}
+```
+[Playground](https://play.rust-lang.org/?gist=39cffc2b1d941119430258119a492ee2&version=stable)
+
+```Rust
+error[E0034]: multiple applicable items in scope
+  --> src/main.rs:27:7
+   |
+27 |     b.hello();
+   |       ^^^^^ multiple `hello` found
+   |
+note: candidate #1 is defined in an impl of the trait `Foo` for the type `Bar`
+  --> src/main.rs:18:5
+   |
+18 | /     fn hello(&self) {
+19 | |         println!("Hello Foo");
+20 | |     }
+   | |_____^
+note: candidate #2 is defined in an impl of the trait `some_module::Baz` for the type `Bar`
+  --> src/main.rs:9:9
+   |
+9  | /         fn hello(&self){
+10 | |             // Err
+11 | |         }
+   | |_________^
+```
+
+Trait methods can be named explicitly to disambiguate the function calls.
+
+```Rust
+fn main() {
+    let b = Bar;
+    Foo::hello(&b);
+}
+```
 # Lifetimes
 
 ## Structs
@@ -548,3 +892,38 @@ warning: method `PascalCase` should have a snake case name such as `pascal_case`
   = note: #[warn(non_snake_case)] on by default
 
 ```
+
+# Enum
+
+## Fizzbuzz
+
+```Rust
+#[derive(Debug, Copy, Clone)]
+pub enum FizzBuzz {
+    Fizz,
+    Buzz,
+    FizzBuzz,
+    Number(u32),
+}
+
+impl FizzBuzz {
+    pub fn from_number(n: u32) -> FizzBuzz {
+        use FizzBuzz::*;
+        match (n % 3 == 0, n % 5 == 0) {
+            (true, false) => Fizz,
+            (false, true) => Buzz,
+            (true, true) => FizzBuzz,
+            _ => Number(n),
+        }
+    }
+}
+
+fn main() {
+    (1..100)
+        .map(FizzBuzz::from_number)
+        .for_each(|f| println!("{:?}", f));
+}
+```
+[Playground](https://play.rust-lang.org/?gist=10fc46c8d1998e56746a9a24d802ad7b&version=stable)
+
+# Codegen
