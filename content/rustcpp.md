@@ -5,14 +5,6 @@ tags        = [ "Rust"]
 draft = true
 +++
 
-* [Move semantics](#move-semantics)
-* [Mutability](#mutability)
-* [Traits](#traits)
-* [Lifetimes](#lifetimes)
-* [Conventions](#conventions)
-* [Enum](#enum)
-* [Codegen](#codegen)
-
 # Move semantics
 
 ## Typesafe statemachines
