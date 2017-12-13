@@ -2,6 +2,9 @@ $(function() {
     $(".playpen").each(function(block){
         var pre_block = $(this);
         // Add play button
+        pre_block.find(".clear-button").click(function(e){
+            pre_block.find(".result").text("");
+        });
         pre_block.find(".play-button").click(function(e){
             $.ajax({ url: pre_block.data('url'), success: function(data) { run_rust_code(pre_block, data)} });
         });
