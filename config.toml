@@ -11,7 +11,7 @@ highlight_code = true
 highlight_theme = "gruvbox-dark"
 
 [extra]
-
+rust_code_url = "https://raw.githubusercontent.com/MaikKlein/maikklein.github.io/source/code/rust/src"
 hyde_links = [
     {url = "https://maikklein.github.io", name = "Home"},
     {url = "https://github.com/MaikKlein", name = "Github"},

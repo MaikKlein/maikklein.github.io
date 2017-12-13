@@ -5,6 +5,8 @@ tags        = [ "Rust"]
 draft = true
 +++
 
+
+
 # Move semantics
 
 ## Typesafe statemachines
@@ -260,6 +262,7 @@ fn main() {
 }
 ```
 [Playground](https://play.rust-lang.org/?gist=5b2cbc9bdb945b0654b7da65f576a9c4&version=stable)
+{{ playpen(path="extend-trait.rs") }}
 
 This will implement a method `say()` on an `u32`.
 
