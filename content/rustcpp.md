@@ -920,5 +920,6 @@ fn main() {
 }
 ```
 [Playground](https://play.rust-lang.org/?gist=10fc46c8d1998e56746a9a24d802ad7b&version=stable)
+{{ playpen(path="fizzbuzz.rs") }}
 
 # Codegen
