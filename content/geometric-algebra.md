@@ -29,14 +29,6 @@ $$ u \wedge v = ad (\vec{x} \wedge \vec{y})  - bc(\vec{x} \wedge \vec{y})$$
 $$ u \wedge v = (ad - bc) \vec{x} \wedge \vec{y}$$
 This is essentially the 2d determinant times $\vec{x} \wedge \vec{y} $. The area of $\vec{x} \wedge \vec{y} $ is 1.
 
-
-The wedge product is also associative.
-$$ (\vec{u} \wedge \vec{v}) \wedge \vec{w} = \vec{u} \wedge (\vec{v} \wedge \vec{w}) $$
-You can imagine $(\vec{u} \wedge \vec{v})$ to span a plane in 3d space and $\wedge \vec{w}$ will extend this plane into a 3 dimensional object.
-
-![](https://i.imgur.com/RNYTzJe.gif)
-
-It doesn't matter which plane we create first because all will have the same volume in the end. The wedge product is define for `N` dimensions but we will only use 2d and 3d in this blog post.
 ## Geometric product
 $$\vec{a}\vec{b} = \vec{a} \cdot \vec{b} + \vec{a} \wedge \vec{b} $$
 
@@ -87,29 +79,7 @@ $$ (a + bi)i = ai + bi^2 = -b + ai $$
 
 Multiplying a vector $\vec{u}$ with $\vec{x}\vec{y}$ will result in a vector, and $(\vec{x}\vec{y})^2$ will result in a scalar.
 
-
-Before we put $\vec{x}\vec{y}$ on the right side and we did a $90\degree$ counter clockwise rotation. What happens if you put $\vec{x}\vec{y}$ on the left side?
-$$ \vec{x}\vec{y}\vec{u} = \vec{x}\vec{y}(a\vec{x} + b\vec{y}) = \vec{x}\vec{y}a\vec{x} + \vec{x}\vec{y}b\vec{y} 
-=a(\vec{x}\vec{y}\vec{x}) + b(\vec{x}\vec{y}\vec{y}) = b\vec{x} -a\vec{y}$$
-
-It seems that if $\vec{x}\vec{y}$ is on the left side we will do a $90\degree$ clockwise rotation. 
-Lets see what happens if we swap $\vec{x}\vec{y}$ to $\vec{y}\vec{x}$
-$$ \vec{y}\vec{x}\vec{u} = \vec{y}\vec{x}(a\vec{x} + b\vec{y}) = \vec{y}\vec{x}a\vec{x} + \vec{y}\vec{x}b\vec{y} 
-=a(\vec{y}\vec{x}\vec{x}) + b(\vec{y}\vec{x}\vec{y}) = - b\vec{x} + a\vec{y} $$
-
-We know that $(\vec{x}\vec{y})^2$ is doing a $180\degree$ rotation because we multiply by $-1$. The same is true for $(\vec{y}\vec{x})^2$ because we just rotate from the other side. If $\vec{x}\vec{y}$ is a $ 90 \degree $ clockwise rotation and $\vec{y}\vec{x}$ $90\degree$ counter clockwise rotation, then we would assume that combining them would result in $1$.
-
-$$\vec{u}\vec{x}\vec{y}\vec{y}\vec{x} = \vec{u}\vec{x}\\vec{x} = \vec{u}$$
-
-If we put $\vec{x}\vec{y}$ and the left and right side, we would also expect no change.
-
-$$ \vec{u} = a\vec{x} + b\vec{y} $$
-$$\vec{x}\vec{y}\vec{u}\vec{x}\vec{y} = \vec{x}\vec{y}(a\vec{x} + b\vec{y})\vec{x}\vec{y} $$ 
-$$ = (\vec{x}\vec{y}a\vec{x} + \vec{x}\vec{y}b\vec{y})\vec{x}\vec{y}$$
-$$ = (a\vec{x}\vec{y}\vec{x} + b\vec{x}\vec{y}\vec{y})\vec{x}\vec{y}$$
-$$ = (-a\vec{y} + b\vec{x})\vec{x}\vec{y}$$
-$$ = -a\vec{y}\vec{x}\vec{y} + b\vec{x}\vec{x}\vec{y}$$
-$$ = a\vec{x} + b\vec{y} = \vec{u}$$
+But we are limited to $90\degree$ rotations.
 
 ## Inverse
 
@@ -117,25 +87,11 @@ $$ \vec{u}\vec{u} = \vec{u} \cdot \vec{u} = |\vec{u}|^2$$
 $$ \vec{u}\vec{u} = |\vec{u}|^2 $$
 $$ \frac{\vec{u}}{|\vec{u}|^2}\vec{u} = 1 $$
 $$ \vec{u}^{-1} = \frac{\vec{u}}{|\vec{u}|^2}$$
-$$ \vec{u}^{-1}\vec{u} = 1$$
-
-
-## Dot product
-$$\vec{u}\vec{v} = \vec{u} \cdot \vec{v} + \vec{u} \wedge \vec{v} $$
-$$\vec{v}\vec{u} = \vec{v} \cdot \vec{u} + \vec{v} \wedge \vec{u} = \vec{u} \cdot \vec{v} - \vec{u} \wedge \vec{v} $$
-$$\vec{u}\vec{v} + \vec{v}\vec{u} = 2(\vec{v} \cdot \vec{u}) $$
-$$(\vec{v} \cdot \vec{u}) = \frac{\vec{u}\vec{v} + \vec{v}\vec{u}}{2}$$
-
-## Wedge product
-
-$$\vec{u}\vec{v} = \vec{u} \cdot \vec{v} + \vec{u} \wedge \vec{v} $$
-$$\vec{v}\vec{u} = \vec{v} \cdot \vec{u} + \vec{v} \wedge \vec{u} = \vec{u} \cdot \vec{v} - \vec{u} \wedge \vec{v} $$
-$$\vec{u}\vec{v} - \vec{v}\vec{u} = 2(\vec{u} \wedge \vec{v})$$
-$$\vec{u} \wedge \vec{v} = \frac{\vec{u}\vec{v} - \vec{v}\vec{u}}{2} $$
-
+$$ \vec{u}^{-1}\vec{u} = \vec{u}\vec{u}^{-1} = 1$$
 
 ## Reflection
 
+Before we can learn how to do rotations, we must learn how to do reflections.
 ![](https://i.imgur.com/drCMAoR.png)
 
 $$ \vec{u} = \vec{u}\_\perp + \vec{u}\_{\parallel} $$
@@ -157,12 +113,27 @@ $$ \vec{v}\vec{u}^{\prime} = \vec{u}\vec{v}$$
 $$ \vec{v}^{-1}\vec{v}\vec{u}^{\prime} = \vec{v}^{-1}\vec{u}\vec{v}$$
 $$ \vec{u}^{\prime} = \vec{v}^{-1}\vec{u}\vec{v}$$
 
+Example:
+
+$$\vec{u} = 3\vec{x} + \vec{y}$$
+$$\vec{v} = 2\vec{x} + 2\vec{y}$$
+
+$$\vec{u}^{\prime} = \vec{v}^{-1}\vec{u}\vec{v} = \frac{2\vec{x} + 2\vec{y}}{ 2 * 2 + 2 * 2}(3\vec{x} + \vec{y})(2\vec{x} + 2\vec{y})$$
+$$= (\frac{1}{4}\vec{x} + \frac{1}{4}\vec{y})(3\vec{x} + \vec{y})(2\vec{x} + 2\vec{y})$$
+$$= (\frac{1}{4}\vec{x} + \frac{1}{4}\vec{y})(3\vec{x}2\vec{x} + 3\vec{x}2\vec{y} + \vec{y}2\vec{x} + \vec{y}2\vec{y})$$
+$$= (\frac{1}{4}\vec{x} + \frac{1}{4}\vec{y})(6\vec{x}\vec{x} + 6\vec{x}\vec{y} + 2\vec{y}\vec{x} + 2\vec{y}\vec{y})$$
+$$= (\frac{1}{4}\vec{x} + \frac{1}{4}\vec{y})(8 + 4\vec{x}\vec{y})$$
+$$= 8\frac{1}{4}\vec{x} +\frac{1}{4}\vec{x}4\vec{x}\vec{y} + 8\frac{1}{4}\vec{y} + \frac{1}{4}\vec{y}4\vec{x}\vec{y}$$
+$$= 2\vec{x} +\vec{x}\vec{x}\vec{y} + 2\vec{y} + \vec{y}\vec{x}\vec{y}$$
+$$= 2\vec{x} +\vec{y} + 2\vec{y} - \vec{x}\vec{y}\vec{y}$$
+$$= 2\vec{x} +\vec{y} + 2\vec{y} - \vec{x}$$
+$$= \vec{x} + 3\vec{y}$$
 ## Double reflection as a rotation
 ![](https://i.imgur.com/Kzp6tzy.png)
 
 Instead of reflecting $\vec{u}$ along $\vec{v}$, we will introduce another vector $\vec{w}$ and do a double reflection.
 
-To get t he first reflection we use the equation that we derived above.
+To get the first reflection we use the equation that we derived above.
 
 
 $$ \vec{u}^{\prime} = \vec{v}^{-1}\vec{u}\vec{v}$$
@@ -181,15 +152,6 @@ $$ \vec{w}^{-1} = \vec{w}$$
 Now we can rewrite the equation from above
 
 $$ \vec{u}^{\prime\prime} = (\vec{w}\vec{v})\vec{u}(\vec{v}\vec{w})$$
-
-Also remember that a bivector on the left has the opposite rotation as a bivector on the right and if we swap the order of the bivector we also get the opposite rotation. That means that we can do the following.
-
-$$ \vec{u}^{\prime\prime} = \vec{u}(-\vec{w}\vec{v}\vec{v}\vec{w})$$
-$$ \vec{u}^{\prime\prime} = \vec{u}(\vec{v}\vec{w}\vec{v}\vec{w})$$
-$$ \vec{u}^{\prime\prime} = \vec{u}(\vec{v}\vec{w})^2$$
-
-
-We can see that a double reflection is the same applying the geometric product of $\vec{v}\vec{w}$ two times. We also see that with a double reflection we can rotate a vector around any angle that we would like.
 
 The important angle is the angle between $\vec{v}$ and $\vec{w}$. In the case above the angle was $90\degree$, but we did a rotation of $180\degree$. It is easy to see why this happens.
 
@@ -210,54 +172,62 @@ Or
 
 $$ \alpha = \frac{\theta}{2}$$
 
-Now we can finally rotate a vector with an arbitrary angle. We only need to find two vectors that are not linearly dependent and 
+Now we can finally rotate a vector with an arbitrary angle. If we want to do a $90\degree$ rotation, then the angle between $\vec{v}$ and $\vec{w}$ should be $45\degree$. This property is called double cover.
 
-Example:
+## 3D
 
-$$ \vec{v} = \vec{x} $$
+All the examples that we looked at so far were all in 2D, you might expect more complexity if we want to do rotation in 3D, but that is not the case. Let us do a 3D rotation.
+![](https://i.imgur.com/Z2JCvwh.png)
 
-$$ \vec{w} = \frac{1}{\sqrt{2}}(\vec{x} + \vec{y}) $$
+$$\vec{u} = \vec{x} + \vec{y} + \vec{z}$$
 
-$$ \vec{u} = \vec{x} $$
+We are going to make a $180\degree$ rotation in the $\vec{x}\vec{y}$ plane. That means that the angle between our vectors should be $90\degree$.
 
-The angle between $\vec{v}$ and $\vec{w}$ is $45\degree$, and both are unit vectors.
-$$ \vec{u}(\vec{v}\vec{w})^2 = \vec{x}(\vec{x}\frac{1}{\sqrt{2}}(\vec{x} + \vec{y}))^2$$
-$$= \vec{x}(\frac{1}{\sqrt{2}}\vec{x}\vec{x} + \frac{1}{\sqrt{2}}\vec{x}\vec{y})^2 $$
-$$= \vec{x}(\frac{1}{\sqrt{2}} + \frac{1}{\sqrt{2}}\vec{x}\vec{y})^2$$
-$$= \vec{x}(\frac{1}{\sqrt{2}} + \frac{1}{\sqrt{2}}\vec{x}\vec{y})(\frac{1}{\sqrt{2}} + \frac{1}{\sqrt{2}}\vec{x}\vec{y})$$
-$$ = (\frac{1}{\sqrt{2}}\vec{x} + \frac{1}{\sqrt{2}}\vec{x}\vec{x}\vec{y})(\frac{1}{\sqrt{2}} + \frac{1}{\sqrt{2}}\vec{x}\vec{y}) $$
-$$ = (\frac{1}{\sqrt{2}}\vec{x} + \frac{1}{\sqrt{2}}\vec{y})(\frac{1}{\sqrt{2}} + \frac{1}{\sqrt{2}}\vec{x}\vec{y}) $$
-$$ = \frac{1}{2}\vec{x} + \frac{1}{2}\vec{x}\vec{x}\vec{y} + \frac{1}{2}\vec{x}\vec{x}\vec{y} + \frac{1}{2}\vec{x}\vec{x}\vec{y}\vec{x}\vec{y}$$
-$$ = \frac{1}{2}\vec{x} + \frac{1}{2}\vec{y} + \frac{1}{2}\vec{y} + \frac{1}{2}\vec{y}\vec{x}\vec{y}$$
-$$ = \frac{1}{2}\vec{x} + \frac{1}{2}\vec{y} + \frac{1}{2}\vec{y} - \frac{1}{2}\vec{x}\vec{y}\vec{y}$$
-$$ = \frac{1}{2}\vec{x} + \frac{1}{2}\vec{y} + \frac{1}{2}\vec{y} - \frac{1}{2}\vec{x}$$
-$$ = \frac{1}{2}\vec{y} + \frac{1}{2}\vec{y}$$
-$$ = \vec{y}$$
+As before we will do a 3D rotation by double reflection.
+$$ \vec{u^{\prime}} = (\vec{y}\vec{x})\vec{u}(\vec{x}\vec{y}) $$
 
-We rotated $\vec{u}$ from $\vec{x}$ to $\vec{y}$.
+$$ = (\vec{y}\vec{x})(\vec{x} + \vec{y} + \vec{z})(\vec{x}\vec{y}) $$
+$$ = (\vec{y}\vec{x})(\vec{x} + \vec{y} + \vec{z})(\vec{x}\vec{y}) $$
+$$ = \vec{y}\vec{x}\vec{x}\vec{x}\vec{y} +\vec{y}\vec{x}\vec{y}\vec{x}\vec{y}+\vec{y}\vec{x}\vec{z}\vec{x}\vec{y} $$
+$$ = \vec{y}\vec{x}\vec{y}  - \vec{y}\vec{y}\vec{x}\vec{x}\vec{y}-\vec{y}\vec{x}\vec{x}\vec{z}\vec{y} $$
+$$ = -\vec{y}\vec{y}\vec{x}  - \vec{y}-\vec{y}\vec{z}\vec{y} $$
+$$ = -\vec{x}  - \vec{y} + \vec{z}\vec{y}\vec{y} $$
+$$ = -\vec{x}  - \vec{y} + \vec{z} $$
 
-## Rotator
+And we get the correct result. But why can we use double reflection in 3D?
 
-$$\vec{u}\vec{v} = \vec{u} \cdot \vec{v} + \vec{u} \wedge \vec{v} $$
+We choose two vectors that span a plane in 3D space, we call them $\vec{v}$ and $\vec{w}$. 
 
-There is another interesting property.
-$$\vec{u}\vec{v} = |\vec{u}||\vec{v}|\cos{\theta} + |\vec{u}||\vec{v}|\sin{\theta}\vec{x} \wedge \vec{y} $$
-$$\vec{u}\vec{v} = |\vec{u}||\vec{v}|\cos{\theta} + |\vec{u}||\vec{v}|\sin{\theta}I $$
+$$|\vec{w}| = |\vec{w}| = 1$$
 
-Where $I=$ some bivector
-$$\vec{u}\vec{v} = |\vec{u}||\vec{v}|(\cos{\theta} + \sin{\theta}I) $$
-$$\vec{u}\vec{v} = |\vec{u}||\vec{v}|e^{\theta I} $$
-
-We can derive another inverse
-
-$$\vec{u}\vec{v}x = |\vec{u}||\vec{v}|e^{\theta I}x = 1 $$
-
-We are looking for an $x$ that satisfies this equation. The first thing we are going to do is to divide by the scalar $\frac{1}{|\vec{u}||\vec{v}|}$ and now we need to revert the rotation
-which is just $e^{-\theta I}$
-
-$$ (\vec{u}\vec{v})^{-1} = \frac{1}{|\vec{u}||\vec{v}|}e^{-\theta I}$$
-
-Before we can move on we need to prove
+$$ R = \vec{v}\vec{w} $$
+$$ R^{\dag} = \vec{w}\vec{v} $$
 
 
-$$ (\vec{u}\vec{v})^{-1} = \vec{u}^{-1}\vec{v}^{-1} = \frac{\vec{u}}{|\vec{u}|}\frac{\vec{v}}{|\vec{v}|} = \frac{1}{|\vec{u}||\vec{v}|}\vec{u}\vec{v}$$ 
+$$ \vec{u} = \vec{u}\_{\parallel} + \vec{u}\_{\perp} $$
+
+Where $\vec{u}\_{\perp}$ is perpendicular to $\vec{v}$ and $\vec{w}$ and \vec{u}\_{\parallel} is parallel to $\vec{v}$ and $\vec{w}$.
+
+## Quaternions
+$$\vec{u} \cdot \vec{v} = |\vec{u}||\vec{v}|\cos{\alpha}$$
+
+![](https://i.imgur.com/yxZyLdA.png)
+
+Remember that $\vec{u} \wedge \vec{v}$ gives us a unit bivector with the signed area that $\vec{u}$ and $\vec{v}$ span. The area of a parallelogram is base $*$ height.
+
+$$\vec{u} \wedge \vec{v} = |\vec{u}||\vec{v}|\sin{\alpha}\vec{x}\vec{y}\vec{z}$$
+
+$$\vec{u}\vec{v} = |\vec{u}||\vec{v}|\cos{\alpha} + |\vec{u}||\vec{v}|\sin{\alpha}\vec{x}\vec{y}\vec{z} $$
+
+And if $|\vec{u}| = |\vec{v}| = 1$ then
+$$\vec{u}\vec{v} = \cos{\alpha} + \sin{\alpha}\vec{x}\vec{y}\vec{z} $$
+And the inverse
+$$\vec{v}\vec{u} = \cos{\alpha} - \sin{\alpha}\vec{x}\vec{y}\vec{z} $$
+
+The dot product doesn't change because it is commutative, but the order of the wedge product switched and therefor switches the sign.
+$$\vec{u} \wedge \vec{v} = -(\vec{v} \wedge \vec{u})$$
+
+But remember that we are rotation by double reflection and $ \alpha = \frac{\theta}{2}$.
+
+$$\vec{u}\vec{v} = \cos{\frac{\theta}{2}} + \sin{\frac{\theta}{2}}\vec{x}\vec{y}\vec{z} $$
+$$\vec{v}\vec{u} = \cos{\frac{\theta}{2}} - \sin{\frac{\theta}{2}}\vec{x}\vec{y}\vec{z} $$
