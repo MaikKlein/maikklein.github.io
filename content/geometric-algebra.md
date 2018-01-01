@@ -25,7 +25,7 @@ $$ \vec{v} = c\vec{x} + d\vec{y}$$
 $$ \vec{u} \wedge \vec{v} = (a\vec{x} + b\vec{y}) \wedge (c\vec{x} + d\vec{y}) $$ $$ = a\vec{x} \wedge c\vec{x} + a\vec{x} \wedge d\vec{y} + b\vec{y} \wedge cx + b\vec{y} \wedge d\vec{y}$$ $$ = a\vec{x} \wedge d\vec{y} + b\vec{y} \wedge c\vec{x}$$ $$ = a\vec{x} \wedge d\vec{y} - c\vec{x} \wedge b\vec{y}$$ $$ = ad (\vec{x} \wedge \vec{y}) - bc(\vec{x} \wedge \vec{y})$$ $$ = (ad - bc) \vec{x} \wedge \vec{y}$$
  This is essentially the 2d determinant times $\vec{x} \wedge \vec{y} $. The area of $\vec{x} \wedge \vec{y} $ is 1. From now on we will call this a bivector. A bivector therefor consists of two vectors that form a plane, and its magnitude is the signed area that those vectors are spanning.
 
-![](https://i.imgur.com/yxZyLdA.png)
+![](https://i.imgur.com/cVWINRS.png)
 Remember that $\vec{u} \wedge \vec{v}$ gives us a unit bivector with the signed area that $\vec{u}$ and $\vec{v}$ span. The area of a parallelogram is base $*$ height. Another way of defining the wedge product:
 
 $$\vec{u} \wedge \vec{v} = |\vec{u}||\vec{v}|\sin({\alpha})B$$
