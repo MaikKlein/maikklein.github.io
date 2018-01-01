@@ -20,7 +20,8 @@ $$ \vec{u} = a\vec{x} + b\vec{y}$$
 
 $$ \vec{v} = c\vec{x} + d\vec{y}$$
 
-$$ \vec{u} \wedge \vec{v} = (a\vec{x} + b\vec{y}) \wedge (c\vec{x} + d\vec{y}) $$ $$ = a\vec{x} \wedge c\vec{x} + a\vec{x} \wedge d\vec{y} + b\vec{y} \wedge cx + b\vec{y} \wedge d\vec{y}$$ $$ = a\vec{x} \wedge d\vec{y} + b\vec{y} \wedge c\vec{x}$$ $$ = a\vec{x} \wedge d\vec{y} - c\vec{x} \wedge b\vec{y}$$ $$ = ad (\vec{x} \wedge \vec{y}) - bc(\vec{x} \wedge \vec{y})$$ $$ = (ad - bc) \vec{x} \wedge \vec{y}$$ This is essentially the 2d determinant times $\vec{x} \wedge \vec{y} $. The area of $\vec{x} \wedge \vec{y} $ is 1. From now own we will call this a bivector. A bivector therefor consists of two vectors that form a plane, and its magnitude is the signed area that those vectors are spanning.
+$$ \vec{u} \wedge \vec{v} = (a\vec{x} + b\vec{y}) \wedge (c\vec{x} + d\vec{y}) $$ $$ = a\vec{x} \wedge c\vec{x} + a\vec{x} \wedge d\vec{y} + b\vec{y} \wedge cx + b\vec{y} \wedge d\vec{y}$$ $$ = a\vec{x} \wedge d\vec{y} + b\vec{y} \wedge c\vec{x}$$ $$ = a\vec{x} \wedge d\vec{y} - c\vec{x} \wedge b\vec{y}$$ $$ = ad (\vec{x} \wedge \vec{y}) - bc(\vec{x} \wedge \vec{y})$$ $$ = (ad - bc) \vec{x} \wedge \vec{y}$$
+ This is essentially the 2d determinant times $\vec{x} \wedge \vec{y} $. The area of $\vec{x} \wedge \vec{y} $ is 1. From now own we will call this a bivector. A bivector therefor consists of two vectors that form a plane, and its magnitude is the signed area that those vectors are spanning.
 # Geometric product
 $$\vec{u}\vec{v} = \vec{u} \cdot \vec{v} + \vec{u} \wedge \vec{v} $$
 
@@ -66,7 +67,10 @@ $$ \vec{u}^{-1}\vec{u} = \vec{u}\vec{u}^{-1} = 1$$
 
 Before we can learn how to do rotations, we must learn how to do reflections.
 ![](https://i.imgur.com/drCMAoR.png)
-$$ \vec{u} = \vec{u}_\perp + \vec{u}_{\parallel} $$ $$ \vec{u}^{\prime} =\vec{u}_{\parallel} - \vec{u}_\perp$$ We are going to define vector reflection with the geometric product. $$ \vec{u}^{\prime}\vec{v}\ = \vec{u}_{\parallel}\vec{v}\ - \vec{u}_\perp\vec{v}$$ $$ \vec{u}^{\prime}\vec{v}\ = \vec{v}\vec{u}_{\parallel} + \vec{v}\vec{u}_\perp$$ $$ \vec{u}^{\prime}\vec{v}\ = \vec{v}\vec{u}_{\parallel} + \vec{v}\vec{u}_\perp$$ $$ \vec{u}^{\prime}\vec{v}\ = \vec{v}(\vec{u}_{\parallel} + \vec{u}_\perp)$$ $$ \vec{u}^{\prime}\vec{v}\ = \vec{v}\vec{u}$$ $$ \vec{u}^{\prime}\vec{v}\vec{v}^{-1} = \vec{v}\vec{u}\vec{v}^{-1}$$ $$ \vec{u}^{\prime} = \vec{v}\vec{u}\vec{v}^{-1}$$ Interestingly we could have also used the opposite approach. $$ \vec{u} = \vec{u}_\perp + \vec{u}_{\parallel} $$ $$ \vec{u}^{\prime} =\vec{u}_{\parallel} - \vec{u}_\perp$$ $$ \vec{v}\vec{u}^{\prime} = \vec{v}\vec{u}_{\parallel} - \vec{v}\vec{u}_\perp$$ $$ \vec{v}\vec{u}^{\prime} = \vec{u}_{\parallel}\vec{v} + \vec{u}_\perp\vec{v}$$ $$ \vec{v}\vec{u}^{\prime} = (\vec{u}_{\parallel} + \vec{u}_\perp)\vec{v}$$ $$ \vec{v}\vec{u}^{\prime} = \vec{u}\vec{v}$$ $$ \vec{v}^{-1}\vec{v}\vec{u}^{\prime} = \vec{v}^{-1}\vec{u}\vec{v}$$ $$ \vec{u}^{\prime} = \vec{v}^{-1}\vec{u}\vec{v}$$
+
+$$ \vec{u} = \vec{u}\_\perp + \vec{u}\_{\parallel} $$
+
+$$ \vec{u}^{\prime} =\vec{u}\_{\parallel} - \vec{u}\_\perp$$ We are going to define vector reflection with the geometric product. $$ \vec{u}^{\prime}\vec{v}\ = \vec{u}\_{\parallel}\vec{v}\ - \vec{u}\_\perp\vec{v}$$ $$ \vec{u}^{\prime}\vec{v}\ = \vec{v}\vec{u}\_{\parallel} + \vec{v}\vec{u}\_\perp$$ $$ \vec{u}^{\prime}\vec{v}\ = \vec{v}\vec{u}\_{\parallel} + \vec{v}\vec{u}\_\perp$$ $$ \vec{u}^{\prime}\vec{v}\ = \vec{v}(\vec{u}\_{\parallel} + \vec{u}\_\perp)$$ $$ \vec{u}^{\prime}\vec{v}\ = \vec{v}\vec{u}$$ $$ \vec{u}^{\prime}\vec{v}\vec{v}^{-1} = \vec{v}\vec{u}\vec{v}^{-1}$$ $$ \vec{u}^{\prime} = \vec{v}\vec{u}\vec{v}^{-1}$$ Interestingly we could have also used the opposite approach. $$ \vec{u} = \vec{u}\_\perp + \vec{u}\_{\parallel} $$ $$ \vec{u}^{\prime} =\vec{u}\_{\parallel} - \vec{u}\_\perp$$ $$ \vec{v}\vec{u}^{\prime} = \vec{v}\vec{u}\_{\parallel} - \vec{v}\vec{u}\_\perp$$ $$ \vec{v}\vec{u}^{\prime} = \vec{u}\_{\parallel}\vec{v} + \vec{u}\_\perp\vec{v}$$ $$ \vec{v}\vec{u}^{\prime} = (\vec{u}\_{\parallel} + \vec{u}\_\perp)\vec{v}$$ $$ \vec{v}\vec{u}^{\prime} = \vec{u}\vec{v}$$ $$ \vec{v}^{-1}\vec{v}\vec{u}^{\prime} = \vec{v}^{-1}\vec{u}\vec{v}$$ $$ \vec{u}^{\prime} = \vec{v}^{-1}\vec{u}\vec{v}$$
 
 Example:
 
@@ -135,19 +139,19 @@ $$|\vec{w}| = |\vec{w}| = 1$$
 
 $$ R = \vec{v}\vec{w} $$ $$ R^{\dag} = \vec{w}\vec{v} $$
 
-$$ \vec{u} = \vec{u}_{\parallel} + \vec{u}_{\perp} $$
+$$ \vec{u} = \vec{u}\_{\parallel} + \vec{u}\_{\perp} $$
 
-Where $\vec{u}_{\perp}$ is perpendicular to $\vec{v}$ and $\vec{w}$ and $\vec{u}_{\parallel}$ is parallel to $\vec{v}$ and $\vec{w}$.
+Where $\vec{u}\_{\perp}$ is perpendicular to $\vec{v}$ and $\vec{w}$ and $\vec{u}\_{\parallel}$ is parallel to $\vec{v}$ and $\vec{w}$.
 
-$$ \vec{u^{\prime}} = R^{\dag}\vec{u}R = (\vec{w}\vec{v})(\vec{u}_{\parallel} + \vec{u}_{\perp})(\vec{v}\vec{w}) $$ $$=\vec{w}\vec{v}\vec{u}_{\parallel}\vec{v}\vec{w} + \vec{w}\vec{v}\vec{u}_{\perp}\vec{v}\vec{w}$$
+$$ \vec{u^{\prime}} = R^{\dag}\vec{u}R = (\vec{w}\vec{v})(\vec{u}\_{\parallel} + \vec{u}\_{\perp})(\vec{v}\vec{w}) $$ $$=\vec{w}\vec{v}\vec{u}\_{\parallel}\vec{v}\vec{w} + \vec{w}\vec{v}\vec{u}\_{\perp}\vec{v}\vec{w}$$
 
-Let us pause here for a second. We have $\vec{w}\vec{v}\vec{u}_{\perp}\vec{v}\vec{w}$ and remember that $\vec{u}_{\perp}$ is perpendicular to $\vec{v}$ and $\vec{w}$.
+Let us pause here for a second. We have $\vec{w}\vec{v}\vec{u}\_{\perp}\vec{v}\vec{w}$ and remember that $\vec{u}\_{\perp}$ is perpendicular to $\vec{v}$ and $\vec{w}$.
 
 Also remember that if two vectors are perpendicular the dot product is 0 and we are left with only the wedge product.
 
-$$ \vec{w}\vec{v}\vec{u}_{\perp}\vec{v}\vec{w} = -\vec{w}\vec{u}_{\perp}\vec{v}\vec{v}\vec{w} = \vec{u}_{\perp}\vec{w}\vec{v}\vec{v}\vec{w} = \vec{u}_{\perp}\vec{w}\vec{w} = \vec{u}_{\perp} $$
+$$ \vec{w}\vec{v}\vec{u}\_{\perp}\vec{v}\vec{w} = -\vec{w}\vec{u}\_{\perp}\vec{v}\vec{v}\vec{w} = \vec{u}\_{\perp}\vec{w}\vec{v}\vec{v}\vec{w} = \vec{u}\_{\perp}\vec{w}\vec{w} = \vec{u}\_{\perp} $$
 
-$$\vec{u^{\prime}} = \vec{w}\vec{v}\vec{u}_{\parallel}\vec{v}\vec{w} + \vec{u}_{\perp}$$
+$$\vec{u^{\prime}} = \vec{w}\vec{v}\vec{u}\_{\parallel}\vec{v}\vec{w} + \vec{u}\_{\perp}$$
 
 We only rotate the part of $\vec{u}$ that is parallel to $\vec{v}$ and $\vec{w}$. This is exactly how we did double reflection in 2D.
 
@@ -191,8 +195,10 @@ $$ \vec{v^{\prime}} = R\vec{u}R^{\dag} = (\cos({\frac{\alpha}{2}}) + \sin({\frac
 
 This looks very similar to a quaternion.
 
-$$ \vec{v^{\prime}} = q\vec{v}q^{-1} = (\cos{\frac{\alpha}{2}} + \vec{u}\sin{\frac{\alpha}{2}})\vec{v}(\cos{\frac{\alpha}{2}} - \vec{u}\sin{\frac{\alpha}{2}})$$
+$$ \vec{v^{\prime}} = q\vec{v}q^{-1} = (\cos{\frac{\alpha}{2}} + \hat{u}\sin{\frac{\alpha}{2}})\vec{v}(\cos{\frac{\alpha}{2}} - \hat{u}\sin{\frac{\alpha}{2}})$$
 
+
+The only difference is $B$ and $\hat{u}$. With the bivector $B$ we do a rotation on the plane, and with a quaternion we do a rotation around the axis $\hat{u}$. The normal vector of $B$ is $\hat{u}$.
 # Double cover
 Let $\alpha = 2\pi$
 
@@ -204,7 +210,25 @@ Let $\alpha = 4\pi$
 
 $$ R = \cos({2\pi}) + \sin({2\pi})B = 1 $$ A $2\pi$ rotation is the same as a $4\pi$ rotation but we end up with two different rotors. $$ \vec{u^{\prime}} = R\vec{u}R^{\dag} = (\vec{v}\vec{w})\vec{u}(\vec{w}\vec{v})$$ $$ = --(\vec{v}\vec{w})\vec{u}(\vec{w}\vec{v})$$ $$ = (-\vec{v}\vec{w})\vec{u}(-\vec{w}\vec{v})$$
 
-There are two different rotors that will apply the same rotation. This property is called double cover.
+There are two different rotors that will apply the same rotation. This property is called double cover and it helps with [SLERP](https://en.wikipedia.org/wiki/Slerp#Quaternion\_Slerp) (spherical linear interpolation). If you think about interpolation between two rotations, then you have two choices. For example you can rotate by $90\degree\$ or by $270\degree$ in the opposite direction, it results in the same rotation. You have two paths that you can take, the short way $(90\degree)$ or the long way $(270\degree)$. If you know the rotation will take the long path $(>180\degree)$ then you can just negate the quaternion / rotor to interpolate in the opposite direction, thus ensuring that the path of the interpolation will be the shortest path.
+# Exponentials
+
+We have two properties of the wedge product.
+$$\vec{u} \wedge \vec{v} = |\vec{u}||\vec{v}|\sin({\alpha})B$$
+
+$$ \vec{u} \wedge \vec{v} = (ad - bc) \vec{x} \wedge \vec{y}$$
+
+We have also seen that if two vectors $\vec{u}$ and $\vec{v}$ are orthogonal and unit length the squared geometric product is -1.
+$$ (\vec{u}\vec{v})^2 = \vec{u}\vec{v}\vec{u}\vec{v} = -\vec{u}\vec{u}\vec{v}\vec{v} = -1 $$
+
+$$e^{i\theta} = \cos(\theta) + i\sin(\theta) $$
+
+Because the bivector $B$ has the same properties as $i$, that we can write the geometric product as an exponential
+
+
+$$ e^{B\theta} = \cos(\theta) + \sin(\theta)B $$
+$$ R = e^{B\frac{\theta}{2}}$$
+$$ \vec{v^{\prime}} = R\vec{u}R^{\dag} = e^{B\frac{\theta}{2}}\vec{v}e^{-B\frac{\theta}{2}}$$
 
 # Recap
 We started with the definition of the geometric product, then we learned that we can express any rotation by double reflection. We derived a formula for double reflection by using the geometric product which we called rotors. After that we compared rotors to quaternions and found that they look almost identical.
