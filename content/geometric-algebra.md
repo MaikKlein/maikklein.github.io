@@ -114,7 +114,7 @@ In geometric algebra, this is called a rotor $R$.
 
 $$R = \vec{v}\vec{w}$$ $$R^{\dag} = \vec{w}\vec{v}$$
 
-$$ \vec{u^{\prime}} = R\vec{u}R^{\dag} = R^{\dag}\vec{u}R $$ The important angle is the angle between $\vec{v}$ and $\vec{w}$. In the case above the angle was $90\degree$, but we did a rotation of $180\degree$. It is easy to see why this happens.
+$$ \vec{u^{\prime\prime}} = R\vec{u}R^{\dag} = R^{\dag}\vec{u}R $$ The important angle is the angle between $\vec{v}$ and $\vec{w}$. In the case above the angle was $90\degree$, but we did a rotation of $180\degree$. It is easy to see why this happens.
 
 Let us assume that:
 
