@@ -4,7 +4,7 @@ date        = "2017-12-30"
 +++
 
 # Wedge product
-The wedge product will give us there area that two vectors are spanning.
+The wedge product will give us the signed area that two vectors are spanning.
 
 We start of with two properties:
 
@@ -22,6 +22,14 @@ $$ \vec{v} = c\vec{x} + d\vec{y}$$
 
 $$ \vec{u} \wedge \vec{v} = (a\vec{x} + b\vec{y}) \wedge (c\vec{x} + d\vec{y}) $$ $$ = a\vec{x} \wedge c\vec{x} + a\vec{x} \wedge d\vec{y} + b\vec{y} \wedge cx + b\vec{y} \wedge d\vec{y}$$ $$ = a\vec{x} \wedge d\vec{y} + b\vec{y} \wedge c\vec{x}$$ $$ = a\vec{x} \wedge d\vec{y} - c\vec{x} \wedge b\vec{y}$$ $$ = ad (\vec{x} \wedge \vec{y}) - bc(\vec{x} \wedge \vec{y})$$ $$ = (ad - bc) \vec{x} \wedge \vec{y}$$
  This is essentially the 2d determinant times $\vec{x} \wedge \vec{y} $. The area of $\vec{x} \wedge \vec{y} $ is 1. From now own we will call this a bivector. A bivector therefor consists of two vectors that form a plane, and its magnitude is the signed area that those vectors are spanning.
+
+![](https://i.imgur.com/yxZyLdA.png)
+Remember that $\vec{u} \wedge \vec{v}$ gives us a unit bivector with the signed area that $\vec{u}$ and $\vec{v}$ span. The area of a parallelogram is base $*$ height.
+
+$$\vec{u} \wedge \vec{v} = |\vec{u}||\vec{v}|\sin({\alpha})B$$
+
+$B$ is some unit bivector.
+
 # Geometric product
 $$\vec{u}\vec{v} = \vec{u} \cdot \vec{v} + \vec{u} \wedge \vec{v} $$
 
@@ -173,13 +181,12 @@ Notice that $q\vec{v}q^{-1}$ and $\frac{\alpha}{2}$ looks like a double reflecti
 
 The geometric product is defined as the dot product + the wedge product. $$\vec{u}\vec{v} = \vec{u} \cdot \vec{v} + \vec{u} \wedge \vec{v} $$
 
+
 One property of the dot product is $\vec{u} \cdot \vec{v} = |\vec{u}||\vec{v}|\cos{\alpha}$.
-![](https://i.imgur.com/yxZyLdA.png)
-Remember that $\vec{u} \wedge \vec{v}$ gives us a unit bivector with the signed area that $\vec{u}$ and $\vec{v}$ span. The area of a parallelogram is base $*$ height.
 
-$$\vec{u} \wedge \vec{v} = |\vec{u}||\vec{v}|\sin({\alpha})B$$
+One property of the wedge product is $\vec{u} \wedge \vec{v} = |\vec{u}||\vec{v}|\sin({\alpha})B$.
 
-$B$ is some unit bivector.
+Substituting those properties into the geometric product gives us
 
 $$\vec{u}\vec{v} = |\vec{u}||\vec{v}|\cos({\alpha}) + |\vec{u}||\vec{v}|\sin({\alpha})B $$
 
@@ -231,4 +238,4 @@ $$ R = e^{B\frac{\theta}{2}}$$
 $$ \vec{v^{\prime}} = R\vec{u}R^{\dag} = e^{B\frac{\theta}{2}}\vec{v}e^{-B\frac{\theta}{2}}$$
 
 # Recap
-We started with the definition of the geometric product, then we learned that we can express any rotation by double reflection. We derived a formula for double reflection by using the geometric product which we called rotors. After that we compared rotors to quaternions and found that they look almost identical.
+We started with the definition of the geometric product, then we learned that we can express any rotation by double reflection. We derived a formula for double reflection by using the geometric product which we called rotors. After that we compared rotors to quaternions and found that they look almost identical. We then learned about double cover and how it helps us with spherical interpolation.
