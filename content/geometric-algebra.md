@@ -4,7 +4,7 @@ date        = "2017-12-30"
 +++
 # Preface
 
-We are going to derive quaternions with the help of geometric algebra. The only prerequisite is a basic understanding or linear algebra and trigonometry.
+We are going to derive quaternions with the help of geometric algebra. The only prerequisite is a basic understanding or linear algebra and trigonometry. In this blog post $\vec{x}$, $\vec{y}$ and $\vec{z}$ will be the unit basis vectors.
 # Wedge product
 Before we start, let me briefly introduce the wedge product. The wedge product will give us the signed area that two vectors are spanning.
 
@@ -140,7 +140,7 @@ All the examples that we looked at so far were all in 2D, you might expect more 
 
 We are going to make a $180\degree$ rotation in the $\vec{x}\vec{y}$ plane. That means that the angle between our vectors should be $90\degree$. We can choose any two unit vectors in the $\vec{x}\vec{y}$ plane but for simplicity I will choose the basis vectors $\vec{x}\vec{y}$.
 
-As before we will do a 3D rotation by double reflection. $$\vec{u} = \vec{x} + \vec{y} + \vec{z}$$ $$ R = \vec{x}\vec{y}$$ $$ R^{\dag} = \vec{y}\vec{x}$$
+We will do a 3D rotation by double reflection. $$\vec{u} = \vec{x} + \vec{y} + \vec{z}$$ $$ R = \vec{x}\vec{y}$$ $$ R^{\dag} = \vec{y}\vec{x}$$
 
 $$\vec{u^{\prime}} = R^{\dag}\vec{u}R = (\vec{y}\vec{x})(\vec{x} + \vec{y} + \vec{z})(\vec{x}\vec{y}) $$ $$ = \vec{y}\vec{x}\vec{x}\vec{x}\vec{y} +\vec{y}\vec{x}\vec{y}\vec{x}\vec{y}+\vec{y}\vec{x}\vec{z}\vec{x}\vec{y} $$ $$ = \vec{y}\vec{x}\vec{y} - \vec{y}\vec{y}\vec{x}\vec{x}\vec{y}-\vec{y}\vec{x}\vec{x}\vec{z}\vec{y} $$ $$ = -\vec{y}\vec{y}\vec{x} - \vec{y}-\vec{y}\vec{z}\vec{y} $$ $$ = -\vec{x} - \vec{y} + \vec{z}\vec{y}\vec{y} $$ $$ = -\vec{x} - \vec{y} + \vec{z} $$
 
@@ -154,13 +154,13 @@ $$ R = \vec{v}\vec{w} $$ $$ R^{\dag} = \vec{w}\vec{v} $$
 
 $$ \vec{u} = \vec{u}\_{\parallel} + \vec{u}\_{\perp} $$
 
-Where $\vec{u}\_{\perp}$ is perpendicular to $\vec{v}$ and $\vec{w}$ and $\vec{u}\_{\parallel}$ is parallel to $\vec{v}$ and $\vec{w}$.
+Where $\vec{u}\_{\perp}$ is orthogonal to $\vec{v}$ and $\vec{w}$ and $\vec{u}\_{\parallel}$ is parallel to $\vec{v}$ and $\vec{w}$.
 
 $$ \vec{u^{\prime}} = R^{\dag}\vec{u}R = (\vec{w}\vec{v})(\vec{u}\_{\parallel} + \vec{u}\_{\perp})(\vec{v}\vec{w}) $$ $$=\vec{w}\vec{v}\vec{u}\_{\parallel}\vec{v}\vec{w} + \vec{w}\vec{v}\vec{u}\_{\perp}\vec{v}\vec{w}$$
 
-Let us pause here for a second. We have $\vec{w}\vec{v}\vec{u}\_{\perp}\vec{v}\vec{w}$ and remember that $\vec{u}\_{\perp}$ is perpendicular to $\vec{v}$ and $\vec{w}$.
+Let us pause here for a second. We have $\vec{w}\vec{v}\vec{u}\_{\perp}\vec{v}\vec{w}$ and remember that $\vec{u}\_{\perp}$ is orthogonal to $\vec{v}$ and $\vec{w}$.
 
-Also remember that if two vectors are perpendicular the dot product is 0 and we are left with only the wedge product.
+Also remember that if two vectors are orthogonal the dot product is 0 and we are left with only the wedge product.
 
 $$ \vec{w}\vec{v}\vec{u}\_{\perp}\vec{v}\vec{w} = -\vec{w}\vec{u}\_{\perp}\vec{v}\vec{v}\vec{w} = \vec{u}\_{\perp}\vec{w}\vec{v}\vec{v}\vec{w} = \vec{u}\_{\perp}\vec{w}\vec{w} = \vec{u}\_{\perp} $$
 
@@ -180,7 +180,11 @@ Something strange is happening here. We know that there are two ways of doing th
 
 To correctly combine rotors, you need to use the same formula for reflection. $$\vec{u^{\prime\prime}} = (RR)\vec{u}(R^{\dag}R^{\dag}) =(R^{\dag}R^{\dag})\vec{u}(RR) $$
 # Quaternions
-$$ \vec{v^{\prime}} = q\vec{v}q^{-1} = (\cos{\frac{\alpha}{2}} + \vec{u}\sin{\frac{\alpha}{2}})\vec{v}(\cos{\frac{\alpha}{2}} - \vec{u}\sin{\frac{\alpha}{2}})$$
+A unit quaternion is fined as 
+$$q = \cos{\frac{\alpha}{2}} + \hat{u}\sin{\frac{\alpha}{2}}$$
+$$q^{-1} = \cos{\frac{\alpha}{2}} - \hat{u}\sin{\frac{\alpha}{2}}$$
+And vector rotation is defined as 
+$$ \vec{v^{\prime}} = q\vec{v}q^{-1} = (\cos{\frac{\alpha}{2}} + \hat{u}\sin{\frac{\alpha}{2}})\vec{v}(\cos{\frac{\alpha}{2}} - \hat{u}\sin{\frac{\alpha}{2}})$$
 
 Notice that $q\vec{v}q^{-1}$ and $\frac{\alpha}{2}$ looks like a double reflection, but where are the $\cos$ and $\sin$ coming from?
 
