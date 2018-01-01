@@ -219,7 +219,7 @@ $$ R = \cos({2\pi}) + \sin({2\pi})B = 1 $$ A $2\pi$ rotation is the same as a $4
 
 There are two different rotors that will apply the same rotation. This property is called double cover and it helps with [SLERP](https://en.wikipedia.org/wiki/Slerp#Quaternion\_Slerp) (spherical linear interpolation). If you think about interpolation between two rotations, then you have two choices. For example you can rotate by $90\degree\$ or by $270\degree$ in the opposite direction, it results in the same rotation. You have two paths that you can take, the short way $(90\degree)$ or the long way $(270\degree)$. If you know the rotation will take the long path $(>180\degree)$ then you can just negate the quaternion / rotor to interpolate in the opposite direction, thus ensuring that the path of the interpolation will be the shortest path.
 
-![](https://i.imgur.com/O0Cpoe4.png)
+![](https://i.imgur.com/6S6sr2q.png)
 # Exponentials
 
 We have two properties of the wedge product.
