@@ -114,7 +114,8 @@ In geometric algebra, this is called a rotor $R$.
 
 $$R = \vec{v}\vec{w}$$ $$R^{\dag} = \vec{w}\vec{v}$$
 
-$$ \vec{u^{\prime\prime}} = R\vec{u}R^{\dag} = R^{\dag}\vec{u}R $$ The important angle is the angle between $\vec{v}$ and $\vec{w}$. In the case above the angle was $90\degree$, but we did a rotation of $180\degree$. It is easy to see why this happens.
+$$ \vec{u^{\prime\prime}} = R\vec{u}R^{\dag} = R^{\dag}\vec{u}R $$
+In the case above the angle between $\vec{v}$ and $\vec{w}$ was $90\degree$, but we did a rotation of $180\degree$. It is easy to see why this happens.
 
 Let us assume that:
 
@@ -132,7 +133,27 @@ Or
 
 $$ \alpha = \frac{\theta}{2}$$
 
-We can finally rotate a vector with an arbitrary angle. If we want to rotate around $\alpha$ we do a double reflection, where the angle between $\vec{v}$ and $\vec{w}$ is $\frac{\alpha}{2}$.
+To recap: We chose two vectors $\vec{v}$ and $\vec{w}$, we then reflected $\vec{u}$ though $\vec{v}$ and then though $\vec{v}$. We then saw that the overall rotation has the same angle as two times the angle between $\vec{v}$ and $\vec{w}$. The implication is that only the angle between $\vec{v}$ and $\vec{w}$ is important. You can choose any two vectors on a plane, if those vectors have the same angle, then they will apply the same rotation.
+
+Example:
+
+$$\vec{u} = 3\vec{x} + \vec{y} $$
+$$\vec{v} = \vec{x} $$
+$$\vec{w} = \vec{y} $$
+$$ R = \vec{x}\vec{y} $$
+$$ R^{\dag} = \vec{y}\vec{x} $$
+
+Here the angle between $\vec{x}$ and $\vec{y}$ is $90\degree$.
+
+$$ \vec{u^{\prime\prime}} = R\vec{u}R^{\dag} = \vec{x}\vec{y}(3\vec{x} + \vec{y})\vec{y}\vec{x} $$
+$$ = (3\vec{x}\vec{y}\vec{x} + \vec{x}\vec{y}\vec{y})\vec{y}\vec{x} $$
+$$ = 3\vec{x}\vec{y}\vec{x}\vec{y}\vec{x} + \vec{x}\vec{y}\vec{y}\vec{y}\vec{x} $$
+$$ = -3\vec{y}\vec{x}\vec{x}\vec{y}\vec{x} + \vec{x}\vec{y}\vec{x} $$
+$$ = -3\vec{y}\vec{y}\vec{x} - \vec{y}\vec{x}\vec{x} $$
+$$ = -3\vec{x} - \vec{y} $$
+
+If we want to rotate around $\alpha$, the angle between $\vec{v}$ and $\vec{w}$ should be $\frac{\alpha}{2}$.
+
 # 3D
 
 All the examples that we looked at so far were all in 2D, you might expect more complexity if we want to do rotation in 3D, but that is not the case. Let us do a 3D rotation.
@@ -148,7 +169,7 @@ And we get the correct result. But why can we do double reflection in 3D?
 
 Let us choose two vectors that span a plane in 3D space, we call them $\vec{v}$ and $\vec{w}$.
 
-$$|\vec{w}| = |\vec{w}| = 1$$
+$$|\vec{v}| = |\vec{w}| = 1$$
 
 $$ R = \vec{v}\vec{w} $$ $$ R^{\dag} = \vec{w}\vec{v} $$
 
