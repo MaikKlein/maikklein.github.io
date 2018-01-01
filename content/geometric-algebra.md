@@ -2,9 +2,11 @@
 title= "Fantastic quaternions and where to find them"
 date        = "2017-12-30"
 +++
+# Preface
 
+We are going to derive quaternions with the help of geometric algebra. The only prerequisite is a basic understanding or linear algebra and trigonometry.
 # Wedge product
-The wedge product will give us the signed area that two vectors are spanning.
+Before we start, let me briefly introduce the wedge product. The wedge product will give us the signed area that two vectors are spanning.
 
 We start of with two properties:
 
@@ -21,10 +23,10 @@ $$ \vec{u} = a\vec{x} + b\vec{y}$$
 $$ \vec{v} = c\vec{x} + d\vec{y}$$
 
 $$ \vec{u} \wedge \vec{v} = (a\vec{x} + b\vec{y}) \wedge (c\vec{x} + d\vec{y}) $$ $$ = a\vec{x} \wedge c\vec{x} + a\vec{x} \wedge d\vec{y} + b\vec{y} \wedge cx + b\vec{y} \wedge d\vec{y}$$ $$ = a\vec{x} \wedge d\vec{y} + b\vec{y} \wedge c\vec{x}$$ $$ = a\vec{x} \wedge d\vec{y} - c\vec{x} \wedge b\vec{y}$$ $$ = ad (\vec{x} \wedge \vec{y}) - bc(\vec{x} \wedge \vec{y})$$ $$ = (ad - bc) \vec{x} \wedge \vec{y}$$
- This is essentially the 2d determinant times $\vec{x} \wedge \vec{y} $. The area of $\vec{x} \wedge \vec{y} $ is 1. From now own we will call this a bivector. A bivector therefor consists of two vectors that form a plane, and its magnitude is the signed area that those vectors are spanning.
+ This is essentially the 2d determinant times $\vec{x} \wedge \vec{y} $. The area of $\vec{x} \wedge \vec{y} $ is 1. From now on we will call this a bivector. A bivector therefor consists of two vectors that form a plane, and its magnitude is the signed area that those vectors are spanning.
 
 ![](https://i.imgur.com/yxZyLdA.png)
-Remember that $\vec{u} \wedge \vec{v}$ gives us a unit bivector with the signed area that $\vec{u}$ and $\vec{v}$ span. The area of a parallelogram is base $*$ height.
+Remember that $\vec{u} \wedge \vec{v}$ gives us a unit bivector with the signed area that $\vec{u}$ and $\vec{v}$ span. The area of a parallelogram is base $*$ height. Another way of defining the wedge product:
 
 $$\vec{u} \wedge \vec{v} = |\vec{u}||\vec{v}|\sin({\alpha})B$$
 
