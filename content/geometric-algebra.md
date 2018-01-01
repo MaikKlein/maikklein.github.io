@@ -180,7 +180,7 @@ Something strange is happening here. We know that there are two ways of doing th
 
 To correctly combine rotors, you need to use the same formula for reflection. $$\vec{u^{\prime\prime}} = (RR)\vec{u}(R^{\dag}R^{\dag}) =(R^{\dag}R^{\dag})\vec{u}(RR) $$
 # Quaternions
-A unit quaternion is fined as 
+A unit quaternion is defined as 
 $$q = \cos{\frac{\alpha}{2}} + \hat{u}\sin{\frac{\alpha}{2}}$$
 $$q^{-1} = \cos{\frac{\alpha}{2}} - \hat{u}\sin{\frac{\alpha}{2}}$$
 And vector rotation is defined as 
