@@ -180,10 +180,10 @@ Something strange is happening here. We know that there are two ways of doing th
 
 To correctly combine rotors, you need to use the same formula for reflection. $$\vec{u^{\prime\prime}} = (RR)\vec{u}(R^{\dag}R^{\dag}) =(R^{\dag}R^{\dag})\vec{u}(RR) $$
 # Quaternions
-A unit quaternion is defined as 
+A unit quaternion is defined as:
 $$q = \cos{\frac{\alpha}{2}} + \hat{u}\sin{\frac{\alpha}{2}}$$
 $$q^{-1} = \cos{\frac{\alpha}{2}} - \hat{u}\sin{\frac{\alpha}{2}}$$
-And vector rotation is defined as 
+And vector rotation is defined as:
 $$ \vec{v^{\prime}} = q\vec{v}q^{-1} = (\cos{\frac{\alpha}{2}} + \hat{u}\sin{\frac{\alpha}{2}})\vec{v}(\cos{\frac{\alpha}{2}} - \hat{u}\sin{\frac{\alpha}{2}})$$
 
 Notice that $q\vec{v}q^{-1}$ and $\frac{\alpha}{2}$ looks like a double reflection, but where are the $\cos$ and $\sin$ coming from?
