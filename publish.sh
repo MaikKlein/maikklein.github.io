@@ -1,6 +1,6 @@
 gutenberg build && \
 git add . && \
-git commit -m "Save unsafed work" & \
+git commit -m "Save unsafed work" ; \
 git branch -D master && \
 git checkout -b master && \
 cp -r public/* . && \
