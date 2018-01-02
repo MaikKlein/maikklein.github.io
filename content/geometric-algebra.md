@@ -117,6 +117,8 @@ $$R = \vec{v}\vec{w}$$ $$R^{\dag} = \vec{w}\vec{v}$$
 $$ \vec{u^{\prime\prime}} = R\vec{u}R^{\dag} = R^{\dag}\vec{u}R $$
 In the case above the angle between $\vec{v}$ and $\vec{w}$ was $90\degree$, but we did a rotation of $180\degree$. It is easy to see why this happens.
 
+![](https://i.imgur.com/GA09r1j.png)
+
 Let us assume that:
 
 $ \alpha = $ angle between $\vec{v}$ and $\vec{w} $
@@ -133,7 +135,7 @@ Or
 
 $$ \alpha = \frac{\theta}{2}$$
 
-To recap: We chose two vectors $\vec{v}$ and $\vec{w}$, we then reflected $\vec{u}$ though $\vec{v}$ and then though $\vec{v}$. We then saw that the overall rotation has the same angle as two times the angle between $\vec{v}$ and $\vec{w}$. The implication is that only the angle between $\vec{v}$ and $\vec{w}$ is important. You can choose any two vectors on a plane, if those vectors have the same angle, then they will apply the same rotation.
+To recap, we chose two vectors $\vec{v}$ and $\vec{w}$, we then reflected $\vec{u}$ though $\vec{v}$ and then though $\vec{v}$. We then saw that the overall rotation has the same angle as two times the angle between $\vec{v}$ and $\vec{w}$. The implication is that only the angle between $\vec{v}$ and $\vec{w}$ is important. You can choose any two vectors on a plane, if those vectors have the same angle, then they will apply the same rotation.
 
 Example:
 
@@ -247,6 +249,19 @@ Let $\alpha = 4\pi$
 
 $$ R = \cos({2\pi}) + \sin({2\pi})B = 1 $$ A $2\pi$ rotation is the same as a $4\pi$ rotation but we end up with two different rotors. $$ \vec{u^{\prime}} = R\vec{u}R^{\dag} = (\vec{v}\vec{w})\vec{u}(\vec{w}\vec{v})$$ $$ = --(\vec{v}\vec{w})\vec{u}(\vec{w}\vec{v})$$ $$ = (-\vec{v}\vec{w})\vec{u}(-\vec{w}\vec{v})$$
 
+Let us think about this for a bit. If we would negate both $\vec{v}$ and $\vec{w}$, this wouldn't change anything because only the angle between them is important.
+But what happens if we negate either $\vec{v}$ or $\vec{w}$?
+
+There are two interesting details here, if we think about reflection only with $\vec{v}$, then the reflection is the same for $-\vec{v}$. 
+For example if we project $\vec{u}$ onto $\vec{v}$ with the dot product $\frac{\vec{u} \cdot \vec{v}}{\vec{v} \cdot \vec{v}}\vec{v}$ then the sign of the dot product will switch if 
+$\vec{v}$ is negative and we still end up with the same projection. If you think of it in terms of the geometric product, those minuses will just cancel.
+
+But the angle between those vectors does change. If $R = \vec{x}\vec{y}$, then the angle between $\vec{x}$ and $\vec{y}$ is $90\degree$, but if negate on one of those vectors then the angle would be $270\degree$.
+
+![](https://i.imgur.com/npQyqls.png)
+![](https://i.imgur.com/8TljXJo.png)
+
+
 There are two different rotors that will apply the same rotation. This property is called double cover and it helps with [SLERP](https://en.wikipedia.org/wiki/Slerp#Quaternion\_Slerp) (spherical linear interpolation). If you think about interpolation between two rotations, then you have two choices. For example you can rotate by $90\degree\$ or by $270\degree$ in the opposite direction, it results in the same rotation. You have two paths that you can take, the short way $(90\degree)$ or the long way $(270\degree)$. If you know the rotation will take the long path $(>180\degree)$ then you can just negate the quaternion / rotor to interpolate in the opposite direction, thus ensuring that the path of the interpolation will be the shortest path.
 
 ![](https://i.imgur.com/6S6sr2q.png)
@@ -262,7 +277,7 @@ $$ (\vec{u}\vec{v})^2 = \vec{u}\vec{v}\vec{u}\vec{v} = -\vec{u}\vec{u}\vec{v}\ve
 
 $$e^{i\theta} = \cos(\theta) + i\sin(\theta) $$
 
-Because the bivector $B$ has the same properties as $i$, that we can write the geometric product as an exponential
+Because the bivector $B$ has the same properties as $i$, we can write the geometric product as an exponential
 
 
 $$ e^{B\theta} = \cos(\theta) + \sin(\theta)B $$
