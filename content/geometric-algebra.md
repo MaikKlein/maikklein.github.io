@@ -16,7 +16,7 @@ The wedge product will give us the signed area of the parallelogram, just like t
 
 $$ \vec{u} \wedge \vec{u} = 0$$
 
-And if two vectors linearly dependent, they will have an area of 0. With these two properties, we can derive the actual formula to calculate the area that two vectors are spanning.
+And if two vectors are linearly dependent, they will have an area of 0. With these two properties, we can derive the actual formula to calculate the area that two vectors are spanning.
 
 $$ \vec{u} = a\vec{x} + b\vec{y}$$
 
