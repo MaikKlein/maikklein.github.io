@@ -10,7 +10,7 @@ Before we start, let me briefly introduce the wedge product. The wedge product w
 
 We start of with two properties:
 
-$$ \vec{u} \wedge \vec{v} = -(\vec{u} \wedge \vec{v}) $$
+$$ \vec{u} \wedge \vec{v} = -(\vec{v} \wedge \vec{u}) $$
 
 The wedge product will give us the signed area of the parallelogram, just like the determinant.
 
