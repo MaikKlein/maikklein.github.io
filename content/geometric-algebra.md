@@ -8,7 +8,7 @@ We are going to derive quaternions with the help of geometric algebra. The only 
 # Wedge product
 Before we start, let me briefly introduce the wedge product. The wedge product will give us the signed area that two vectors are spanning.
 
-We start of with two properties:
+We start of with three properties:
 
 $$ \vec{u} \wedge \vec{v} = -(\vec{v} \wedge \vec{u}) $$
 
@@ -16,7 +16,13 @@ The wedge product will give us the signed area of the parallelogram, just like t
 
 $$ \vec{u} \wedge \vec{u} = 0$$
 
-And if two vectors are linearly dependent, they will have an area of 0. With these two properties, we can derive the actual formula to calculate the area that two vectors are spanning.
+And if two vectors are linearly dependent, they will have an area of 0.
+
+$$ a\vec{u} \wedge b\vec{v} = ab(\vec{u} \wedge \vec{v})$$
+
+Rescaling either side will rescale the area by the same amount and we can therefor factor out the scalars.
+
+With these three properties, we can derive the actual formula to calculate the area that two vectors are spanning.
 
 $$ \vec{u} = a\vec{x} + b\vec{y}$$
 
@@ -43,6 +49,37 @@ The wedge product is also called the exterior product, because you can think of 
 The wedge product between two vectors $\vec{u} \wedge \vec{v}$ can be thought of as extending $\vec{u}$ along $\vec{v}$.
 
 ![](https://i.imgur.com/4Tj5xxr.gif)
+
+I only showed the wedge product for two 2D vectors but the wedge product is defined in N dimensions. Imagine a 2D plane in 3d space, you can rotate that plane in a way that the $\vec{z}$ component
+would become 0. For completeness I am also going to derive the wedge product for two 3D vectors, but it is not neccessary and feel free to skip the derivation.
+
+$$\vec{u} = u\_{1}\vec{x} + u\_{2}\vec{y} + u\_{3}\vec{z}$$
+$$\vec{v} = v\_{1}\vec{x} + v\_{2}\vec{y} + v\_{3}\vec{z}$$
+
+$$ \vec{u} \wedge \vec{v}  = (u\_{1}\vec{x} + u\_{2}\vec{y} + u\_{3}\vec{z}) \wedge (v\_{1}\vec{x} + v\_{2}\vec{y} + v\_{3}\vec{z}) $$
+$$ \begin{aligned}
+= u\_{1}v\_{1}\vec{x} \wedge \vec{x} + u\_{1}v\_{2}\vec{x}\wedge\vec{y} + u\_{1}v\_{3}\vec{x}\wedge\vec{z} \\\\
+  +u\_{2}v\_{1}\vec{y} \wedge \vec{x} + u\_{2}v\_{2}\vec{y}\wedge\vec{y} + u\_{2}v\_{3}\vec{y}\wedge\vec{z}  \\\\
+  +u\_{3}v\_{1}\vec{z} \wedge \vec{x} + u\_{3}v\_{2}\vec{z}\wedge\vec{y} + u\_{3}v\_{3}\vec{z}\wedge\vec{z}
+\end{aligned}$$
+$$ \begin{aligned}
+= u\_{1}v\_{2}\vec{x}\wedge\vec{y} + u\_{1}v\_{3}\vec{x}\wedge\vec{z} \\\\
+  +u\_{2}v\_{1}\vec{y} \wedge \vec{x} + u\_{2}v\_{3}\vec{y}\wedge\vec{z} \\\\
+  +u\_{3}v\_{1}\vec{z} \wedge \vec{x} + u\_{3}v\_{2}\vec{z}\wedge\vec{y}
+\end{aligned}$$
+
+$$ \begin{aligned}
+= u\_{1}v\_{2}\vec{x}\wedge\vec{y} + u\_{1}v\_{3}\vec{x}\wedge\vec{z}  \\\\
+  -u\_{2}v\_{1}\vec{x} \wedge \vec{y} + u\_{2}v\_{3}\vec{y}\wedge\vec{z}  \\\\
+  -u\_{3}v\_{1}\vec{x} \wedge \vec{z} - u\_{3}v\_{2}\vec{y}\wedge\vec{z}
+\end{aligned}$$
+$$ \begin{aligned}
+ = (u\_{1}v\_{2} - u\_{2}v\_{1})\vec{x}\wedge\vec{y} \\\\
+   +(u\_{1}v\_{3} - u\_{3}v\_{1})\vec{x}\wedge\vec{z} \\\\
+   +(u\_{2}v\_{3} - u\_{3}v\_{2})\vec{y}\wedge\vec{z} \\\\
+\end{aligned}$$
+
+This looks very similar to the cross product. This is no suprise as the cross product is defined as $\vec{u} \times \vec{v} = |\vec{u}||\vec{v}|\sin({\alpha})\hat{n}$.
 
 # Geometric product
 $$\vec{u}\vec{v} = \vec{u} \cdot \vec{v} + \vec{u} \wedge \vec{v} $$
