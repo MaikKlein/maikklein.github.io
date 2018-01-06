@@ -22,7 +22,13 @@ $$ \vec{u} = a\vec{x} + b\vec{y}$$
 
 $$ \vec{v} = c\vec{x} + d\vec{y}$$
 
-$$ \vec{u} \wedge \vec{v} = (a\vec{x} + b\vec{y}) \wedge (c\vec{x} + d\vec{y}) $$ $$ = a\vec{x} \wedge c\vec{x} + a\vec{x} \wedge d\vec{y} + b\vec{y} \wedge cx + b\vec{y} \wedge d\vec{y}$$ $$ = a\vec{x} \wedge d\vec{y} + b\vec{y} \wedge c\vec{x}$$ $$ = a\vec{x} \wedge d\vec{y} - c\vec{x} \wedge b\vec{y}$$ $$ = ad (\vec{x} \wedge \vec{y}) - bc(\vec{x} \wedge \vec{y})$$ $$ = (ad - bc) \vec{x} \wedge \vec{y}$$
+$$ \vec{u} \wedge \vec{v} = (a\vec{x} + b\vec{y}) \wedge (c\vec{x} + d\vec{y}) $$
+$$ = a\vec{x} \wedge c\vec{x} + a\vec{x} \wedge d\vec{y} + b\vec{y} \wedge cx + b\vec{y} \wedge d\vec{y}$$
+
+$$ = a\vec{x} \wedge d\vec{y} + b\vec{y} \wedge c\vec{x}$$
+$$ = a\vec{x} \wedge d\vec{y} - c\vec{x} \wedge b\vec{y}$$
+$$ = ad (\vec{x} \wedge \vec{y}) - bc(\vec{x} \wedge \vec{y})$$
+$$ = (ad - bc) \vec{x} \wedge \vec{y}$$
  This is essentially the 2d determinant times $\vec{x} \wedge \vec{y} $. The area of $\vec{x} \wedge \vec{y} $ is 1. From now on we will call this a bivector. A bivector therefor consists of two vectors that form a plane, and its magnitude is the signed area that those vectors are spanning.
 
 ![](https://i.imgur.com/cVWINRS.png)
@@ -31,6 +37,12 @@ Remember that $\vec{u} \wedge \vec{v}$ gives us a unit bivector with the signed 
 $$\vec{u} \wedge \vec{v} = |\vec{u}||\vec{v}|\sin({\alpha})B$$
 
 $B$ is some unit bivector.
+
+The wedge product is also called the exterior product, because you can think of it as an extension.
+
+The wedge product between two vectors $\vec{u} \wedge \vec{v}$ can be thought of as extending $\vec{u}$ along $\vec{v}$.
+
+![](https://i.imgur.com/4Tj5xxr.gif)
 
 # Geometric product
 $$\vec{u}\vec{v} = \vec{u} \cdot \vec{v} + \vec{u} \wedge \vec{v} $$
@@ -204,10 +216,11 @@ Something strange is happening here. We know that there are two ways of doing th
 To correctly combine rotors, you need to use the same formula for reflection. $$\vec{u^{\prime\prime}} = (RR)\vec{u}(R^{\dag}R^{\dag}) =(R^{\dag}R^{\dag})\vec{u}(RR) $$
 # Quaternions
 A unit quaternion is defined as:
-$$q = \cos{\frac{\alpha}{2}} + \hat{u}\sin{\frac{\alpha}{2}}$$
-$$q^{-1} = \cos{\frac{\alpha}{2}} - \hat{u}\sin{\frac{\alpha}{2}}$$
+$$q = \cos{\frac{\alpha}{2}} + \hat{n}\sin{\frac{\alpha}{2}}$$
+$$q^{-1} = \cos{\frac{\alpha}{2}} - \hat{n}\sin{\frac{\alpha}{2}}$$
 And vector rotation is defined as:
-$$ \vec{v^{\prime}} = q\vec{v}q^{-1} = (\cos{\frac{\alpha}{2}} + \hat{u}\sin{\frac{\alpha}{2}})\vec{v}(\cos{\frac{\alpha}{2}} - \hat{u}\sin{\frac{\alpha}{2}})$$
+
+$$ \vec{v^{\prime}} = q\vec{v}q^{-1} = (\cos{\frac{\alpha}{2}} + \hat{n}\sin{\frac{\alpha}{2}})\vec{v}(\cos{\frac{\alpha}{2}} - \hat{n}\sin{\frac{\alpha}{2}})$$
 
 Notice that $q\vec{v}q^{-1}$ and $\frac{\alpha}{2}$ looks like a double reflection, but where are the $\cos$ and $\sin$ coming from?
 
@@ -234,10 +247,13 @@ $$ \vec{v^{\prime}} = R\vec{u}R^{\dag} = (\cos({\frac{\alpha}{2}}) + \sin({\frac
 
 This looks very similar to a quaternion.
 
-$$ \vec{v^{\prime}} = q\vec{v}q^{-1} = (\cos{\frac{\alpha}{2}} + \hat{u}\sin{\frac{\alpha}{2}})\vec{v}(\cos{\frac{\alpha}{2}} - \hat{u}\sin{\frac{\alpha}{2}})$$
+$$ \vec{v^{\prime}} = q\vec{v}q^{-1} = (\cos{\frac{\alpha}{2}} + \hat{n}\sin{\frac{\alpha}{2}})\vec{v}(\cos{\frac{\alpha}{2}} - \hat{n}\sin{\frac{\alpha}{2}})$$
 
 
 The only difference is $B$ and $\hat{u}$. With the bivector $B$ we do a rotation on the plane, and with a quaternion we do a rotation around the axis $\hat{u}$. The normal vector of $B$ is $\hat{u}$.
+$$\vec{u} \wedge \vec{v} = |\vec{u}||\vec{v}|\sin({\alpha})B$$
+
+$$\vec{u} \times \vec{v} = |\vec{u}||\vec{v}|\sin({\alpha})\hat{n}$$
 # Double cover
 Let $\alpha = 2\pi$
 
