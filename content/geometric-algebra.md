@@ -69,13 +69,13 @@ $$ \begin{aligned}
 \end{aligned}$$
 
 $$ \begin{aligned}
-= u\_{1}v\_{2}\vec{x}\wedge\vec{y} + u\_{1}v\_{3}\vec{x}\wedge\vec{z}  \\\\
+= u\_{1}v\_{2}\vec{x}\wedge\vec{y} - u\_{1}v\_{3}\vec{z}\wedge\vec{x}  \\\\
   -u\_{2}v\_{1}\vec{x} \wedge \vec{y} + u\_{2}v\_{3}\vec{y}\wedge\vec{z}  \\\\
-  -u\_{3}v\_{1}\vec{x} \wedge \vec{z} - u\_{3}v\_{2}\vec{y}\wedge\vec{z}
+  +u\_{3}v\_{1}\vec{z} \wedge \vec{x} - u\_{3}v\_{2}\vec{y}\wedge\vec{z}
 \end{aligned}$$
 $$ \begin{aligned}
  = (u\_{1}v\_{2} - u\_{2}v\_{1})\vec{x}\wedge\vec{y} \\\\
-   +(u\_{1}v\_{3} - u\_{3}v\_{1})\vec{x}\wedge\vec{z} \\\\
+   +(u\_{3}v\_{1} - u\_{1}v\_{3})\vec{z}\wedge\vec{x} \\\\
    +(u\_{2}v\_{3} - u\_{3}v\_{2})\vec{y}\wedge\vec{z} \\\\
 \end{aligned}$$
 
