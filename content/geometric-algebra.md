@@ -74,15 +74,48 @@ $$ \begin{aligned}
   +u\_{3}v\_{1}\vec{z} \wedge \vec{x} - u\_{3}v\_{2}\vec{y}\wedge\vec{z}
 \end{aligned}$$
 $$ \begin{aligned}
- = (u\_{1}v\_{2} - u\_{2}v\_{1})\vec{x}\wedge\vec{y} \\\\
+ = (u\_{1}v\_{2} - u\_{2}v\_{1}) \vec{x}\wedge\vec{y} \\\\
    +(u\_{3}v\_{1} - u\_{1}v\_{3})\vec{z}\wedge\vec{x} \\\\
    +(u\_{2}v\_{3} - u\_{3}v\_{2})\vec{y}\wedge\vec{z} \\\\
 \end{aligned}$$
 
-This looks very similar to the cross product. This is no suprise as the cross product is defined as $\vec{u} \times \vec{v} = |\vec{u}||\vec{v}|\sin({\alpha})\hat{n}$.
+This looks very similar to the cross product. This is no suprise as the cross product is defined as $\vec{u} \times \vec{v} = |\vec{u}||\vec{v}|\sin({\alpha})\hat{n}$. The only difference is that we end up with 3 unit bivectors $\vec{x}\vec{y}$, $\vec{z}\vec{x}$ and $\vec{y}\vec{z}$. The relation here is that $\vec{z}$ is the normal vector of $\vec{x}\vec{y}$ and $(u\_{1}v\_{2} - u\_{2}v\_{1})$ is the $\vec{z}$ component of the cross product. There is actually a nicer way to derive the cross product with geometric algebra but this would be too offtopic.
 
+To calculate the area it might be tempting to just add all the scalar parts together 
+$
+  (u\_{1}v\_{2} - u\_{2}v\_{1}) + 
+  (u\_{3}v\_{1} - u\_{1}v\_{3}) + 
+  (u\_{2}v\_{3} - u\_{3}v\_{2})
+$
+because $\vec{x}\wedge\vec{y}$, $\vec{z}\wedge\vec{x}$ and $\vec{y}\wedge\vec{z}$ have all an area of 1, but that is not correct. Adding bivector together results in another bivector, but that bivector does not necessarily have an area of 1. This is very similar to normal vector addition, if you add multiple unit vectors together, the resulting vector is not always a unit vector.
+
+By adding all the scalar parts together we are really saying
+$
+  (u\_{1}v\_{2} - u\_{2}v\_{1} + 
+  u\_{3}v\_{1} - u\_{1}v\_{3} + 
+  u\_{2}v\_{3} - u\_{3}v\_{2})B
+$
+where $B$ is not a unit bivector and just extracting the scalar part would not be the area. If we think about vector addition: 
+$$ \vec{u} = \vec{x} +\vec{y} +\vec{z} $$
+
+We can also think about it as the length of $\vec{u}$ times the unit vector $\hat{u}$
+$$ \vec{u} = \sqrt{|\vec{x}|^2 +|\vec{y}|^2 +|\vec{z} |^2}\hat{u}$$
+
+We can apply the same concept to bivectors, this works because bivectors behave very similar to vectors.
+
+![](https://i.imgur.com/3WEm2JR.png)
+
+
+To get the area we really want to get 
+$$
+  \sqrt{(u\_{1}v\_{2} - u\_{2}v\_{1})^2 + 
+  (u\_{3}v\_{1} - u\_{1}v\_{3})^2 + 
+  (u\_{2}v\_{3} - u\_{3}v\_{2})^2}B
+$$
 # Geometric product
+
 $$\vec{u}\vec{v} = \vec{u} \cdot \vec{v} + \vec{u} \wedge \vec{v} $$
+
 
 The geometric product is just the dot product + the wedge product.
 
