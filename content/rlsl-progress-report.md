@@ -255,7 +255,7 @@ In the future you will be able to install RLSL with `cargo install rlsl`. To com
 
 Although I don't expect compile times to be an issue, considering that the amount of shader code should not be that high.
 
-To give you some estimation of the amount of shader code in an commercial engine (Unreal Engine 4)
+To give you some estimation of the amount of shader code in a commercial engine (Unreal Engine 4)
 ```Markdown
  Language            Files        Lines         Code     Comments       Blanks
 -------------------------------------------------------------------------------
@@ -277,3 +277,7 @@ Currently RLSL is still tied to LLVM. If RLSL compiles a library it essentially 
 I wish I could work on this project full time, but at the current rate I think that RLSL should at least be installable and semi usable for small projects by the end of the year. At the same time I will open up the project for contributions.
 
 If you are interested in using RLSL in the future, I would love to know your requirements.
+
+# Closing words
+
+I haven't covered every
