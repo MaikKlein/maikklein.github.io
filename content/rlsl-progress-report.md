@@ -14,7 +14,7 @@ This is a [follow up post](https://maikklein.github.io/shading-language-part1/).
 
 In this blog post, I will only cover the vertex and fragment shader.
 
-Shaders are usually written in GLSL, HLSL and while those languages are relatively nice, they have some downsides. One downside is that you can not share code between files. Because of that game engines like Unity, Unreal Engine, CryEngine, Godot have developed they own shading language stack on top of an existing shading language. This is especially important if you are targeting multiple graphics backends, like OpenGL, DX.
+Shaders are usually written in GLSL, HLSL and while those languages are relatively nice, they have some downsides. One downside is that you can not share code between files. Because of that game engines like Unity, Unreal Engine, CryEngine, Godot have developed their own shading language stack on top of an existing shading language. This is especially important if you are targeting multiple graphics backends, like OpenGL, DX.
 
 In case of SPIR-V there already exists a [tool](https://github.com/KhronosGroup/SPIRV-Cross) for translating SPIR-V to GLSL/HLSL/MSL. SPIR-V is low level enough to be compiled from a higher level language like Rust.
 
