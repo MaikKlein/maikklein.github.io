@@ -44,7 +44,7 @@ Pyro will find all the storages that contain a `Pos` and `Vel` component, create
 positions:  [Pos1, Pos2, Pos3, .., PosN], [Pos1, Pos2, Pos3, .., PosM]
 velocities: [Vel1, Vel2, Vel3, .., VelN], [Vel1, Vel2, Vel3, .., VelM]
                                         ^
-                                        Jump occours here
+                                        Jump occurs here
 ```
 
 The advantage is that iteration is always fully linear and no cache is wasted. The storage behind the scene is a [SoA](https://software.intel.com/en-us/forums/intel-soa-products-group/topic/290204) storage. This is very different from other *ECS* like specs where components live in the same storage that can be customized by the user.
@@ -219,4 +219,4 @@ Of course you can do that without an ECS too but this is very natural in Pyro. A
 I can't recommend it for any serious projects just yet. I only worked on it for under a week and there are some API deficiencies that I haven't addressed yet. I also haven't done much optimization and some parts of Pyro are implemented fairly slowly. If you want an ECS right now, you should use something like [specs](https://github.com/slide-rs/specs). 
 
 I mainly wrote this library for educational purposes. I had this idea on how to architecture an ECS for years but it is very hard to articulate it to other people. If you are interesting in knowing how an ECS might look under the hood, I encourage you to read the source code. It is ~700 loc right now and everything is documented.
-[repo](https://github.com/MaikKlein/pyro), [crates.io](https://crates.io/crates/pyro) [documentation](https://docs.rs/pyro/0.2.3/pyro/)
+[github](https://github.com/MaikKlein/pyro), [crates.io](https://crates.io/crates/pyro), [documentation](https://docs.rs/pyro/0.2.4/pyro/)
