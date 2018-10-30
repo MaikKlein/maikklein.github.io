@@ -1,5 +1,5 @@
 +++
-date        = "2015-11-14"
+date        = 2015-11-14
 title       =  "Type safe OpenGL - Converting strings into types in D"
 tags        = [ "D", "opengl" ]
 +++

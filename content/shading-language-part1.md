@@ -1,5 +1,5 @@
 +++
-date        = "2017-08-16"
+date        = 2017-08-16
 title       = "RLSL- A new shading language"
 tags        = [ "Rust", "Vulkan", "SPIR-V"]
 +++

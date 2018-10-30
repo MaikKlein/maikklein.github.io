@@ -1,5 +1,5 @@
 +++
-date        = "2017-01-03"
+date        = 2017-01-03
 title       = "SoA in Rust with Macros 1.1"
 tags        = [ "Rust", "Macros1.1", "SoA"]
 +++

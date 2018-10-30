@@ -1,5 +1,5 @@
 +++
-date        = "2016-11-05"
+date        = 2016-11-05
 title       = "My first steps with Future-rs"
 tags        = [ "Rust"]
 +++

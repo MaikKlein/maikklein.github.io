@@ -1,5 +1,5 @@
 +++
-date        = "2016-06-21"
+date        = 2016-06-21
 title       = "First impression of Rust after two years - Part 1"
 tags        = [ "Rust"]
 +++

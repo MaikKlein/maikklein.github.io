@@ -1,5 +1,5 @@
 +++
-date        = "2016-03-01"
+date        = 2016-03-01
 title       = "A comparison between C++ and D"
 tags        = [ "D", "c++" ]
 +++

@@ -1,5 +1,5 @@
 +++
-date        = "2016-12-29"
+date        = 2016-12-29
 title       = "Final progress report for Ash"
 tags        = [ "Rust", "Vulkan", "Ash"]
 +++

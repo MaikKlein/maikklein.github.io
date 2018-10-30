@@ -1,6 +1,6 @@
 +++
-title= "Fantastic quaternions and where to find them"
-date        = "2017-12-30"
+title = "Fantastic quaternions and where to find them"
+date = 2017-12-30
 +++
 # Preface
 

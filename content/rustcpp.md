@@ -1,5 +1,5 @@
 +++
-date        = "2017-11-29"
+date        = 2017-11-29
 title       = "Rust cpp"
 tags        = [ "Rust"]
 draft = true

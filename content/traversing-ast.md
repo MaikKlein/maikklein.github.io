@@ -1,5 +1,5 @@
 +++
-date        = "2017-08-20"
+date        = 2017-08-20
 title       = "AST traversal and code generation"
 tags        = [ "Rust"]
 +++

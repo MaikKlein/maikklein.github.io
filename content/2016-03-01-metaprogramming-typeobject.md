@@ -1,5 +1,5 @@
 +++
-date = "2016-03-01"
+date = 2016-03-01
 tags = []
 title = "Metaprogramming with type objects in D"
 +++

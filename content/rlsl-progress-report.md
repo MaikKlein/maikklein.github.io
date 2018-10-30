@@ -1,6 +1,6 @@
 +++
 title= "RLSL (Rust -> SPIR-V compiler) Progress report"
-date        = "2018-02-09"
+date        = 2018-02-09
 +++
 
 

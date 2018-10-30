@@ -1,5 +1,5 @@
 +++
-date        = "2017-08-27"
+date        = 2017-08-27
 title       = "Tooling support while using Rust as a library"
 tags        = [ "Rust"]
 +++

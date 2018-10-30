@@ -1,5 +1,5 @@
 +++
-date        = "2016-03-25"
+date        = 2016-03-25
 title       = "Why and when you should use SoA"
 tags        = [ "D", "soa", "dod" ]
 +++

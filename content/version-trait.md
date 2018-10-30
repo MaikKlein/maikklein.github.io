@@ -1,5 +1,5 @@
 +++
-date        = "2016-12-30"
+date        = 2016-12-30
 title       = "Constrain API versions statically with traits"
 tags        = [ "Rust", "Vulkan", "Ash"]
 +++

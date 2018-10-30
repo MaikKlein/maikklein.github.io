@@ -1,5 +1,5 @@
 +++
-date        = "2017-11-23"
+date        = 2017-11-23
 title       = "Enum"
 tags        = [ "Rust"]
 draft       = true

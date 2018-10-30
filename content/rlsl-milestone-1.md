@@ -1,6 +1,6 @@
 +++
 title= "RLSL - Milestone 1"
-date        = "2018-02-26"
+date        = 2018-02-26
 +++
 
 
