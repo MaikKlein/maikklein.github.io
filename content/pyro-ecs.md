@@ -148,7 +148,7 @@ While an ECS might not give you the best theoretical performance, it is still pr
 Now there can be many different projectiles. For example you might want a missile that spawns other missiles when it explodes. You could create an new enum
 
 ```rust
-enum Missle {
+enum Missile {
     Standard,
     Spaw,
 }
@@ -159,13 +159,13 @@ and then check at runtime which rocket you need to spawn.
 You could also make your missile generic.
 
 ```rust
-pub fn create_missle<Projectile: Component>(
+pub fn create_missile<Projectile: Component>(
     asset: AssetId,
     location: Position,
     dir: na::Vector2<f32>,
     speed: f32,
     projectile: Projectile,
-) -> Missle<Projectile> {
+) -> Missile<Projectile> {
     (
         location,
         Velocity(dir * speed),
@@ -187,8 +187,8 @@ pub fn create_missle<Projectile: Component>(
 ```
 
 ```rust
-create_missle(AssetId::Missile, new_pos, dir, 700.0, SpawnMissile {})
-create_missle(AssetId::Missile, new_pos, dir, 700.0, StandardMissile {})
+create_missile(AssetId::Missile, new_pos, dir, 700.0, SpawnMissile {})
+create_missile(AssetId::Missile, new_pos, dir, 700.0, StandardMissile {})
 ```
 
 So we can create two different missiles, and because they have one different component type, they will end up in two separate storages. Now we can abstract over those missiles at compile time, and we can skip the runtime branch.
