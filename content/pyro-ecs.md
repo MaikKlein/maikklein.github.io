@@ -47,7 +47,7 @@ velocities: [Vel1, Vel2, Vel3, .., VelN], [Vel1, Vel2, Vel3, .., VelM]
                                         Jump occurs here
 ```
 
-The advantage is that iteration is always fully linear and no cache is wasted. The storage behind the scene is a [SoA](https://software.intel.com/en-us/forums/intel-soa-products-group/topic/290204) storage. This is very different from other *ECS* like specs where components live in the same storage that can be customized by the user.
+The advantage is that iteration is always fully linear and no cache is wasted. The storage behind the scene is a [SoA](https://software.intel.com/en-us/articles/memory-layout-transformations) storage. This is very different from other *ECS* like specs where components live in the same storage that can be customized by the user.
 
 
 # API Overview
