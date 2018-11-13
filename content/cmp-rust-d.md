@@ -2,6 +2,7 @@
 date        = 2016-06-23
 title       = "Comparison between Rust and D"
 tags        = [ "Rust"]
+draft = true
 +++
 
 I will try to compare `Rust` and `D` as objectively as possible. I will mostly focus the language parts that can actually be compared.
