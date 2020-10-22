@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+        <!-- Enable responsiveness on mobile devices-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+        <title>Maik Klein</title>
+
+        <!-- CSS -->
+        <link rel="stylesheet" href="https:&#x2F;&#x2F;maikklein.github.io/print.css" media="print">
+        <link rel="stylesheet" href="https:&#x2F;&#x2F;maikklein.github.io/poole.css">
+        <link rel="stylesheet" href="https:&#x2F;&#x2F;maikklein.github.io/lanyon.css">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.2/css/all.css" integrity="sha384-/rXc/GQVaYpyDdyxK+ecHPVYJSN9bmVFBvjA/9eOB+pb3F2w2N6fc5qB9Ew5yIns" crossorigin="anonymous">
+        <link rel="stylesheet" href="https:&#x2F;&#x2F;maikklein.github.io/app.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.8.3/contrib/auto-render.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.css" integrity="sha384-exe4Ak6B0EoJI0ogGxjJ8rn+RN3ftPnEQrGwX59KTCl5ybGzvHGKjhPKk/KC3abb" crossorigin="anonymous">
+<script sync src="https://platform.twitter.com/widgets.js"></script>
+<script>
+  window.onload = (function(){
+
+    var tweet = document.getElementById("tweet");
+    var id = tweet.getAttribute("tweetID");
+
+    twttr.widgets.createTweet(
+      id, tweet, 
+      {
+        conversation : 'none',    // or all
+        linkColor    : '#cc0000', // default is blue
+        theme        : 'light',    // or dark
+        align        : 'center'    
+      })
+    .then (function (el) {
+      el.contentDocument.querySelector(".footer").style.display = "none";
+    });
+
+  });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.js" integrity="sha384-OMvkZ24ANLwviZR2lVq8ujbE/bUO8IR1FdBrKLQBI14Gq5Xp/lksIccGkmKL8m+h" crossorigin="anonymous"></script>
+        <script
+            src="https://code.jquery.com/jquery-3.2.1.min.js"
+            integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+            crossorigin="anonymous"></script>
+        <script src="https:&#x2F;&#x2F;maikklein.github.io/site.js"></script>
+        
+
+        
+        
+    <script>
+        (function(d, s, id){
+           var js, fjs = d.getElementsByTagName(s)[0];
+           if (d.getElementById(id)) {return;}
+           js = d.createElement(s); js.id = id;
+           js.src = "https://assets.gfycat.com/gfycat.js";
+           fjs.parentNode.insertBefore(js, fjs);
+         }(document, 'script', 'gfycat-js'));
+    </script>
+    </head>
+
+    <body>
+        <div class="wrap">
+            <div class="masthead">
+                <div class="container">
+                    <h3 class="masthead-title">
+                        <a href="https:&#x2F;&#x2F;maikklein.github.io/" title="Home">Maik Klein</a>
+                        <small>Blog</small>
+                        <a href="https://github.com/maikklein" target="_blank"><i class="fab fa-github"></i></a>
+                        <a href="https://twitter.com/MaikKlein_DEV" target="_blank"><i class="fab fa-twitter"></i></a>
+                        <a href="https:&#x2F;&#x2F;maikklein.github.io/rss.xml" target="_blank"><i class="fas fa-rss"></i></a>
+                        <a href="https://www.patreon.com/maikklein" target="_blank"><i class="fab fa-patreon"></i></a>
+                    </h3>
+                </div>
+            </div>
+        </div>
+        <div class="content container">
+            
+<div class="post">
+  <h1 class="post-title">First impression of Rust after two years - Part 2</h1>
+  <span class="post-date">2016-06-22</span>
+  <ul>
+  
+      <li>
+          <a href="#first-impression-of-rust-after-two-years-part-2">First impression of Rust after two years - Part 2</a>
+          
+          <ul>
+              
+              <li>
+                  <a href="#conclusions">Conclusions:</a>
+              </li>
+              
+          </ul>
+          
+      </li>
+  
+  </ul>
+  <h1 id="first-impression-of-rust-after-two-years-part-2">First impression of Rust after two years - Part 2</h1>
+<p>As promised this is part 2 of <a href="https://maikklein.github.io/post/impression-rust/">part 1</a>.</p>
+<p>I created a small task based library in Rust based on naughty dogs gdc talk. The main purpose was to get a feeling of Rust and not the create a full blown library.</p>
+<p>Here is how you would use it.</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">main</span><span style="color:#fdf4c1aa;">() {
+    </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> res </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">TaskPool::submit(|| {
+        </span><span style="color:#fabd2f;">println!</span><span style="color:#fdf4c1aa;">(</span><span style="color:#b8bb26;">&quot;Before long running task&quot;</span><span style="color:#fdf4c1aa;">);
+        </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> r </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">TaskPool::submit(|| {
+            std::thread::sleep(Duration::from_secs(</span><span style="color:#d3869b;">10</span><span style="color:#fdf4c1aa;">));
+            </span><span style="color:#fa5c4b;">return </span><span style="color:#d3869b;">42</span><span style="color:#fdf4c1aa;">;
+        });
+        </span><span style="font-style:italic;color:#928374;">// Waits for the long running task to complete, does not block other tasks!
+        </span><span style="color:#fabd2f;">println!</span><span style="color:#fdf4c1aa;">(</span><span style="color:#b8bb26;">&quot;After long running task </span><span style="color:#fdf4c1;">{}</span><span style="color:#b8bb26;">&quot;</span><span style="color:#fdf4c1aa;">, r.</span><span style="color:#fabd2f;">await</span><span style="color:#fdf4c1aa;">());
+        </span><span style="color:#d3869b;">42
+    </span><span style="color:#fdf4c1aa;">});
+    </span><span style="color:#fa5c4b;">for</span><span style="color:#fdf4c1aa;"> i </span><span style="color:#fe8019;">in </span><span style="color:#d3869b;">0</span><span style="color:#fe8019;">..</span><span style="color:#d3869b;">20 </span><span style="color:#fdf4c1aa;">{
+        TaskPool::submit(</span><span style="color:#fa5c4b;">move </span><span style="color:#fe8019;">|| </span><span style="color:#fabd2f;">println!</span><span style="color:#fdf4c1aa;">(</span><span style="color:#b8bb26;">&quot;Another Task </span><span style="color:#fdf4c1;">{}</span><span style="color:#b8bb26;">&quot;</span><span style="color:#fdf4c1aa;">, i));
+    }
+    </span><span style="color:#fabd2f;">println!</span><span style="color:#fdf4c1aa;">(</span><span style="color:#b8bb26;">&quot;</span><span style="color:#fdf4c1;">{}</span><span style="color:#b8bb26;">&quot;</span><span style="color:#fdf4c1aa;">, res.</span><span style="color:#fabd2f;">await</span><span style="color:#fdf4c1aa;">());
+}
+</span></code></pre>
+<p>The output can look like this</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fdf4c1aa;">TASK 0
+TASK 1
+Before long task
+TASK 2
+TASK 3
+TASK 4
+TASK 9
+TASK 5
+TASK 10
+TASK 19
+TASK 6
+TASK 11
+TASK 17
+TASK 18
+TASK 7
+TASK 8
+TASK 12
+TASK 13
+TASK 14
+TASK 15
+TASK 16
+After long task 42
+42
+</span></code></pre>
+<p>The main feature is that tasks will never block other tasks. In a task system it would be very bad for a task to wait for other tasks to complete because you basically lose the benefit of a whole core/thread. Instead I am using a fiber / coroutine to yield the context.</p>
+<p>I am currently using a fork of <a href="https://github.com/rustcc/coroutine-rs">coroutine-rs</a>. Also as you can see, the API is currently relying on a global but immutable TaskPool. The reason for this what that I had to explicitly wrap <code>TaskPool</code> inside an <code>Arc</code> and clone it every time I wanted to create a task in another task.</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">main</span><span style="color:#fdf4c1aa;">() {
+    </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> taskpool </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">Arc::new(TaskPool::new(</span><span style="color:#d3869b;">3</span><span style="color:#fdf4c1aa;">));
+    </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> taskpool1 </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> taskpool.</span><span style="color:#fabd2f;">clone</span><span style="color:#fdf4c1aa;">();
+    </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> res </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> taskpool.</span><span style="color:#fabd2f;">submit</span><span style="color:#fdf4c1aa;">(|| {
+        taskpool1.</span><span style="color:#fabd2f;">submit</span><span style="color:#fdf4c1aa;">(|| </span><span style="color:#fabd2f;">println!</span><span style="color:#fdf4c1aa;">(</span><span style="color:#b8bb26;">&quot;...&quot;</span><span style="color:#fdf4c1aa;">));
+        </span><span style="color:#d3869b;">42
+    </span><span style="color:#fdf4c1aa;">});
+}
+</span></code></pre>
+<p>I am just not the biggest fan of global variables. Currently a TaskPool is immutable and I just randomly distribute tasks to <code>ThreadLocalQueue</code>. This is not really a good scheduler but it works. A better approach would probably to do all scheduling on the main thread.</p>
+<p>Also if a tasks gets assigned to a <code>ThreadLocalQueue</code> it will stay in this queue until it is done. Once a task is assigned to a <code>ThreadLocalQueue</code> it will create a coroutine. The reason for this is performance because I don't want to worry about sharing fibers across threads and synchronizing them.</p>
+<p><code>Corountine-rs</code> currently does not support of getting the currently active coroutine. I have implemented it using a thread local variable.</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fabd2f;">thread_local!</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">static </span><span style="color:#fdf4c1;">FIBER</span><span style="color:#fdf4c1aa;">: Cell&lt;</span><span style="color:#fa5c4b;">*mut </span><span style="color:#fdf4c1aa;">coroutine::asymmetric::Handle&gt; </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">Cell::new(std::ptr::null_mut()));
+</span></code></pre><pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">for</span><span style="color:#fdf4c1aa;"> t </span><span style="color:#fe8019;">in </span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">.work.</span><span style="color:#fabd2f;">iter_mut</span><span style="color:#fdf4c1aa;">() {
+    </span><span style="color:#fdf4c1;">FIBER</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fabd2f;">with</span><span style="color:#fdf4c1aa;">(|</span><span style="color:#fdf4c1;">f</span><span style="color:#fdf4c1aa;">| {
+        f.</span><span style="color:#fabd2f;">set</span><span style="color:#fdf4c1aa;">(t);
+    });
+    t.</span><span style="color:#fabd2f;">next</span><span style="color:#fdf4c1aa;">();
+    </span><span style="color:#fdf4c1;">FIBER</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fabd2f;">with</span><span style="color:#fdf4c1aa;">(|</span><span style="color:#fdf4c1;">f</span><span style="color:#fdf4c1aa;">| {
+        f.</span><span style="color:#fabd2f;">set</span><span style="color:#fdf4c1aa;">(std::ptr::null_mut());
+    });
+}
+</span></code></pre>
+<p>The gist of it is that before I execute a coroutine, I put a pointer to it on the <code>tls</code>, execute it and null the ptr again. I have no idea if doing that is even legal.</p>
+<p>I am doing it this way because I then always know if I am currently inside a task or not, without needing to explicitly pass the coroutine.</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">Future</span><span style="color:#fdf4c1aa;">&lt;T&gt; {
+    </span><span style="color:#fdf4c1;">receiver</span><span style="color:#fdf4c1aa;">: Receiver&lt;T&gt;,
+}
+</span><span style="color:#fa5c4b;">impl</span><span style="color:#fdf4c1aa;">&lt;T&gt; </span><span style="color:#8ec07c;">Future</span><span style="color:#fdf4c1aa;">&lt;T&gt; {
+    </span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">new</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">receiver</span><span style="color:#fdf4c1aa;">: Receiver&lt;T&gt;) -&gt; </span><span style="color:#fa5c4b;">Self </span><span style="color:#fdf4c1aa;">{
+        Future { receiver: receiver }
+    }
+
+    </span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">await</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">) -&gt; T {
+        </span><span style="color:#fa5c4b;">let mut</span><span style="color:#fdf4c1aa;"> fiber </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">FIBER</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fabd2f;">with</span><span style="color:#fdf4c1aa;">(|</span><span style="color:#fdf4c1;">f</span><span style="color:#fdf4c1aa;">| {
+            </span><span style="color:#fa5c4b;">return</span><span style="color:#fdf4c1aa;"> f.</span><span style="color:#fabd2f;">get</span><span style="color:#fdf4c1aa;">();
+        });
+        </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> is_fiber </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> fiber </span><span style="color:#fe8019;">!= </span><span style="color:#fdf4c1aa;">std::ptr::null_mut();
+        </span><span style="color:#fa5c4b;">if</span><span style="color:#fdf4c1aa;"> is_fiber {
+            </span><span style="color:#fa5c4b;">loop </span><span style="color:#fdf4c1aa;">{
+                </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> r </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">.receiver.</span><span style="color:#fabd2f;">try_recv</span><span style="color:#fdf4c1aa;">();
+                </span><span style="color:#fa5c4b;">if</span><span style="color:#fdf4c1aa;"> r.</span><span style="color:#fabd2f;">is_ok</span><span style="color:#fdf4c1aa;">() {
+                    </span><span style="color:#fa5c4b;">return</span><span style="color:#fdf4c1aa;"> r.</span><span style="color:#fabd2f;">unwrap</span><span style="color:#fdf4c1aa;">();
+                }
+                </span><span style="color:#fa5c4b;">unsafe </span><span style="color:#fdf4c1aa;">{
+                    (</span><span style="color:#fe8019;">*</span><span style="color:#fdf4c1aa;">fiber).</span><span style="color:#fabd2f;">resume</span><span style="color:#fdf4c1aa;">(</span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1aa;">);
+                }
+            }
+        } </span><span style="color:#fa5c4b;">else </span><span style="color:#fdf4c1aa;">{
+            </span><span style="color:#fa5c4b;">return </span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">.receiver.</span><span style="color:#fabd2f;">recv</span><span style="color:#fdf4c1aa;">().</span><span style="color:#fabd2f;">unwrap</span><span style="color:#fdf4c1aa;">();
+        }
+    }
+}
+</span></code></pre>
+<p>Obviously the whole library is implemented in a super hacky way but this allows me to block on the main thread and reschedule inside a task. Rescheduling works by testing if <code>try_recv</code> actually returns something, if it doesn't, I yield the context.</p>
+<p>Now I want to talk about the standard library. I am coming from D where I had to recreate almost anything myself that Rust ships by default because I wanted to avoid the GC. That meant recreating Box, Rc, Arc, Vec, Optional, Result etc and basically every container, because none of the container in the phobos (std) is move aware.</p>
+<p>My main goal is to create a game engine from scratch, while I enjoy working really low level, recreating a big part of the standard library was not as much fun as I thought.</p>
+<p>Coming from D it felt really good to have a standard library that works without a GC. The biggest problem of creating a lot of stuff from scratch is that I am the only user. If I encounter some problem, I can't really post my code anywhere if it contains my custom smart-ptr or Optional/Result. Also using other libraries is probably a no go because they will most likely use the standard library which doesn't work with my move aware types.</p>
+<p>So while it is completely possible to implement all those constructs in D, it felt a bit awkward to create everything manually. This makes me appreciate Rust's standard library much more.</p>
+<p>Implementing the task library was relatively painless, the only thing that was missing were coroutines / fibers in the std, which were available as a 3rd party library.</p>
+<h2 id="conclusions">Conclusions:</h2>
+<p><em>Note: I base my conclusions on Rust 1.9 stable and I do not include features that may or may not come in the future. I know this may offend some people but it is too hard to judge Rust from the perspective of an outsider. I just don't have enough information when which features might become available in stable Rust as there doesn't seem to be publicly available roadmap.</em></p>
+<h4 id="what-i-like">What I like:</h4>
+<ul>
+<li>Traits with dynamic / static dispatch</li>
+<li>Useful and well documented standard library</li>
+<li>Good standard documentation engine</li>
+<li>A sort of standardized style guide. I really like that all libraries have an almost identical syntactical style.</li>
+<li>Move semantics are really well done</li>
+<li>Default immutability and the concept of interior mutability</li>
+<li>No constructors</li>
+<li>Memory safety and no race conditions in safe Rust</li>
+<li>One standard open source compiler based on LLVM</li>
+<li>Useful error messages most of the time</li>
+<li>Solid base for a good ecosystem with cargo</li>
+<li>Implementation lives outside a type</li>
+<li>Good type inference</li>
+<li>Explicit error handling like in Haskell</li>
+<li>Pattern matching, deconstructing patterns like <code>let (a, b) = ...;</code></li>
+</ul>
+<h4 id="what-i-dislike">What I dislike:</h4>
+<ul>
+<li>No variadics</li>
+<li>No type level integers</li>
+<li>Metaprogramming in general is lacking, also unsure where Rust is heading in regards to metaprogramming.</li>
+<li>Compiler sometimes can not reason about lifetimes / mutability, which requires workarounds.</li>
+<li>Compile times seem relatively long compared to D</li>
+<li>No custom allocators</li>
+<li>No constexpr or compile time evaluation</li>
+<li>No public roadmap</li>
+<li>Immature tools like <code>racer</code> (I don't mean to offend anyone here, I appreciate the effort that is put into those tools)</li>
+</ul>
+<p>My overall impression is that I think Rust has a very good core language but it still misses some advanced features.</p>
+
+</div>
+
+            </div>
+
+
+            <script>
+             renderMathInElement(document.body,
+                                 {
+                                     delimiters: [
+                                         {left: "$$", right: "$$", display: true},
+                                         {left: "$", right: "$", display: false},
+                                         {left: "\\[", right: "\\]", display: true}
+                                     ],
+                                 }
+             );
+            </script>
+    </body>
+</html>

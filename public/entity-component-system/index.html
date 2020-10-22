@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+        <!-- Enable responsiveness on mobile devices-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+        <title>Maik Klein</title>
+
+        <!-- CSS -->
+        <link rel="stylesheet" href="https:&#x2F;&#x2F;maikklein.github.io/print.css" media="print">
+        <link rel="stylesheet" href="https:&#x2F;&#x2F;maikklein.github.io/poole.css">
+        <link rel="stylesheet" href="https:&#x2F;&#x2F;maikklein.github.io/lanyon.css">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.2/css/all.css" integrity="sha384-/rXc/GQVaYpyDdyxK+ecHPVYJSN9bmVFBvjA/9eOB+pb3F2w2N6fc5qB9Ew5yIns" crossorigin="anonymous">
+        <link rel="stylesheet" href="https:&#x2F;&#x2F;maikklein.github.io/app.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.8.3/contrib/auto-render.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.css" integrity="sha384-exe4Ak6B0EoJI0ogGxjJ8rn+RN3ftPnEQrGwX59KTCl5ybGzvHGKjhPKk/KC3abb" crossorigin="anonymous">
+<script sync src="https://platform.twitter.com/widgets.js"></script>
+<script>
+  window.onload = (function(){
+
+    var tweet = document.getElementById("tweet");
+    var id = tweet.getAttribute("tweetID");
+
+    twttr.widgets.createTweet(
+      id, tweet, 
+      {
+        conversation : 'none',    // or all
+        linkColor    : '#cc0000', // default is blue
+        theme        : 'light',    // or dark
+        align        : 'center'    
+      })
+    .then (function (el) {
+      el.contentDocument.querySelector(".footer").style.display = "none";
+    });
+
+  });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.js" integrity="sha384-OMvkZ24ANLwviZR2lVq8ujbE/bUO8IR1FdBrKLQBI14Gq5Xp/lksIccGkmKL8m+h" crossorigin="anonymous"></script>
+        <script
+            src="https://code.jquery.com/jquery-3.2.1.min.js"
+            integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+            crossorigin="anonymous"></script>
+        <script src="https:&#x2F;&#x2F;maikklein.github.io/site.js"></script>
+        
+
+        
+        
+    <script>
+        (function(d, s, id){
+           var js, fjs = d.getElementsByTagName(s)[0];
+           if (d.getElementById(id)) {return;}
+           js = d.createElement(s); js.id = id;
+           js.src = "https://assets.gfycat.com/gfycat.js";
+           fjs.parentNode.insertBefore(js, fjs);
+         }(document, 'script', 'gfycat-js'));
+    </script>
+    </head>
+
+    <body>
+        <div class="wrap">
+            <div class="masthead">
+                <div class="container">
+                    <h3 class="masthead-title">
+                        <a href="https:&#x2F;&#x2F;maikklein.github.io/" title="Home">Maik Klein</a>
+                        <small>Blog</small>
+                        <a href="https://github.com/maikklein" target="_blank"><i class="fab fa-github"></i></a>
+                        <a href="https://twitter.com/MaikKlein_DEV" target="_blank"><i class="fab fa-twitter"></i></a>
+                        <a href="https:&#x2F;&#x2F;maikklein.github.io/rss.xml" target="_blank"><i class="fas fa-rss"></i></a>
+                        <a href="https://www.patreon.com/maikklein" target="_blank"><i class="fab fa-patreon"></i></a>
+                    </h3>
+                </div>
+            </div>
+        </div>
+        <div class="content container">
+            
+<div class="post">
+  <h1 class="post-title">The general design of my flawed compile time entity component system in C++14</h1>
+  <span class="post-date">2016-01-14</span>
+  <ul>
+  
+      <li>
+          <a href="#features">Features</a>
+          
+      </li>
+  
+      <li>
+          <a href="#overview">Overview</a>
+          
+      </li>
+  
+      <li>
+          <a href="#dealbreaker">Dealbreaker</a>
+          
+      </li>
+  
+      <li>
+          <a href="#what-have-i-learned">What have I learned?</a>
+          
+      </li>
+  
+  </ul>
+  <p>A lot of people are talking about entity component systems and how they could potentially improve your code base. Most of the articles are theoretical and it is hard to find examples that actually convey some advantages. </p>
+<p>There are actually a lot of entity component systems available for many different programming languages, but most seem to sacrifice performance for expressiveness. </p>
+<p>But I am curious and I really like the general idea of an entity component system but I don't want to just accept the opinion of other game developers. It's time to get some actual experience and I have implemented a very small entity component system in C++14 with template metaprogramming.</p>
+<p>This post will be about the general design of my entity component system.</p>
+<h2 id="features">Features</h2>
+<p>The core features of my entity component system are:</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fdf4c1aa;">Contiguous memory </span><span style="color:#8ec07c;">layout
+Components are grouped at compile time
+Compile time filtering of components
+Components are always added in the correct group automatically
+</span></code></pre><h2 id="overview">Overview</h2>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">world</span><span style="color:#fdf4c1aa;">{
+  </span><span style="font-style:italic;color:#928374;">//component_group &#39;moveable_object&#39;
+</span><span style="color:#fdf4c1aa;">  std::vector&lt;position&gt; moveable_object_position;
+  std::vector&lt;velocity&gt; moveable_object_velocity;
+
+  </span><span style="font-style:italic;color:#928374;">//component_group &#39;entity&#39;
+</span><span style="color:#fdf4c1aa;">  std::vector&lt;position&gt; entity_position;
+  std::vector&lt;velocity&gt; entity_velocity;
+  std::vector&lt;name&gt; entity_name;
+  </span><span style="color:#fe8019;">...
+</span><span style="color:#fdf4c1aa;">};
+</span></code></pre>
+<p>This is the core of the entity component system, we group components together at compile time. The layout is called <code>SoA</code> (structures of arrays) and a specific object is referred to by id.</p>
+<p>For example instead of having </p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">moveable_object</span><span style="color:#fdf4c1aa;">{
+  velocity vel;
+  position pos;
+};
+std::vector&lt;moveable_object&gt; mv_objects;
+</span></code></pre>
+<p>we have</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fdf4c1aa;">std::vector&lt;position&gt; moveable_object_position;
+std::vector&lt;velocity&gt; moveable_object_velocity;
+</span></code></pre>
+<p>And I refer to <code>moveable_object_position[index], moveable_object_velocity[index]</code> as an object in this post.</p>
+<p>Each <code>component_group</code> has a list of constrains, for example an <code>entity</code> needs to have a <code>position</code>, <code>velocity</code> and <code>name</code> component. The advantage of this approach is that filtering is essentially free, because we can just iterate over <code>entity_position</code>,<code>entity_velocity</code> and<code>entity_name</code> at the same time. Another advantage is that we don't have to worry about the memory layout as much, because we group everything at compile time.</p>
+<p>It is also possible to filter <code>component_groups</code> based on the components they own. For example if we want to iterate over every <code>object</code> that has a <code>position</code> and <code>velocity</code> component, we would have to iterate over <code>entity_position</code>, <code>entity_velocity</code> and <code>moveable_object_position</code>, <code>moveable_object_velocity</code>.</p>
+<p>Obviously maintaining something like this by hand is extremely tedious. This is where metaprogramming will help us to convey our meaning. The following code snippet is a small example from my experimental entity component system.</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">position </span><span style="color:#fdf4c1aa;">{
+  </span><span style="color:#fa5c4b;">float</span><span style="color:#fdf4c1aa;"> x, y;
+};
+</span><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">velocity </span><span style="color:#fdf4c1aa;">{
+  </span><span style="color:#fa5c4b;">float</span><span style="color:#fdf4c1aa;"> x, y;
+};
+</span><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">name </span><span style="color:#fdf4c1aa;">{
+  std::string name;
+};
+
+</span><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">print_name </span><span style="color:#fdf4c1aa;">{
+  </span><span style="color:#fa5c4b;">template </span><span style="color:#fdf4c1aa;">&lt;</span><span style="color:#fa5c4b;">class</span><span style="color:#fdf4c1aa;"> World&gt; </span><span style="color:#fa5c4b;">void </span><span style="color:#8ec07c;">update</span><span style="color:#fdf4c1aa;">(World</span><span style="color:#fe8019;">&amp; </span><span style="color:#fdf4c1;">w</span><span style="color:#fdf4c1aa;">) {
+    w.</span><span style="color:#fa5c4b;">template </span><span style="color:#fdf4c1;">update</span><span style="color:#fdf4c1aa;">&lt;name&gt;([](</span><span style="color:#fa5c4b;">auto</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;"> name) { </span><span style="color:#fdf4c1;">print(name.name)</span><span style="color:#fdf4c1aa;">; });
+  }
+};
+</span><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">print_pos_vel </span><span style="color:#fdf4c1aa;">{
+  </span><span style="color:#fa5c4b;">template </span><span style="color:#fdf4c1aa;">&lt;</span><span style="color:#fa5c4b;">class</span><span style="color:#fdf4c1aa;"> World&gt; </span><span style="color:#fa5c4b;">void </span><span style="color:#8ec07c;">update</span><span style="color:#fdf4c1aa;">(World</span><span style="color:#fe8019;">&amp; </span><span style="color:#fdf4c1;">w</span><span style="color:#fdf4c1aa;">) {
+    w.</span><span style="color:#fa5c4b;">template </span><span style="color:#fdf4c1;">update</span><span style="color:#fdf4c1aa;">&lt;position, velocity&gt;([](</span><span style="color:#fa5c4b;">auto</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;"> pos, </span><span style="color:#fa5c4b;">auto</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;"> vel) {
+      </span><span style="color:#fdf4c1;">print(pos.x, pos.y)</span><span style="color:#fdf4c1aa;">;
+      </span><span style="color:#fdf4c1;">print(vel.x, vel.y)</span><span style="color:#fdf4c1aa;">;
+    });
+  }
+};
+</span><span style="color:#fa5c4b;">auto </span><span style="color:#8ec07c;">make_monster</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">float </span><span style="color:#fdf4c1;">x</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fa5c4b;">float </span><span style="color:#fdf4c1;">y</span><span style="color:#fdf4c1aa;">, std::string </span><span style="color:#fdf4c1;">n</span><span style="color:#fdf4c1aa;">) {
+  </span><span style="color:#fa5c4b;">return </span><span style="color:#fdf4c1;">hana::make_tuple(position{ x, y }, velocity{ </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1;">, </span><span style="color:#d3869b;">0 </span><span style="color:#fdf4c1;">}, name{ n })</span><span style="color:#fdf4c1aa;">;
+}
+
+</span><span style="color:#fa5c4b;">template </span><span style="color:#fdf4c1aa;">&lt;</span><span style="color:#fa5c4b;">class</span><span style="color:#fe8019;">...</span><span style="color:#fdf4c1aa;"> Ts&gt;
+</span><span style="color:#fa5c4b;">using </span><span style="color:#8ec07c;">component_group_handle </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> ecs::core::component_group&lt;
+    breeze::util::container::handle_container, Ts</span><span style="color:#fe8019;">...</span><span style="color:#fdf4c1aa;">&gt;;
+
+</span><span style="color:#fa5c4b;">int </span><span style="color:#8ec07c;">main</span><span style="color:#fdf4c1aa;">() {
+  </span><span style="color:#fa5c4b;">using </span><span style="color:#8ec07c;">moveable_object </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> component_group_handle&lt;position, velocity&gt;;
+  </span><span style="color:#fa5c4b;">using </span><span style="color:#8ec07c;">entity </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> component_group_handle&lt;position, velocity, name&gt;;
+  </span><span style="color:#fa5c4b;">using </span><span style="color:#8ec07c;">cg </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> ecs::core::component_groups&lt;moveable_object, entity&gt;;
+  </span><span style="color:#fa5c4b;">auto</span><span style="color:#fdf4c1aa;"> w </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">ecs::core::world&lt;cg&gt;{}</span><span style="color:#fdf4c1aa;">;
+  </span><span style="color:#fa5c4b;">auto</span><span style="color:#fdf4c1aa;"> sg </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">ecs::core::make_systems_group(w, print_name{}, print_pos_vel{})</span><span style="color:#fdf4c1aa;">;
+  w.</span><span style="color:#fdf4c1;">add</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">make_monster(</span><span style="color:#d3869b;">10</span><span style="color:#fdf4c1;">, </span><span style="color:#d3869b;">5</span><span style="color:#fdf4c1;">, </span><span style="color:#b8bb26;">&quot;Monster3&quot;</span><span style="color:#fdf4c1;">)</span><span style="color:#fdf4c1aa;">);
+  w.</span><span style="color:#fdf4c1;">add</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">make_monster(</span><span style="color:#d3869b;">11</span><span style="color:#fdf4c1;">, </span><span style="color:#d3869b;">5</span><span style="color:#fdf4c1;">, </span><span style="color:#b8bb26;">&quot;Monster2&quot;</span><span style="color:#fdf4c1;">)</span><span style="color:#fdf4c1aa;">);
+  w.</span><span style="color:#fdf4c1;">add</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">position{ </span><span style="color:#d3869b;">42</span><span style="color:#fdf4c1;">, </span><span style="color:#d3869b;">24 </span><span style="color:#fdf4c1;">}</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">velocity{ </span><span style="color:#d3869b;">5</span><span style="color:#fdf4c1;">, </span><span style="color:#d3869b;">5 </span><span style="color:#fdf4c1;">}</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">name{ </span><span style="color:#b8bb26;">&quot;Monster1&quot; </span><span style="color:#fdf4c1;">}</span><span style="color:#fdf4c1aa;">);
+
+  </span><span style="font-style:italic;color:#928374;">// moveable_object
+</span><span style="color:#fdf4c1aa;">  w.</span><span style="color:#fdf4c1;">add</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">position{ </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1;">, </span><span style="color:#d3869b;">0 </span><span style="color:#fdf4c1;">}</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">velocity{ </span><span style="color:#d3869b;">10</span><span style="color:#fdf4c1;">, </span><span style="color:#d3869b;">5 </span><span style="color:#fdf4c1;">}</span><span style="color:#fdf4c1aa;">);
+  sg.</span><span style="color:#fdf4c1;">update</span><span style="color:#fdf4c1aa;">();
+}
+</span></code></pre>
+<p>Don't worry if you don't understand what is going on, I'll try to explain everything you need to know in the following section.</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">print_pos_vel </span><span style="color:#fdf4c1aa;">{
+  </span><span style="color:#fa5c4b;">template </span><span style="color:#fdf4c1aa;">&lt;</span><span style="color:#fa5c4b;">class</span><span style="color:#fdf4c1aa;"> World&gt; </span><span style="color:#fa5c4b;">void </span><span style="color:#8ec07c;">update</span><span style="color:#fdf4c1aa;">(World</span><span style="color:#fe8019;">&amp; </span><span style="color:#fdf4c1;">w</span><span style="color:#fdf4c1aa;">) {
+    w.</span><span style="color:#fa5c4b;">template </span><span style="color:#fdf4c1;">update</span><span style="color:#fdf4c1aa;">&lt;position, velocity&gt;([](</span><span style="color:#fa5c4b;">auto</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;"> pos, </span><span style="color:#fa5c4b;">auto</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;"> vel) {
+      </span><span style="color:#fdf4c1;">print(pos.x, pos.y)</span><span style="color:#fdf4c1aa;">;
+      </span><span style="color:#fdf4c1;">print(vel.x, vel.y)</span><span style="color:#fdf4c1aa;">;
+    });
+  }
+};
+</span></code></pre>
+<p>This is a simple system, which filters out every <code>component_group</code>that does not have a <code>position</code> and <code>velocity</code> component, it then extracts the correct components for every <code>component_group</code> that we are interested in. We then zip the iterators for <code>position</code> and <code>velocity</code> together and we repeat this for every <code>component_group</code> that satisfies the <code>position</code> and <code>velocity</code> constrain. We are then left with a tuple of zipped iterators which we
+concatenate into one big iterator. After that we can iterate over every <code>position</code> and <code>velocity</code> component and print it to the console.</p>
+<p>The only thing that is done at runtime is accessing the iterator for every component and concatenate them.</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">using </span><span style="color:#8ec07c;">moveable_object </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> component_group_handle&lt;position, velocity&gt;;
+</span><span style="color:#fa5c4b;">using </span><span style="color:#8ec07c;">entity </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> component_group_handle&lt;position, velocity, name&gt;;
+</span></code></pre>
+<p>These are our <code>component_groups</code> which we have to declare once. Technically those could be inferred but I decided that it would serve as a good way to document all the different <code>component_groups</code> that are used by the entity component system.</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">using </span><span style="color:#8ec07c;">cg </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> ecs::core::component_groups&lt;moveable_object, entity&gt;;
+</span><span style="color:#fa5c4b;">auto</span><span style="color:#fdf4c1aa;"> w </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> ecs::core::world&lt;cg&gt;{};
+</span></code></pre>
+<p>After declaring all the <code>component_group</code>'s that we want to use, we can finally create our <code>world</code> object.</p>
+<p>The world object itself doesn't do much and its purpose is to store our data. </p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">auto</span><span style="color:#fdf4c1aa;"> sg </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">ecs::core::make_systems_group(w, print_name{}, print_pos_vel{})</span><span style="color:#fdf4c1aa;">;
+</span><span style="color:#fe8019;">...
+</span><span style="color:#fdf4c1aa;">sg.</span><span style="color:#fdf4c1;">update</span><span style="color:#fdf4c1aa;">();
+</span></code></pre>
+<p>A <code>system_group</code> just groups different systems together and allows to call <code>update</code> on every system that has been registered at compile-time.</p>
+<pre style="background-color:#282828;">
+<code><span style="font-style:italic;color:#928374;">// entity
+</span><span style="color:#fdf4c1aa;">w.</span><span style="color:#fdf4c1;">add</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">position{ </span><span style="color:#d3869b;">42</span><span style="color:#fdf4c1;">, </span><span style="color:#d3869b;">24 </span><span style="color:#fdf4c1;">}</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">velocity{ </span><span style="color:#d3869b;">5</span><span style="color:#fdf4c1;">, </span><span style="color:#d3869b;">5 </span><span style="color:#fdf4c1;">}</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">name{ </span><span style="color:#b8bb26;">&quot;Monster1&quot; </span><span style="color:#fdf4c1;">}</span><span style="color:#fdf4c1aa;">);
+
+</span><span style="font-style:italic;color:#928374;">// moveable_object
+</span><span style="color:#fdf4c1aa;">w.</span><span style="color:#fdf4c1;">add</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">position{ </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1;">, </span><span style="color:#d3869b;">0 </span><span style="color:#fdf4c1;">}</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">velocity{ </span><span style="color:#d3869b;">10</span><span style="color:#fdf4c1;">, </span><span style="color:#d3869b;">5 </span><span style="color:#fdf4c1;">}</span><span style="color:#fdf4c1aa;">);
+</span></code></pre>
+<p>Every <code>object</code> is added into the correct <code>component_group</code>. If you call add with <code>&lt;position, velocity&gt;</code> it will look at all the <code>component_group</code>'s and that were declared before and insert it into the correct one.
+Because we have declared <code>using moveable_object = component_group_handle&lt;position, velocity&gt;;</code>  the components <code>w.add(position{ 0, 0 }, velocity{ 10, 5 });</code> will be inserted into the <code>component_group</code> <code>moveable_object</code>.</p>
+<p>Deleting <code>objects</code> is also very simple. Because we have grouped everything at compile-time, we just have to look at the <code>component_group</code> that the object belongs to and delete it. To preserve contiguous elements we swap the last element with the element that we want to delete and then we simply remove the last element.</p>
+<p>Most entity component system allow to add and remove components from <code>objects</code> at runtime. If we want to take a <code>moveable_object</code> and add a <code>name</code> component, it would become an <code>entity</code>.</p>
+<p>We would need to move the components from the <code>component_group</code> <code>moveable_object</code> to the <code>component_group</code> <code>entity</code> and add then simply add the <code>name</code> component.</p>
+<h2 id="dealbreaker">Dealbreaker</h2>
+<p>The biggest problem is the compilation time. Every query of update <code>w.template update&lt;T0,T1,...TN&gt;</code> costs around 2 seconds on my machine, that is just unacceptable.</p>
+<p>You can find the code <a href="https://github.com/BreezeEngine/breeze/blob/master/src/ecs/core/core.hpp">here</a> and <a href="https://github.com/BreezeEngine/breeze/blob/master/examples/ecs/main.cpp">here</a></p>
+<p>Please note that the code is in a highly experimental state and will most likely not even compile on your machine.</p>
+<h2 id="what-have-i-learned">What have I learned?</h2>
+<p>I really love metaprogramming in C++ with <a href="https://github.com/boostorg/hana">hana</a>. It is expressive, concise and doesn't look odd if you are familiar with functional conecpts.</p>
+<p>Compile errors are horrifying and tools for compile-time debugging/profiling are pretty much non existent.</p>
+<p>Compile times can quickly blow up and it's hard to track down where and why they are blowing up.</p>
+<p>I don't think the entity component system that I envision is practical to create in C++ and I will most likely abandon it. I am not quite ready the abandon the idea and I will try to create a similar entity component system in <code>D</code>.</p>
+
+</div>
+
+            </div>
+
+
+            <script>
+             renderMathInElement(document.body,
+                                 {
+                                     delimiters: [
+                                         {left: "$$", right: "$$", display: true},
+                                         {left: "$", right: "$", display: false},
+                                         {left: "\\[", right: "\\]", display: true}
+                                     ],
+                                 }
+             );
+            </script>
+    </body>
+</html>

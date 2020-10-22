@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+        <!-- Enable responsiveness on mobile devices-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+        <title>Maik Klein</title>
+
+        <!-- CSS -->
+        <link rel="stylesheet" href="https:&#x2F;&#x2F;maikklein.github.io/print.css" media="print">
+        <link rel="stylesheet" href="https:&#x2F;&#x2F;maikklein.github.io/poole.css">
+        <link rel="stylesheet" href="https:&#x2F;&#x2F;maikklein.github.io/lanyon.css">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.2/css/all.css" integrity="sha384-/rXc/GQVaYpyDdyxK+ecHPVYJSN9bmVFBvjA/9eOB+pb3F2w2N6fc5qB9Ew5yIns" crossorigin="anonymous">
+        <link rel="stylesheet" href="https:&#x2F;&#x2F;maikklein.github.io/app.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.8.3/contrib/auto-render.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.css" integrity="sha384-exe4Ak6B0EoJI0ogGxjJ8rn+RN3ftPnEQrGwX59KTCl5ybGzvHGKjhPKk/KC3abb" crossorigin="anonymous">
+<script sync src="https://platform.twitter.com/widgets.js"></script>
+<script>
+  window.onload = (function(){
+
+    var tweet = document.getElementById("tweet");
+    var id = tweet.getAttribute("tweetID");
+
+    twttr.widgets.createTweet(
+      id, tweet, 
+      {
+        conversation : 'none',    // or all
+        linkColor    : '#cc0000', // default is blue
+        theme        : 'light',    // or dark
+        align        : 'center'    
+      })
+    .then (function (el) {
+      el.contentDocument.querySelector(".footer").style.display = "none";
+    });
+
+  });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.js" integrity="sha384-OMvkZ24ANLwviZR2lVq8ujbE/bUO8IR1FdBrKLQBI14Gq5Xp/lksIccGkmKL8m+h" crossorigin="anonymous"></script>
+        <script
+            src="https://code.jquery.com/jquery-3.2.1.min.js"
+            integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+            crossorigin="anonymous"></script>
+        <script src="https:&#x2F;&#x2F;maikklein.github.io/site.js"></script>
+        
+
+        
+        
+    <script>
+        (function(d, s, id){
+           var js, fjs = d.getElementsByTagName(s)[0];
+           if (d.getElementById(id)) {return;}
+           js = d.createElement(s); js.id = id;
+           js.src = "https://assets.gfycat.com/gfycat.js";
+           fjs.parentNode.insertBefore(js, fjs);
+         }(document, 'script', 'gfycat-js'));
+    </script>
+    </head>
+
+    <body>
+        <div class="wrap">
+            <div class="masthead">
+                <div class="container">
+                    <h3 class="masthead-title">
+                        <a href="https:&#x2F;&#x2F;maikklein.github.io/" title="Home">Maik Klein</a>
+                        <small>Blog</small>
+                        <a href="https://github.com/maikklein" target="_blank"><i class="fab fa-github"></i></a>
+                        <a href="https://twitter.com/MaikKlein_DEV" target="_blank"><i class="fab fa-twitter"></i></a>
+                        <a href="https:&#x2F;&#x2F;maikklein.github.io/rss.xml" target="_blank"><i class="fas fa-rss"></i></a>
+                        <a href="https://www.patreon.com/maikklein" target="_blank"><i class="fab fa-patreon"></i></a>
+                    </h3>
+                </div>
+            </div>
+        </div>
+        <div class="content container">
+            
+<div class="post">
+  <h1 class="post-title">Fantastic quaternions and where to find them</h1>
+  <span class="post-date">2017-12-30</span>
+  <ul>
+  
+      <li>
+          <a href="#preface">Preface</a>
+          
+      </li>
+  
+      <li>
+          <a href="#wedge-product">Wedge product</a>
+          
+      </li>
+  
+      <li>
+          <a href="#geometric-product">Geometric product</a>
+          
+      </li>
+  
+      <li>
+          <a href="#inverse">Inverse</a>
+          
+      </li>
+  
+      <li>
+          <a href="#reflection">Reflection</a>
+          
+      </li>
+  
+      <li>
+          <a href="#double-reflection-as-a-rotation">Double reflection as a rotation</a>
+          
+      </li>
+  
+      <li>
+          <a href="#3d">3D</a>
+          
+      </li>
+  
+      <li>
+          <a href="#quaternions">Quaternions</a>
+          
+      </li>
+  
+      <li>
+          <a href="#double-cover">Double cover</a>
+          
+      </li>
+  
+      <li>
+          <a href="#exponentials">Exponentials</a>
+          
+      </li>
+  
+      <li>
+          <a href="#recap">Recap</a>
+          
+      </li>
+  
+  </ul>
+  <h1 id="preface">Preface</h1>
+<p>We are going to derive quaternions with the help of geometric algebra. The only prerequisite is a basic understanding or linear algebra and trigonometry. In this blog post $\vec{x}$, $\vec{y}$ and $\vec{z}$ will be the unit basis vectors.</p>
+<h1 id="wedge-product">Wedge product</h1>
+<p>Before we start, let me briefly introduce the wedge product. The wedge product will give us the signed area that two vectors are spanning.</p>
+<p>We start of with three properties:</p>
+<p>$$ \vec{u} \wedge \vec{v} = -(\vec{v} \wedge \vec{u}) $$</p>
+<p>The wedge product will give us the signed area of the parallelogram, just like the determinant.</p>
+<p>$$ \vec{u} \wedge \vec{u} = 0$$</p>
+<p>And if two vectors are linearly dependent, they will have an area of 0.</p>
+<p>$$ a\vec{u} \wedge b\vec{v} = ab(\vec{u} \wedge \vec{v})$$</p>
+<p>Rescaling either side will rescale the area by the same amount and we can therefor factor out the scalars.</p>
+<p>With these three properties, we can derive the actual formula to calculate the area that two vectors are spanning.</p>
+<p>$$ \vec{u} = a\vec{x} + b\vec{y}$$</p>
+<p>$$ \vec{v} = c\vec{x} + d\vec{y}$$</p>
+<p>$$ \vec{u} \wedge \vec{v} = (a\vec{x} + b\vec{y}) \wedge (c\vec{x} + d\vec{y}) $$
+$$ = a\vec{x} \wedge c\vec{x} + a\vec{x} \wedge d\vec{y} + b\vec{y} \wedge cx + b\vec{y} \wedge d\vec{y}$$</p>
+<p>$$ = a\vec{x} \wedge d\vec{y} + b\vec{y} \wedge c\vec{x}$$
+$$ = a\vec{x} \wedge d\vec{y} - c\vec{x} \wedge b\vec{y}$$
+$$ = ad (\vec{x} \wedge \vec{y}) - bc(\vec{x} \wedge \vec{y})$$
+$$ = (ad - bc) \vec{x} \wedge \vec{y}$$
+This is essentially the 2d determinant times $\vec{x} \wedge \vec{y} $. The area of $\vec{x} \wedge \vec{y} $ is 1. From now on we will call this a bivector. A bivector therefor consists of two vectors that form a plane, and its magnitude is the signed area that those vectors are spanning.</p>
+<p><img src="https://i.imgur.com/cVWINRS.png" alt="" />
+Remember that $\vec{u} \wedge \vec{v}$ gives us a unit bivector with the signed area that $\vec{u}$ and $\vec{v}$ span. The area of a parallelogram is base $*$ height. Another way of defining the wedge product:</p>
+<p>$$\vec{u} \wedge \vec{v} = |\vec{u}||\vec{v}|\sin({\alpha})B$$</p>
+<p>$B$ is some unit bivector.</p>
+<p>The wedge product is also called the exterior product, because you can think of it as an extension.</p>
+<p>The wedge product between two vectors $\vec{u} \wedge \vec{v}$ can be thought of as extending $\vec{u}$ along $\vec{v}$.</p>
+<p><img src="https://i.imgur.com/4Tj5xxr.gif" alt="" /></p>
+<p>I only showed the wedge product for two 2D vectors but the wedge product is defined in N dimensions. Imagine a 2D plane in 3d space, you can rotate that plane in a way that the $\vec{z}$ component
+would become 0. For completeness I am also going to derive the wedge product for two 3D vectors, but it is not neccessary and feel free to skip the derivation.</p>
+<p>$$\vec{u} = u_{1}\vec{x} + u_{2}\vec{y} + u_{3}\vec{z}$$
+$$\vec{v} = v_{1}\vec{x} + v_{2}\vec{y} + v_{3}\vec{z}$$</p>
+<p>$$ \vec{u} \wedge \vec{v}  = (u_{1}\vec{x} + u_{2}\vec{y} + u_{3}\vec{z}) \wedge (v_{1}\vec{x} + v_{2}\vec{y} + v_{3}\vec{z}) $$
+$$ \begin{aligned}
+= u_{1}v_{1}\vec{x} \wedge \vec{x} + u_{1}v_{2}\vec{x}\wedge\vec{y} + u_{1}v_{3}\vec{x}\wedge\vec{z} \\
++u_{2}v_{1}\vec{y} \wedge \vec{x} + u_{2}v_{2}\vec{y}\wedge\vec{y} + u_{2}v_{3}\vec{y}\wedge\vec{z}  \\
++u_{3}v_{1}\vec{z} \wedge \vec{x} + u_{3}v_{2}\vec{z}\wedge\vec{y} + u_{3}v_{3}\vec{z}\wedge\vec{z}
+\end{aligned}$$
+$$ \begin{aligned}
+= u_{1}v_{2}\vec{x}\wedge\vec{y} + u_{1}v_{3}\vec{x}\wedge\vec{z} \\
++u_{2}v_{1}\vec{y} \wedge \vec{x} + u_{2}v_{3}\vec{y}\wedge\vec{z} \\
++u_{3}v_{1}\vec{z} \wedge \vec{x} + u_{3}v_{2}\vec{z}\wedge\vec{y}
+\end{aligned}$$</p>
+<p>$$ \begin{aligned}
+= u_{1}v_{2}\vec{x}\wedge\vec{y} - u_{1}v_{3}\vec{z}\wedge\vec{x}  \\
+-u_{2}v_{1}\vec{x} \wedge \vec{y} + u_{2}v_{3}\vec{y}\wedge\vec{z}  \\
++u_{3}v_{1}\vec{z} \wedge \vec{x} - u_{3}v_{2}\vec{y}\wedge\vec{z}
+\end{aligned}$$
+$$ \begin{aligned}
+= (u_{1}v_{2} - u_{2}v_{1}) \vec{x}\wedge\vec{y} \\
++(u_{3}v_{1} - u_{1}v_{3})\vec{z}\wedge\vec{x} \\
++(u_{2}v_{3} - u_{3}v_{2})\vec{y}\wedge\vec{z} \\
+\end{aligned}$$</p>
+<p>This looks very similar to the cross product. This is no suprise as the cross product is defined as $\vec{u} \times \vec{v} = |\vec{u}||\vec{v}|\sin({\alpha})\hat{n}$. The only difference is that we end up with 3 unit bivectors $\vec{x}\vec{y}$, $\vec{z}\vec{x}$ and $\vec{y}\vec{z}$. The relation here is that $\vec{z}$ is the normal vector of $\vec{x}\vec{y}$ and $(u_{1}v_{2} - u_{2}v_{1})$ is the $\vec{z}$ component of the cross product. There is actually a nicer way to derive the cross product with geometric algebra but this would be too offtopic.</p>
+<p>To calculate the area it might be tempting to just add all the scalar parts together 
+$
+(u_{1}v_{2} - u_{2}v_{1}) + 
+(u_{3}v_{1} - u_{1}v_{3}) + 
+(u_{2}v_{3} - u_{3}v_{2})
+$
+because $\vec{x}\wedge\vec{y}$, $\vec{z}\wedge\vec{x}$ and $\vec{y}\wedge\vec{z}$ have all an area of 1, but that is not correct. Adding bivector together results in another bivector, but that bivector does not necessarily have an area of 1. This is very similar to normal vector addition, if you add multiple unit vectors together, the resulting vector is not always a unit vector.</p>
+<p>By adding all the scalar parts together we are really saying
+$
+(u_{1}v_{2} - u_{2}v_{1} + 
+u_{3}v_{1} - u_{1}v_{3} + 
+u_{2}v_{3} - u_{3}v_{2})B
+$
+where $B$ is not a unit bivector and just extracting the scalar part would not be the area. If we think about vector addition: 
+$$ \vec{u} = \vec{x} +\vec{y} +\vec{z} $$</p>
+<p>We can also think about it as the length of $\vec{u}$ times the unit vector $\hat{u}$
+$$ \vec{u} = \sqrt{|\vec{x}|^2 +|\vec{y}|^2 +|\vec{z} |^2}\hat{u}$$</p>
+<p>We can apply the same concept to bivectors, this works because bivectors behave very similar to vectors.</p>
+<p><img src="https://i.imgur.com/3WEm2JR.png" alt="" /></p>
+<p>To get the area we really want to get 
+$$
+\sqrt{(u_{1}v_{2} - u_{2}v_{1})^2 + 
+(u_{3}v_{1} - u_{1}v_{3})^2 + 
+(u_{2}v_{3} - u_{3}v_{2})^2}B
+$$</p>
+<h1 id="geometric-product">Geometric product</h1>
+<p>$$\vec{u}\vec{v} = \vec{u} \cdot \vec{v} + \vec{u} \wedge \vec{v} $$</p>
+<p>The geometric product is just the dot product + the wedge product.</p>
+<p>The geometric product is both commutative and anti-commutative.</p>
+<p>If $\vec{u}$ and $\vec{v}$ are orthogonal, then the dot product becomes 0 and we are left with the wedge product $$ \vec{u}\vec{v} = \vec{u} \wedge \vec{v}$$ and therefor is anti-commutative $$ \vec{u}\vec{v} = -\vec{v}\vec{u}$$</p>
+<p>If $\vec{u}$ and $\vec{v}$ are linearly dependent, then the wedge product becomes 0 and we are left with only the dot product. $$ \vec{u}\vec{v} = \vec{u} \cdot \vec{v}$$ $$ \vec{u}\vec{v} = \vec{v}\vec{u}$$</p>
+<p>You can also write $ \vec{x}\vec{x} $ as</p>
+<p>$$ \vec{x}\vec{x} = \vec{x}^2 $$ $$ \vec{x}^2 = \vec{x}\vec{x} = \vec{x} \cdot \vec{x} = 1 $$</p>
+<p>Now we will look at the geometric product of $\vec{x}\vec{y} $. $$ \vec{x}\vec{y} = \vec{x} \wedge \vec{y}$$</p>
+<p>Because of this we get</p>
+<p>$$ \vec{x}\vec{y} = -(\vec{y}\vec{x})$$ $$ (\vec{x}\vec{y})^2 = \vec{x}\vec{y}\vec{x}\vec{y}$$</p>
+<p>Remember order matters.</p>
+<p>$$ (\vec{x}\vec{y})^2 = \vec{x}(-\vec{x}\vec{y})\vec{y} = -\vec{x}\vec{x}\vec{y}\vec{y} = -\vec{x}^2\vec{y}^2 = -1$$</p>
+<p>Interestingly the squared geometric product of $\vec{x}\vec{y}$ will result in $-1$. This is very similar to $i^2 = -1$. You might wonder if we can do rotations with $\vec{x}\vec{y}$ and the answer is yes we can.</p>
+<p>$$ \vec{u} = a\vec{x} + b\vec{y} $$ $$ \vec{u}\vec{x}\vec{y} = (a\vec{x} + b\vec{y})\vec{x}\vec{y} = a\vec{x}\vec{x}\vec{y} + b\vec{y}\vec{x}\vec{y} = a\vec{x}\vec{x}\vec{y} - b\vec{x}\vec{y}\vec{y} = - b\vec{x} + a\vec{y} $$</p>
+<p>You can compare this to</p>
+<p>$$ (a + bi)i = ai + bi^2 = -b + ai $$</p>
+<h1 id="inverse">Inverse</h1>
+<p>$$ \vec{u}\vec{u} = \vec{u} \cdot \vec{u} = |\vec{u}|^2$$
+$$ \vec{u}\vec{u} = |\vec{u}|^2 $$
+$$ \frac{\vec{u}}{|\vec{u}|^2}\vec{u} = 1 $$
+$$ \vec{u}^{-1} = \frac{\vec{u}}{|\vec{u}|^2}$$
+$$ \vec{u}^{-1}\vec{u} = \vec{u}\vec{u}^{-1} = 1$$</p>
+<h1 id="reflection">Reflection</h1>
+<p>Before we can learn how to do rotations, we must learn how to do reflections.
+<img src="https://i.imgur.com/drCMAoR.png" alt="" /></p>
+<p>$$ \vec{u} = \vec{u}_\perp + \vec{u}_{\parallel} $$</p>
+<p>$$ \vec{u}^{\prime} =\vec{u}_{\parallel} - \vec{u}_\perp$$
+We are going to define vector reflection with the geometric product. Here $\vec{u}_\perp$ is orthogonal to $\vec{v}$, and $\vec{u}_{\parallel}$ is parallel to $\vec{v}$.</p>
+<p>$$ \vec{u}^{\prime}\vec{v}\ = \vec{u}_{\parallel}\vec{v}\ - \vec{u}_\perp\vec{v}$$ $$ \vec{u}^{\prime}\vec{v}\ = \vec{v}\vec{u}_{\parallel} + \vec{v}\vec{u}_\perp$$ $$ \vec{u}^{\prime}\vec{v}\ = \vec{v}\vec{u}_{\parallel} + \vec{v}\vec{u}_\perp$$ $$ \vec{u}^{\prime}\vec{v}\ = \vec{v}(\vec{u}_{\parallel} + \vec{u}_\perp)$$ $$ \vec{u}^{\prime}\vec{v}\ = \vec{v}\vec{u}$$ $$ \vec{u}^{\prime}\vec{v}\vec{v}^{-1} = \vec{v}\vec{u}\vec{v}^{-1}$$ $$ \vec{u}^{\prime} = \vec{v}\vec{u}\vec{v}^{-1}$$ Interestingly we could have also used the opposite approach. $$ \vec{u} = \vec{u}_\perp + \vec{u}_{\parallel} $$ $$ \vec{u}^{\prime} =\vec{u}_{\parallel} - \vec{u}_\perp$$ $$ \vec{v}\vec{u}^{\prime} = \vec{v}\vec{u}_{\parallel} - \vec{v}\vec{u}_\perp$$ $$ \vec{v}\vec{u}^{\prime} = \vec{u}_{\parallel}\vec{v} + \vec{u}_\perp\vec{v}$$ $$ \vec{v}\vec{u}^{\prime} = (\vec{u}_{\parallel} + \vec{u}_\perp)\vec{v}$$ $$ \vec{v}\vec{u}^{\prime} = \vec{u}\vec{v}$$ $$ \vec{v}^{-1}\vec{v}\vec{u}^{\prime} = \vec{v}^{-1}\vec{u}\vec{v}$$ $$ \vec{u}^{\prime} = \vec{v}^{-1}\vec{u}\vec{v}$$</p>
+<p>Example:</p>
+<p>$$\vec{u} = 3\vec{x} + \vec{y}$$ $$\vec{v} = 2\vec{x} + 2\vec{y}$$</p>
+<p>$$\vec{u}^{\prime} = \vec{v}^{-1}\vec{u}\vec{v} = \frac{2\vec{x} + 2\vec{y}}{ 2 * 2 + 2 * 2}(3\vec{x} + \vec{y})(2\vec{x} + 2\vec{y})$$ $$= (\frac{1}{4}\vec{x} + \frac{1}{4}\vec{y})(3\vec{x} + \vec{y})(2\vec{x} + 2\vec{y})$$ $$= (\frac{1}{4}\vec{x} + \frac{1}{4}\vec{y})(3\vec{x}2\vec{x} + 3\vec{x}2\vec{y} + \vec{y}2\vec{x} + \vec{y}2\vec{y})$$ $$= (\frac{1}{4}\vec{x} + \frac{1}{4}\vec{y})(6\vec{x}\vec{x} + 6\vec{x}\vec{y} + 2\vec{y}\vec{x} + 2\vec{y}\vec{y})$$ $$= (\frac{1}{4}\vec{x} + \frac{1}{4}\vec{y})(8 + 4\vec{x}\vec{y})$$ $$= 8\frac{1}{4}\vec{x} +\frac{1}{4}\vec{x}4\vec{x}\vec{y} + 8\frac{1}{4}\vec{y} + \frac{1}{4}\vec{y}4\vec{x}\vec{y}$$ $$= 2\vec{x} +\vec{x}\vec{x}\vec{y} + 2\vec{y} + \vec{y}\vec{x}\vec{y}$$ $$= 2\vec{x} +\vec{y} + 2\vec{y} - \vec{x}\vec{y}\vec{y}$$ $$= 2\vec{x} +\vec{y} + 2\vec{y} - \vec{x}$$ $$= \vec{x} + 3\vec{y}$$</p>
+<p>$$\vec{u}^{\prime} = \vec{v}\vec{u}\vec{v}^{-1} = (2\vec{x} + 2\vec{y})(3\vec{x} + \vec{y})(\frac{1}{4}\vec{x} + \frac{1}{4}\vec{y})$$ $$ = (8 - 4\vec{x}\vec{y})(\frac{1}{4}\vec{x} + \frac{1}{4}\vec{y})$$ $$ = 2x + 2y - xyx -xyy $$ $$ = 2x + 2y + y -x $$ $$ = x + 3y$$</p>
+<h1 id="double-reflection-as-a-rotation">Double reflection as a rotation</h1>
+<p><img src="https://i.imgur.com/Kzp6tzy.png" alt="" />
+Instead of reflecting $\vec{u}$ along $\vec{v}$, we will introduce another vector $\vec{w}$ and do a double reflection.</p>
+<p>To get the first reflection we use the equation that we derived above.</p>
+<p>$$ \vec{u}^{\prime} = \vec{v}^{-1}\vec{u}\vec{v}$$ $$ \vec{u}^{\prime\prime} = \vec{w}^{-1}\vec{u}^{\prime}\vec{w}$$ $$ \vec{u}^{\prime\prime} = (\vec{w}^{-1}\vec{v}^{-1})\vec{u}(\vec{v}\vec{w})$$</p>
+<p>The parenthesis are not necessary here but I added them for clarity.</p>
+<p>Now because we can freely choose $\vec{v}$ and $\vec{w}$, we set them to a length of 1. And remember that the inverse is defined as:</p>
+<p>$$ \vec{v}^{-1} = \frac{\vec{v}}{|\vec{v}|^2}$$ if $ |\vec{v}| = 1$ and $ |\vec{w}| = 1$ then we get $$ \vec{v}^{-1} = \vec{v}$$ $$ \vec{w}^{-1} = \vec{w}$$</p>
+<p>Now we can rewrite the equation from above</p>
+<p>$$ \vec{u}^{\prime\prime} = (\vec{w}\vec{v})\vec{u}(\vec{v}\vec{w})$$</p>
+<p>In geometric algebra, this is called a rotor $R$.</p>
+<p>$$R = \vec{v}\vec{w}$$ $$R^{\dag} = \vec{w}\vec{v}$$</p>
+<p>$$ \vec{u^{\prime\prime}} = R\vec{u}R^{\dag} = R^{\dag}\vec{u}R $$
+In the case above the angle between $\vec{v}$ and $\vec{w}$ was $90\degree$, but we did a rotation of $180\degree$. It is easy to see why this happens.</p>
+<p><img src="https://i.imgur.com/GA09r1j.png" alt="" /></p>
+<p>Let us assume that:</p>
+<p>$ \alpha = $ angle between $\vec{v}$ and $\vec{w} $</p>
+<p>$ \beta = $ angle between $\vec{u}$ and $\vec{v} $</p>
+<p>$ \theta = $ angle of the full rotation</p>
+<p>$$ \theta = 2\beta + 2(\alpha - \beta) $$</p>
+<p>Where $2\beta$ is the angle from the reflection of $\vec{u}$ and $\vec{v}$. And the angle between $\vec{w}$ and $\vec{u}^{\prime}$ is $\alpha - \beta$. $$ \theta = 2\alpha$$</p>
+<p>Or</p>
+<p>$$ \alpha = \frac{\theta}{2}$$</p>
+<p>To recap, we chose two vectors $\vec{v}$ and $\vec{w}$, we then reflected $\vec{u}$ though $\vec{v}$ and then though $\vec{v}$. We then saw that the overall rotation has the same angle as two times the angle between $\vec{v}$ and $\vec{w}$. The implication is that only the angle between $\vec{v}$ and $\vec{w}$ is important. You can choose any two vectors on a plane, if those vectors have the same angle, then they will apply the same rotation.</p>
+<p>Example:</p>
+<p>$$\vec{u} = 3\vec{x} + \vec{y} $$
+$$\vec{v} = \vec{x} $$
+$$\vec{w} = \vec{y} $$
+$$ R = \vec{x}\vec{y} $$
+$$ R^{\dag} = \vec{y}\vec{x} $$</p>
+<p>Here the angle between $\vec{x}$ and $\vec{y}$ is $90\degree$.</p>
+<p>$$ \vec{u^{\prime\prime}} = R\vec{u}R^{\dag} = \vec{x}\vec{y}(3\vec{x} + \vec{y})\vec{y}\vec{x} $$
+$$ = (3\vec{x}\vec{y}\vec{x} + \vec{x}\vec{y}\vec{y})\vec{y}\vec{x} $$
+$$ = 3\vec{x}\vec{y}\vec{x}\vec{y}\vec{x} + \vec{x}\vec{y}\vec{y}\vec{y}\vec{x} $$
+$$ = -3\vec{y}\vec{x}\vec{x}\vec{y}\vec{x} + \vec{x}\vec{y}\vec{x} $$
+$$ = -3\vec{y}\vec{y}\vec{x} - \vec{y}\vec{x}\vec{x} $$
+$$ = -3\vec{x} - \vec{y} $$</p>
+<p>If we want to rotate around $\alpha$, the angle between $\vec{v}$ and $\vec{w}$ should be $\frac{\alpha}{2}$.</p>
+<h1 id="3d">3D</h1>
+<p>All the examples that we looked at so far were all in 2D, you might expect more complexity if we want to do rotation in 3D, but that is not the case. Let us do a 3D rotation.
+<img src="https://i.imgur.com/Z2JCvwh.png" alt="" /></p>
+<p>We are going to make a $180\degree$ rotation in the $\vec{x}\vec{y}$ plane. That means that the angle between our vectors should be $90\degree$. We can choose any two unit vectors in the $\vec{x}\vec{y}$ plane but for simplicity I will choose the basis vectors $\vec{x}\vec{y}$.</p>
+<p>We will do a 3D rotation by double reflection. $$\vec{u} = \vec{x} + \vec{y} + \vec{z}$$ $$ R = \vec{x}\vec{y}$$ $$ R^{\dag} = \vec{y}\vec{x}$$</p>
+<p>$$\vec{u^{\prime}} = R^{\dag}\vec{u}R = (\vec{y}\vec{x})(\vec{x} + \vec{y} + \vec{z})(\vec{x}\vec{y}) $$ $$ = \vec{y}\vec{x}\vec{x}\vec{x}\vec{y} +\vec{y}\vec{x}\vec{y}\vec{x}\vec{y}+\vec{y}\vec{x}\vec{z}\vec{x}\vec{y} $$ $$ = \vec{y}\vec{x}\vec{y} - \vec{y}\vec{y}\vec{x}\vec{x}\vec{y}-\vec{y}\vec{x}\vec{x}\vec{z}\vec{y} $$ $$ = -\vec{y}\vec{y}\vec{x} - \vec{y}-\vec{y}\vec{z}\vec{y} $$ $$ = -\vec{x} - \vec{y} + \vec{z}\vec{y}\vec{y} $$ $$ = -\vec{x} - \vec{y} + \vec{z} $$</p>
+<p>And we get the correct result. But why can we do double reflection in 3D?</p>
+<p>Let us choose two vectors that span a plane in 3D space, we call them $\vec{v}$ and $\vec{w}$.</p>
+<p>$$|\vec{v}| = |\vec{w}| = 1$$</p>
+<p>$$ R = \vec{v}\vec{w} $$ $$ R^{\dag} = \vec{w}\vec{v} $$</p>
+<p>$$ \vec{u} = \vec{u}_{\parallel} + \vec{u}_{\perp} $$</p>
+<p>Where $\vec{u}_{\perp}$ is orthogonal to $\vec{v}$ and $\vec{w}$ and $\vec{u}_{\parallel}$ is parallel to $\vec{v}$ and $\vec{w}$.</p>
+<p>$$ \vec{u^{\prime}} = R^{\dag}\vec{u}R = (\vec{w}\vec{v})(\vec{u}_{\parallel} + \vec{u}_{\perp})(\vec{v}\vec{w}) $$ $$=\vec{w}\vec{v}\vec{u}_{\parallel}\vec{v}\vec{w} + \vec{w}\vec{v}\vec{u}_{\perp}\vec{v}\vec{w}$$</p>
+<p>Let us pause here for a second. We have $\vec{w}\vec{v}\vec{u}_{\perp}\vec{v}\vec{w}$ and remember that $\vec{u}_{\perp}$ is orthogonal to $\vec{v}$ and $\vec{w}$.</p>
+<p>Also remember that if two vectors are orthogonal the dot product is 0 and we are left with only the wedge product.</p>
+<p>$$ \vec{w}\vec{v}\vec{u}_{\perp}\vec{v}\vec{w} = -\vec{w}\vec{u}_{\perp}\vec{v}\vec{v}\vec{w} = \vec{u}_{\perp}\vec{w}\vec{v}\vec{v}\vec{w} = \vec{u}_{\perp}\vec{w}\vec{w} = \vec{u}_{\perp} $$</p>
+<p>$$\vec{u^{\prime}} = \vec{w}\vec{v}\vec{u}_{\parallel}\vec{v}\vec{w} + \vec{u}_{\perp}$$</p>
+<p>We only rotate the part of $\vec{u}$ that is parallel to $\vec{v}$ and $\vec{w}$. This is exactly how we did double reflection in 2D.</p>
+<p>Previously we have seen that there are two ways to do rotations</p>
+<p>$$ \vec{u^{\prime}} = R\vec{u}R^{\dag} = R^{\dag}\vec{u}R $$</p>
+<p>We expect that if we apply the same rotation twice, to get double the rotation.</p>
+<p>$$|\vec{w}| = |\vec{w}| = 1$$ $$ R = \vec{v}\vec{w} $$ $$ R^{\dag} = \vec{w}\vec{v} $$ $$ \vec{u^{\prime}} = R\vec{u}R^{\dag} $$ $$ \vec{u^{\prime\prime}} = R^{\dag}\vec{u^{\prime}}R $$ $$ \vec{u^{\prime\prime}} = R^{\dag}(R\vec{u}R^{\dag})R $$ $$ \vec{u^{\prime\prime}} = \vec{w}\vec{v}\vec{v}\vec{w}\vec{u}\vec{w}\vec{v}\vec{v}\vec{w} $$ $$ \vec{u^{\prime\prime}} = \vec{w}\vec{w}\vec{u}\vec{w}\vec{w} $$ $$ \vec{u^{\prime\prime}} = \vec{u} $$</p>
+<p>Something strange is happening here. We know that there are two ways of doing the same rotation $ \vec{u^{\prime}} = R\vec{u}R^{\dag} = R^{\dag}\vec{u}R $, but if we rotate first with $R\vec{u}R^{\dag}$ and then again with $R^{\dag}\vec{u^{\prime}}R$ we get back to our original vector $\vec{u}$. This happens because we actually didn't apply the rotation two times, but we combined the rotors $\vec{u^{\prime\prime}} = (R^{\dag}R)\vec{u}(R^{\dag}R) $. Because $R^{\dag}$ is the inverse of $R$, they will just cancel.</p>
+<p>To correctly combine rotors, you need to use the same formula for reflection. $$\vec{u^{\prime\prime}} = (RR)\vec{u}(R^{\dag}R^{\dag}) =(R^{\dag}R^{\dag})\vec{u}(RR) $$</p>
+<h1 id="quaternions">Quaternions</h1>
+<p>A unit quaternion is defined as:
+$$q = \cos{\frac{\alpha}{2}} + \hat{n}\sin{\frac{\alpha}{2}}$$
+$$q^{-1} = \cos{\frac{\alpha}{2}} - \hat{n}\sin{\frac{\alpha}{2}}$$
+And vector rotation is defined as:</p>
+<p>$$ \vec{v^{\prime}} = q\vec{v}q^{-1} = (\cos{\frac{\alpha}{2}} + \hat{n}\sin{\frac{\alpha}{2}})\vec{v}(\cos{\frac{\alpha}{2}} - \hat{n}\sin{\frac{\alpha}{2}})$$</p>
+<p>Notice that $q\vec{v}q^{-1}$ and $\frac{\alpha}{2}$ looks like a double reflection, but where are the $\cos$ and $\sin$ coming from?</p>
+<p>The geometric product is defined as the dot product + the wedge product. $$\vec{u}\vec{v} = \vec{u} \cdot \vec{v} + \vec{u} \wedge \vec{v} $$</p>
+<p>One property of the dot product is $\vec{u} \cdot \vec{v} = |\vec{u}||\vec{v}|\cos{\alpha}$.</p>
+<p>One property of the wedge product is $\vec{u} \wedge \vec{v} = |\vec{u}||\vec{v}|\sin({\alpha})B$.</p>
+<p>Substituting those properties into the geometric product gives us</p>
+<p>$$\vec{u}\vec{v} = |\vec{u}||\vec{v}|\cos({\alpha}) + |\vec{u}||\vec{v}|\sin({\alpha})B $$</p>
+<p>And if $|\vec{u}| = |\vec{v}| = 1$ then $$\vec{u}\vec{v} = \cos({\alpha}) + \sin({\alpha})B $$ And the inverse $$\vec{v}\vec{u} = \cos({\alpha}) - \sin({\alpha})B $$</p>
+<p>The sign of dot product doesn't change because it is commutative, but the order of the wedge product switches and therefor changes the sign, which gives us $-\sin$ for the inverse.</p>
+<p>But remember that we are rotating by double reflection and $ \alpha = \frac{\theta}{2}$.</p>
+<p>$$\vec{u}\vec{v} = \cos({\frac{\theta}{2}}) + \sin({\frac{\theta}{2}})B $$ $$\vec{v}\vec{u} = \cos({\frac{\theta}{2}}) - \sin({\frac{\theta}{2}})B $$</p>
+<p>$$ \vec{v^{\prime}} = R\vec{u}R^{\dag} = (\cos({\frac{\alpha}{2}}) + \sin({\frac{\alpha}{2}})B)\vec{v}(\cos({\frac{\alpha}{2}}) - \sin({\frac{\alpha}{2}})B)$$</p>
+<p>This looks very similar to a quaternion.</p>
+<p>$$ \vec{v^{\prime}} = q\vec{v}q^{-1} = (\cos{\frac{\alpha}{2}} + \hat{n}\sin{\frac{\alpha}{2}})\vec{v}(\cos{\frac{\alpha}{2}} - \hat{n}\sin{\frac{\alpha}{2}})$$</p>
+<p>The only difference is $B$ and $\hat{u}$. With the bivector $B$ we do a rotation on the plane, and with a quaternion we do a rotation around the axis $\hat{u}$. The normal vector of $B$ is $\hat{u}$.
+$$\vec{u} \wedge \vec{v} = |\vec{u}||\vec{v}|\sin({\alpha})B$$</p>
+<p>$$\vec{u} \times \vec{v} = |\vec{u}||\vec{v}|\sin({\alpha})\hat{n}$$</p>
+<h1 id="double-cover">Double cover</h1>
+<p>Let $\alpha = 2\pi$</p>
+<p>$$ R = \vec{u}\vec{v} = \cos({\frac{\alpha}{2}}) + \sin({\frac{\alpha}{2}})B) $$</p>
+<p>$$ R = \cos{\pi} + \sin({\pi})B = -1 $$</p>
+<p>Let $\alpha = 4\pi$</p>
+<p>$$ R = \cos({2\pi}) + \sin({2\pi})B = 1 $$ A $2\pi$ rotation is the same as a $4\pi$ rotation but we end up with two different rotors. $$ \vec{u^{\prime}} = R\vec{u}R^{\dag} = (\vec{v}\vec{w})\vec{u}(\vec{w}\vec{v})$$ $$ = --(\vec{v}\vec{w})\vec{u}(\vec{w}\vec{v})$$ $$ = (-\vec{v}\vec{w})\vec{u}(-\vec{w}\vec{v})$$</p>
+<p>Let us think about this for a bit. If we would negate both $\vec{v}$ and $\vec{w}$, this wouldn't change anything because only the angle between them is important.
+But what happens if we negate either $\vec{v}$ or $\vec{w}$?</p>
+<p>There are two interesting details here, if we think about reflection only with $\vec{v}$, then the reflection is the same for $-\vec{v}$. 
+For example if we project $\vec{u}$ onto $\vec{v}$ with the dot product $\frac{\vec{u} \cdot \vec{v}}{\vec{v} \cdot \vec{v}}\vec{v}$ then the sign of the dot product will switch if 
+$\vec{v}$ is negative and we still end up with the same projection. If you think of it in terms of the geometric product, those minuses will just cancel.</p>
+<p>But the angle between those vectors does change. If $R = \vec{x}\vec{y}$, then the angle between $\vec{x}$ and $\vec{y}$ is $90\degree$, but if negate on one of those vectors then the angle would be $270\degree$.</p>
+<p><img src="https://i.imgur.com/npQyqls.png" alt="" />
+<img src="https://i.imgur.com/8TljXJo.png" alt="" /></p>
+<p>There are two different rotors that will apply the same rotation. This property is called double cover and it helps with <a href="https://en.wikipedia.org/wiki/Slerp#Quaternion_Slerp">SLERP</a> (spherical linear interpolation). If you think about interpolation between two rotations, then you have two choices. For example you can rotate by $90\degree$ or by $270\degree$ in the opposite direction, it results in the same rotation. You have two paths that you can take, the short way $(90\degree)$ or the long way $(270\degree)$. If you know the rotation will take the long path $(&gt;180\degree)$ then you can just negate the quaternion / rotor to interpolate in the opposite direction, thus ensuring that the path of the interpolation will be the shortest path.</p>
+<p><img src="https://i.imgur.com/6S6sr2q.png" alt="" /></p>
+<h1 id="exponentials">Exponentials</h1>
+<p>We have two properties of the wedge product.
+$$\vec{u} \wedge \vec{v} = |\vec{u}||\vec{v}|\sin({\alpha})B$$</p>
+<p>$$ \vec{u} \wedge \vec{v} = (ad - bc) \vec{x} \wedge \vec{y}$$</p>
+<p>We have also seen that if two vectors $\vec{u}$ and $\vec{v}$ are orthogonal and unit length the squared geometric product is -1.
+$$ (\vec{u}\vec{v})^2 = \vec{u}\vec{v}\vec{u}\vec{v} = -\vec{u}\vec{u}\vec{v}\vec{v} = -1 $$</p>
+<p>$$e^{i\theta} = \cos(\theta) + i\sin(\theta) $$</p>
+<p>Because the bivector $B$ has the same properties as $i$, we can write the geometric product as an exponential</p>
+<p>$$ e^{B\theta} = \cos(\theta) + \sin(\theta)B $$
+$$ R = e^{B\frac{\theta}{2}}$$
+$$ \vec{v^{\prime}} = R\vec{u}R^{\dag} = e^{B\frac{\theta}{2}}\vec{v}e^{-B\frac{\theta}{2}}$$</p>
+<h1 id="recap">Recap</h1>
+<p>We started with the definition of the geometric product, then we learned that we can express any rotation by double reflection. We derived a formula for double reflection by using the geometric product which we called rotors. After that we compared rotors to quaternions and found that they look almost identical. We then learned about double cover and how it helps us with spherical interpolation.</p>
+
+</div>
+
+            </div>
+
+
+            <script>
+             renderMathInElement(document.body,
+                                 {
+                                     delimiters: [
+                                         {left: "$$", right: "$$", display: true},
+                                         {left: "$", right: "$", display: false},
+                                         {left: "\\[", right: "\\]", display: true}
+                                     ],
+                                 }
+             );
+            </script>
+    </body>
+</html>
