@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+        <!-- Enable responsiveness on mobile devices-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+        <title>Maik Klein</title>
+
+        <!-- CSS -->
+        <link rel="stylesheet" href="https:&#x2F;&#x2F;maikklein.github.io/print.css" media="print">
+        <link rel="stylesheet" href="https:&#x2F;&#x2F;maikklein.github.io/poole.css">
+        <link rel="stylesheet" href="https:&#x2F;&#x2F;maikklein.github.io/lanyon.css">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.2/css/all.css" integrity="sha384-/rXc/GQVaYpyDdyxK+ecHPVYJSN9bmVFBvjA/9eOB+pb3F2w2N6fc5qB9Ew5yIns" crossorigin="anonymous">
+        <link rel="stylesheet" href="https:&#x2F;&#x2F;maikklein.github.io/app.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.8.3/contrib/auto-render.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.css" integrity="sha384-exe4Ak6B0EoJI0ogGxjJ8rn+RN3ftPnEQrGwX59KTCl5ybGzvHGKjhPKk/KC3abb" crossorigin="anonymous">
+<script sync src="https://platform.twitter.com/widgets.js"></script>
+<script>
+  window.onload = (function(){
+
+    var tweet = document.getElementById("tweet");
+    var id = tweet.getAttribute("tweetID");
+
+    twttr.widgets.createTweet(
+      id, tweet, 
+      {
+        conversation : 'none',    // or all
+        linkColor    : '#cc0000', // default is blue
+        theme        : 'light',    // or dark
+        align        : 'center'    
+      })
+    .then (function (el) {
+      el.contentDocument.querySelector(".footer").style.display = "none";
+    });
+
+  });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.js" integrity="sha384-OMvkZ24ANLwviZR2lVq8ujbE/bUO8IR1FdBrKLQBI14Gq5Xp/lksIccGkmKL8m+h" crossorigin="anonymous"></script>
+        <script
+            src="https://code.jquery.com/jquery-3.2.1.min.js"
+            integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+            crossorigin="anonymous"></script>
+        <script src="https:&#x2F;&#x2F;maikklein.github.io/site.js"></script>
+        
+
+        
+        
+    <script>
+        (function(d, s, id){
+           var js, fjs = d.getElementsByTagName(s)[0];
+           if (d.getElementById(id)) {return;}
+           js = d.createElement(s); js.id = id;
+           js.src = "https://assets.gfycat.com/gfycat.js";
+           fjs.parentNode.insertBefore(js, fjs);
+         }(document, 'script', 'gfycat-js'));
+    </script>
+    </head>
+
+    <body>
+        <div class="wrap">
+            <div class="masthead">
+                <div class="container">
+                    <h3 class="masthead-title">
+                        <a href="https:&#x2F;&#x2F;maikklein.github.io/" title="Home">Maik Klein</a>
+                        <small>Blog</small>
+                        <a href="https://github.com/maikklein" target="_blank"><i class="fab fa-github"></i></a>
+                        <a href="https://twitter.com/MaikKlein_DEV" target="_blank"><i class="fab fa-twitter"></i></a>
+                        <a href="https:&#x2F;&#x2F;maikklein.github.io/rss.xml" target="_blank"><i class="fas fa-rss"></i></a>
+                        <a href="https://www.patreon.com/maikklein" target="_blank"><i class="fab fa-patreon"></i></a>
+                    </h3>
+                </div>
+            </div>
+        </div>
+        <div class="content container">
+            
+<div class="post">
+  <h1 class="post-title">Why and when you should use SoA</h1>
+  <span class="post-date">2016-03-25</span>
+  <ul>
+  
+      <li>
+          <a href="#what-is-soa">What is SoA?</a>
+          
+      </li>
+  
+      <li>
+          <a href="#why-is-soa-useful">Why is SoA useful?</a>
+          
+      </li>
+  
+      <li>
+          <a href="#isn-t-soa-awkward-to-use">Isn't SoA awkward to use?</a>
+          
+      </li>
+  
+      <li>
+          <a href="#implementing-soa-in-d">Implementing SoA in D</a>
+          
+      </li>
+  
+      <li>
+          <a href="#when-to-use-soa">When to use SoA</a>
+          
+      </li>
+  
+      <li>
+          <a href="#isn-t-soa-premature-optimization">Isn't SoA premature optimization?</a>
+          
+      </li>
+  
+  </ul>
+  <h1 id="what-is-soa">What is SoA?</h1>
+<p>SoA just means <code>Structure of arrays</code> </p>
+<pre style="background-color:#282828;">
+<code><span style="font-style:italic;color:#928374;">//AoS: Array of structures
+</span><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">Vec2</span><span style="color:#fdf4c1aa;">{
+    </span><span style="color:#fa5c4b;">float </span><span style="color:#fdf4c1;">x</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fa5c4b;">float </span><span style="color:#fdf4c1;">y</span><span style="color:#fdf4c1aa;">;
+}
+</span><span style="color:#fdf4c1;">Array</span><span style="color:#fe8019;">!</span><span style="color:#fdf4c1;">Vec2 vectors</span><span style="color:#fdf4c1aa;">;
+</span></code></pre><pre style="background-color:#282828;">
+<code><span style="font-style:italic;color:#928374;">//SoA: Structure of arrays
+</span><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">Vec2</span><span style="color:#fdf4c1aa;">{
+    </span><span style="color:#fa5c4b;">float</span><span style="color:#fdf4c1aa;">[] </span><span style="color:#fdf4c1;">x</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fa5c4b;">float</span><span style="color:#fdf4c1aa;">[] </span><span style="color:#fdf4c1;">y</span><span style="color:#fdf4c1aa;">;
+}
+</span></code></pre><h1 id="why-is-soa-useful">Why is SoA useful?</h1>
+<p>Imagine you want to write a small <code>udp game server</code> with a <code>client server architecture</code>. You will have a server where clients can connect to. The <code>server</code> needs to remember which clients are currently connected. The server polls messages with <code>recvfrom</code> and in case you are not familiar with udp <code>recvfrom</code> returns the packet that was sent to the port where to socket was bound to and the address.</p>
+<p>When a packet comes in the first thing you probably want to know is if the packet came from a connected client. You would be inclined to write it like this:</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">Server</span><span style="color:#fdf4c1aa;">{
+    </span><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">RemoteClient</span><span style="color:#fdf4c1aa;">{
+        Address address;
+        SysTime lastReceivedPacket;
+        </span><span style="font-style:italic;color:#928374;">//more data
+    </span><span style="color:#fdf4c1aa;">}
+    Array</span><span style="color:#fe8019;">!</span><span style="color:#fdf4c1aa;">RemoteClient remoteClients;
+
+    </span><span style="color:#fa5c4b;">void </span><span style="color:#8ec07c;">poll</span><span style="color:#fdf4c1aa;">(){
+        </span><span style="font-style:italic;color:#928374;">//Address address
+        //recvfrom(buffer, address);
+    </span><span style="color:#fdf4c1aa;">}
+}
+</span></code></pre>
+<p>If we want to know which client has sent the package we can just use the <code>remoteClients</code> array to find the correct <code>remoteClient</code>. The problem is that we need to iterate over <code>RemoteClient</code> but we are only really interested in the address field. That means we needlessly load all the other data like <code>lastReceivedPacket</code> even if we don't need it.</p>
+<p>And if you are curious how much data could be inside a <code>RemoteClient</code> in a real world application, here is the struct of <a href="https://github.com/lsalzman/enet/blob/master/include/enet/enet.h#L258">Enet Peer</a>. It might not be the fairest comparison because it is a <code>Peer</code> and not a <code>RemoteClient</code> but it should illustrate the point that your data might grow fairly large.</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">typedef struct</span><span style="color:#fdf4c1aa;"> _ENetPeer
+{ 
+   ENetListNode  dispatchList;
+   </span><span style="color:#fa5c4b;">struct</span><span style="color:#fdf4c1aa;"> _ENetHost </span><span style="color:#fe8019;">*</span><span style="color:#fdf4c1aa;"> host;
+   enet_uint16   outgoingPeerID;
+   enet_uint16   incomingPeerID;
+   enet_uint32   connectID;
+   enet_uint8    outgoingSessionID;
+   enet_uint8    incomingSessionID;
+   ENetAddress   address;            </span><span style="font-style:italic;color:#928374;">/**&lt; Internet address of the peer */
+   </span><span style="color:#fa5c4b;">void </span><span style="color:#fe8019;">*</span><span style="color:#fdf4c1aa;">        data;               </span><span style="font-style:italic;color:#928374;">/**&lt; Application private data, may be freely modified */
+</span><span style="color:#fdf4c1aa;">   ENetPeerState state;
+   ENetChannel </span><span style="color:#fe8019;">*</span><span style="color:#fdf4c1aa;"> channels;
+   </span><span style="color:#fabd2f;">size_t</span><span style="color:#fdf4c1aa;">        channelCount;       </span><span style="font-style:italic;color:#928374;">/**&lt; Number of channels allocated for communication with peer */
+</span><span style="color:#fdf4c1aa;">   enet_uint32   incomingBandwidth;  </span><span style="font-style:italic;color:#928374;">/**&lt; Downstream bandwidth of the client in bytes/second */
+</span><span style="color:#fdf4c1aa;">   enet_uint32   outgoingBandwidth;  </span><span style="font-style:italic;color:#928374;">/**&lt; Upstream bandwidth of the client in bytes/second */
+</span><span style="color:#fdf4c1aa;">   enet_uint32   incomingBandwidthThrottleEpoch;
+   enet_uint32   outgoingBandwidthThrottleEpoch;
+   enet_uint32   incomingDataTotal;
+   enet_uint32   outgoingDataTotal;
+   enet_uint32   lastSendTime;
+   enet_uint32   lastReceiveTime;
+   enet_uint32   nextTimeout;
+   enet_uint32   earliestTimeout;
+   enet_uint32   packetLossEpoch;
+   enet_uint32   packetsSent;
+   enet_uint32   packetsLost;
+   enet_uint32   packetLoss;          </span><span style="font-style:italic;color:#928374;">/**&lt; mean packet loss of reliable packets as a ratio with respect to the constant ENET_PEER_PACKET_LOSS_SCALE */
+</span><span style="color:#fdf4c1aa;">   enet_uint32   packetLossVariance;
+   enet_uint32   packetThrottle;
+   enet_uint32   packetThrottleLimit;
+   enet_uint32   packetThrottleCounter;
+   enet_uint32   packetThrottleEpoch;
+   enet_uint32   packetThrottleAcceleration;
+   enet_uint32   packetThrottleDeceleration;
+   enet_uint32   packetThrottleInterval;
+   enet_uint32   pingInterval;
+   enet_uint32   timeoutLimit;
+   enet_uint32   timeoutMinimum;
+   enet_uint32   timeoutMaximum;
+   enet_uint32   lastRoundTripTime;
+   enet_uint32   lowestRoundTripTime;
+   enet_uint32   lastRoundTripTimeVariance;
+   enet_uint32   highestRoundTripTimeVariance;
+   enet_uint32   roundTripTime;
+   enet_uint32   roundTripTimeVariance;
+   enet_uint32   mtu;
+   enet_uint32   windowSize;
+   enet_uint32   reliableDataInTransit;
+   enet_uint16   outgoingReliableSequenceNumber;
+   ENetList      acknowledgements;
+   ENetList      sentReliableCommands;
+   ENetList      sentUnreliableCommands;
+   ENetList      outgoingReliableCommands;
+   ENetList      outgoingUnreliableCommands;
+   ENetList      dispatchedCommands;
+   </span><span style="color:#fa5c4b;">int</span><span style="color:#fdf4c1aa;">           needsDispatch;
+   enet_uint16   incomingUnsequencedGroup;
+   enet_uint16   outgoingUnsequencedGroup;
+   enet_uint32   unsequencedWindow [ENET_PEER_UNSEQUENCED_WINDOW_SIZE </span><span style="color:#fe8019;">/ </span><span style="color:#d3869b;">32</span><span style="color:#fdf4c1aa;">]; 
+   enet_uint32   eventData;
+   </span><span style="color:#fabd2f;">size_t</span><span style="color:#fdf4c1aa;">        totalWaitingData;
+} </span><span style="color:#8ec07c;">ENetPeer</span><span style="color:#fdf4c1aa;">;
+</span></code></pre>
+<p>Now let us see how it would look with <code>SoA</code>.</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">Server</span><span style="color:#fdf4c1aa;">{
+    </span><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">RemoteClients</span><span style="color:#fdf4c1aa;">{
+        </span><span style="color:#fabd2f;">size_t</span><span style="color:#fdf4c1aa;"> length;
+        Address[] address;
+        SysTime[] lastReceivedPacket;
+        </span><span style="font-style:italic;color:#928374;">//more data
+    </span><span style="color:#fdf4c1aa;">}
+    RemoteClients remoteClients;
+
+    </span><span style="color:#fa5c4b;">void </span><span style="color:#8ec07c;">poll</span><span style="color:#fdf4c1aa;">(){
+        </span><span style="font-style:italic;color:#928374;">//Address address
+        //recvfrom(buffer, address);
+    </span><span style="color:#fdf4c1aa;">}
+}
+</span></code></pre>
+<p>We can access all addresses with <code>remoteClients.address</code> and we don't need to load unnecessary data into the cache.</p>
+<h1 id="isn-t-soa-awkward-to-use">Isn't SoA awkward to use?</h1>
+<p>In most languages it is.</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">RemoteClients</span><span style="color:#fdf4c1aa;">{
+    </span><span style="color:#fabd2f;">size_t</span><span style="color:#fdf4c1aa;"> length;
+    Address[] address;
+    SysTime[] lastReceivedPacket;
+    </span><span style="font-style:italic;color:#928374;">//more data
+</span><span style="color:#fdf4c1aa;">}
+</span></code></pre>
+<p>The definition is simplified because we need to allocate the arrays, grow them if we want to have dynamic arrays. We also need to worry about inserting and removing elements, it shouldn't happen that we only add an address to <code>RemoteClients</code> without adding <code>lastReceivedPacket</code>. That is because the data is loosely coupled. Previously with <code>AoS</code> we could access the <code>RemoteClient</code> with <code>remoteClients[index]</code> but now we are accessing a <code>RemoteClient</code> by its components
+<code>remoteClients.addresses[index]</code> and <code>remoteClients.lastReceivedPacket[index]</code>.</p>
+<h1 id="implementing-soa-in-d">Implementing SoA in D</h1>
+<p>First let us start with a demonstration.</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">Vec2</span><span style="color:#fdf4c1aa;">{
+    </span><span style="color:#fa5c4b;">float </span><span style="color:#fdf4c1;">x</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fa5c4b;">float </span><span style="color:#fdf4c1;">y</span><span style="color:#fdf4c1aa;">;
+}
+</span><span style="color:#fa5c4b;">auto </span><span style="color:#fdf4c1;">s </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">SOA!(Vec2)()</span><span style="color:#fdf4c1aa;">;
+
+</span><span style="color:#fdf4c1;">s</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">insertBack(</span><span style="color:#d3869b;">1.0</span><span style="color:#fa5c4b;">f</span><span style="color:#fdf4c1;">, </span><span style="color:#d3869b;">2.0</span><span style="color:#fa5c4b;">f</span><span style="color:#fdf4c1;">)</span><span style="color:#fdf4c1aa;">;
+</span><span style="color:#fdf4c1;">s</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">insertBack(Vec2(</span><span style="color:#d3869b;">1.0</span><span style="color:#fdf4c1;">, </span><span style="color:#d3869b;">2.0</span><span style="color:#fa5c4b;">f</span><span style="color:#fdf4c1;">))</span><span style="color:#fdf4c1aa;">;
+</span><span style="color:#fdf4c1;">writeln(s.x)</span><span style="color:#fdf4c1aa;">; </span><span style="font-style:italic;color:#928374;">// [1, 1]
+</span><span style="color:#fdf4c1;">writeln(s.y)</span><span style="color:#fdf4c1aa;">; </span><span style="font-style:italic;color:#928374;">// [2, 2]
+</span></code></pre>
+<p>We can still create a struct with our data, <code>SOA</code> will then look at the struct and create the correct arrays internally. <code>insertBack</code> is now a bit different from a normal array because internally we have as many arrays as we have fields. That means <code>insertBack</code> needs to be variadic. Alternatively <code>insertBack</code> could also accept the struct itself.</p>
+<p><em>The following code is not intended to be production ready code, it is merely a proof of concept.</em></p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">SOA</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">T</span><span style="color:#fdf4c1aa;">){
+    </span><span style="color:#fa5c4b;">import </span><span style="color:#fdf4c1;">std</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">experimental</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">allocator</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fa5c4b;">import </span><span style="color:#fdf4c1;">std</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">experimental</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">allocator</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">mallocator</span><span style="color:#fdf4c1aa;">;
+
+    </span><span style="color:#fa5c4b;">import </span><span style="color:#fdf4c1;">std</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">meta</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fdf4c1;">staticMap</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fa5c4b;">import </span><span style="color:#fdf4c1;">std</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">typecons</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fdf4c1;">Tuple</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fa5c4b;">import </span><span style="color:#fdf4c1;">std</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">traits</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fdf4c1;">FieldNameTuple</span><span style="color:#fdf4c1aa;">;
+
+    </span><span style="color:#fa5c4b;">alias </span><span style="color:#8ec07c;">toArray</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">T</span><span style="color:#fdf4c1aa;">) </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">T</span><span style="color:#fdf4c1aa;">[];
+    </span><span style="color:#fa5c4b;">alias </span><span style="color:#8ec07c;">toType</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">string </span><span style="color:#fdf4c1;">s</span><span style="color:#fdf4c1aa;">) </span><span style="color:#fe8019;">= </span><span style="color:#fa5c4b;">typeof</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">__traits</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">getMember</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">T</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">s</span><span style="color:#fdf4c1aa;">));
+
+    </span><span style="color:#fa5c4b;">alias </span><span style="color:#8ec07c;">MemberNames </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">FieldNameTuple!T</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fa5c4b;">alias </span><span style="color:#8ec07c;">Types </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">staticMap!(toType, MemberNames)</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fa5c4b;">alias </span><span style="color:#8ec07c;">ArrayTypes </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">staticMap!(toArray, Types)</span><span style="color:#fdf4c1aa;">;
+
+    </span><span style="color:#8ec07c;">this</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">size_t _size</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fa5c4b;">IAllocator </span><span style="color:#fdf4c1;">_alloc </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">allocatorObject(Mallocator.instance)</span><span style="color:#fdf4c1aa;">){
+        </span><span style="color:#fdf4c1;">alloc </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">_alloc</span><span style="color:#fdf4c1aa;">;
+        </span><span style="color:#fdf4c1;">size </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">_size</span><span style="color:#fdf4c1aa;">;
+        </span><span style="color:#fdf4c1;">allocate(size)</span><span style="color:#fdf4c1aa;">;
+    }
+
+    </span><span style="color:#fa5c4b;">ref auto </span><span style="color:#8ec07c;">opDispatch</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">string </span><span style="color:#fdf4c1;">name</span><span style="color:#fdf4c1aa;">)(){
+        </span><span style="color:#fa5c4b;">import </span><span style="color:#fdf4c1;">std</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">meta</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fdf4c1;">staticIndexOf</span><span style="color:#fdf4c1aa;">;
+        </span><span style="color:#fa5c4b;">alias </span><span style="color:#8ec07c;">index </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">staticIndexOf!(name, MemberNames)</span><span style="color:#fdf4c1aa;">;
+        </span><span style="color:#fa5c4b;">static assert</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">index </span><span style="color:#fe8019;">&gt;= </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1aa;">);
+        </span><span style="color:#fa5c4b;">return </span><span style="color:#fdf4c1;">containers</span><span style="color:#fdf4c1aa;">[</span><span style="color:#fdf4c1;">index</span><span style="color:#fdf4c1aa;">];
+    }
+
+    </span><span style="color:#fa5c4b;">void </span><span style="color:#8ec07c;">insertBack</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">Types </span><span style="color:#fdf4c1;">types</span><span style="color:#fdf4c1aa;">){
+        </span><span style="color:#fa5c4b;">if</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">length </span><span style="color:#fe8019;">== </span><span style="color:#fdf4c1;">size</span><span style="color:#fdf4c1aa;">) </span><span style="color:#fdf4c1;">grow</span><span style="color:#fdf4c1aa;">;
+        </span><span style="color:#fa5c4b;">foreach</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">index</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fa5c4b;">ref </span><span style="color:#fdf4c1;">container</span><span style="color:#fdf4c1aa;">; </span><span style="color:#fdf4c1;">containers</span><span style="color:#fdf4c1aa;">){
+            </span><span style="color:#fdf4c1;">container</span><span style="color:#fdf4c1aa;">[</span><span style="color:#fdf4c1;">length</span><span style="color:#fdf4c1aa;">] </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">types</span><span style="color:#fdf4c1aa;">[</span><span style="color:#fdf4c1;">index</span><span style="color:#fdf4c1aa;">];
+        }
+        </span><span style="color:#fdf4c1;">length </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">length </span><span style="color:#fe8019;">+ </span><span style="color:#d3869b;">1</span><span style="color:#fdf4c1aa;">;
+    }
+
+    </span><span style="color:#fa5c4b;">void </span><span style="color:#8ec07c;">insertBack</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">T </span><span style="color:#fdf4c1;">t</span><span style="color:#fdf4c1aa;">){
+        </span><span style="color:#fa5c4b;">if</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">length </span><span style="color:#fe8019;">== </span><span style="color:#fdf4c1;">size</span><span style="color:#fdf4c1aa;">) </span><span style="color:#fdf4c1;">grow</span><span style="color:#fdf4c1aa;">;
+        </span><span style="color:#fa5c4b;">foreach</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">index</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">_</span><span style="color:#fdf4c1aa;">; </span><span style="color:#fdf4c1;">Types</span><span style="color:#fdf4c1aa;">){
+            </span><span style="color:#fdf4c1;">containers</span><span style="color:#fdf4c1aa;">[</span><span style="color:#fdf4c1;">index</span><span style="color:#fdf4c1aa;">][</span><span style="color:#fdf4c1;">length</span><span style="color:#fdf4c1aa;">] </span><span style="color:#fe8019;">= </span><span style="color:#fa5c4b;">__traits</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">getMember</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">t</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">MemberNames</span><span style="color:#fdf4c1aa;">[</span><span style="color:#fdf4c1;">index</span><span style="color:#fdf4c1aa;">]);
+        }
+        </span><span style="color:#fdf4c1;">length </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">length </span><span style="color:#fe8019;">+ </span><span style="color:#d3869b;">1</span><span style="color:#fdf4c1aa;">;
+    }
+
+    </span><span style="color:#fa5c4b;">size_t </span><span style="color:#8ec07c;">length</span><span style="color:#fdf4c1aa;">() </span><span style="color:#fa5c4b;">const @property</span><span style="color:#fdf4c1aa;">{
+        </span><span style="color:#fa5c4b;">return </span><span style="color:#fdf4c1;">_length</span><span style="color:#fdf4c1aa;">;
+    }
+
+    </span><span style="color:#8ec07c;">~this</span><span style="color:#fdf4c1aa;">(){
+        </span><span style="color:#fa5c4b;">if</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">alloc </span><span style="color:#fe8019;">is </span><span style="color:#d3869b;">null</span><span style="color:#fdf4c1aa;">) </span><span style="color:#fa5c4b;">return</span><span style="color:#fdf4c1aa;">;
+        </span><span style="color:#fa5c4b;">foreach</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">ref </span><span style="color:#fdf4c1;">container</span><span style="color:#fdf4c1aa;">; </span><span style="color:#fdf4c1;">containers</span><span style="color:#fdf4c1aa;">){
+            </span><span style="color:#fdf4c1;">alloc</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">dispose(container)</span><span style="color:#fdf4c1aa;">;
+        }
+    }
+
+</span><span style="color:#fa5c4b;">private</span><span style="color:#fdf4c1aa;">:
+    </span><span style="color:#fa5c4b;">void </span><span style="color:#8ec07c;">length</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">size_t </span><span style="color:#fdf4c1;">len</span><span style="color:#fdf4c1aa;">)</span><span style="color:#fa5c4b;">@property</span><span style="color:#fdf4c1aa;">{
+        </span><span style="color:#fdf4c1;">_length </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">len</span><span style="color:#fdf4c1aa;">;
+    }
+
+    </span><span style="color:#fdf4c1;">Tuple</span><span style="color:#fe8019;">!</span><span style="color:#fdf4c1;">ArrayTypes containers</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fa5c4b;">IAllocator </span><span style="color:#fdf4c1;">alloc</span><span style="color:#fdf4c1aa;">;
+
+    </span><span style="color:#fa5c4b;">size_t </span><span style="color:#fdf4c1;">_length </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fa5c4b;">size_t </span><span style="color:#fdf4c1;">size </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fa5c4b;">short </span><span style="color:#fdf4c1;">growFactor </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">2</span><span style="color:#fdf4c1aa;">;
+
+    </span><span style="color:#fa5c4b;">void </span><span style="color:#8ec07c;">allocate</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">size_t </span><span style="color:#fdf4c1;">size</span><span style="color:#fdf4c1aa;">){
+        </span><span style="color:#fa5c4b;">if</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">alloc </span><span style="color:#fe8019;">is </span><span style="color:#d3869b;">null</span><span style="color:#fdf4c1aa;">){
+            </span><span style="color:#fdf4c1;">alloc </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">allocatorObject(Mallocator.instance)</span><span style="color:#fdf4c1aa;">;
+        }
+        </span><span style="color:#fa5c4b;">foreach</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">index</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fa5c4b;">ref </span><span style="color:#fdf4c1;">container</span><span style="color:#fdf4c1aa;">; </span><span style="color:#fdf4c1;">containers</span><span style="color:#fdf4c1aa;">){
+            </span><span style="color:#fdf4c1;">container </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">alloc</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">makeArray!(Types[index])(size)</span><span style="color:#fdf4c1aa;">;
+        }
+    }
+
+    </span><span style="color:#fa5c4b;">void </span><span style="color:#8ec07c;">grow</span><span style="color:#fdf4c1aa;">(){
+        </span><span style="color:#fa5c4b;">import </span><span style="color:#fdf4c1;">std</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">algorithm</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fdf4c1;">max</span><span style="color:#fdf4c1aa;">;
+        </span><span style="color:#fa5c4b;">size_t </span><span style="color:#fdf4c1;">newSize </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">max(</span><span style="color:#d3869b;">1</span><span style="color:#fdf4c1;">,size </span><span style="color:#fe8019;">* </span><span style="color:#fdf4c1;">growFactor)</span><span style="color:#fdf4c1aa;">;
+        </span><span style="color:#fa5c4b;">size_t </span><span style="color:#fdf4c1;">expandSize </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">newSize </span><span style="color:#fe8019;">- </span><span style="color:#fdf4c1;">size</span><span style="color:#fdf4c1aa;">;
+
+        </span><span style="color:#fa5c4b;">if</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">size </span><span style="color:#fe8019;">is </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1aa;">){
+            </span><span style="color:#fdf4c1;">allocate(newSize)</span><span style="color:#fdf4c1aa;">;
+        }
+        </span><span style="color:#fa5c4b;">else</span><span style="color:#fdf4c1aa;">{
+            </span><span style="color:#fa5c4b;">foreach</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">ref </span><span style="color:#fdf4c1;">container</span><span style="color:#fdf4c1aa;">; </span><span style="color:#fdf4c1;">containers</span><span style="color:#fdf4c1aa;">){
+                </span><span style="color:#fdf4c1;">alloc</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">expandArray(container, expandSize)</span><span style="color:#fdf4c1aa;">;
+            }
+        }
+        </span><span style="color:#fdf4c1;">size </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">newSize</span><span style="color:#fdf4c1aa;">;
+    }
+}
+</span></code></pre><pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">alias </span><span style="color:#8ec07c;">toArray</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">T</span><span style="color:#fdf4c1aa;">) </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">T</span><span style="color:#fdf4c1aa;">[];
+</span><span style="color:#fa5c4b;">alias </span><span style="color:#8ec07c;">toType</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">string </span><span style="color:#fdf4c1;">s</span><span style="color:#fdf4c1aa;">) </span><span style="color:#fe8019;">= </span><span style="color:#fa5c4b;">typeof</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">__traits</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">getMember</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">T</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">s</span><span style="color:#fdf4c1aa;">));
+
+</span><span style="color:#fa5c4b;">alias </span><span style="color:#8ec07c;">MemberNames </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">FieldNameTuple!T</span><span style="color:#fdf4c1aa;">;
+</span><span style="color:#fa5c4b;">alias </span><span style="color:#8ec07c;">Types </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">staticMap!(toType, MemberNames)</span><span style="color:#fdf4c1aa;">;
+</span><span style="color:#fa5c4b;">alias </span><span style="color:#8ec07c;">ArrayTypes </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">staticMap!(toArray, Types)</span><span style="color:#fdf4c1aa;">;
+</span></code></pre>
+<p><code>MemberNames</code> are just the names of the fields. For example <code>struct Vec2{float x; float y}</code> will have the type <code>AliasSeq!(&quot;x&quot;, &quot;y&quot;)</code>. <code>toType </code> takes the member name and turns it into an actual type. In the example above <code>toType!(&quot;x&quot;)</code> would return the type <code>float</code>.</p>
+<p>Now we can convert the member names into actual types with the help of <code>staticMap</code>. In the example above <code>AliasSeq!(&quot;x&quot;, &quot;y&quot;)</code> would be transformed into <code>AliasSeq!(float, float)</code>.</p>
+<p>We are almost there we just now need to convert the types to arrays. <code>AliasSeq!(float, float)</code> to <code>AliasSeq!(float[], float[])</code>. We do this with <code>toArray</code> and <code>staticMap</code></p>
+<p>After that we can create a tuple of arrays</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fdf4c1;">Tuple</span><span style="color:#fe8019;">!</span><span style="color:#fdf4c1;">ArrayTypes containers</span><span style="color:#fdf4c1aa;">;
+</span></code></pre>
+<p>Inserting elements is fairly easy now.</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">void </span><span style="color:#8ec07c;">insertBack</span><span style="color:#fdf4c1aa;">()(</span><span style="color:#fa5c4b;">Types </span><span style="color:#fdf4c1;">types</span><span style="color:#fdf4c1aa;">){
+    </span><span style="color:#fa5c4b;">if</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">length </span><span style="color:#fe8019;">== </span><span style="color:#fdf4c1;">size</span><span style="color:#fdf4c1aa;">) </span><span style="color:#fdf4c1;">grow</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fa5c4b;">foreach</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">index</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fa5c4b;">ref </span><span style="color:#fdf4c1;">container</span><span style="color:#fdf4c1aa;">; </span><span style="color:#fdf4c1;">containers</span><span style="color:#fdf4c1aa;">){
+        </span><span style="color:#fdf4c1;">container</span><span style="color:#fdf4c1aa;">[</span><span style="color:#fdf4c1;">length</span><span style="color:#fdf4c1aa;">] </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">types</span><span style="color:#fdf4c1aa;">[</span><span style="color:#fdf4c1;">index</span><span style="color:#fdf4c1aa;">];
+    }
+    </span><span style="color:#fdf4c1;">length </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">length </span><span style="color:#fe8019;">+ </span><span style="color:#d3869b;">1</span><span style="color:#fdf4c1aa;">;
+}
+</span></code></pre>
+<p>We already now what types <code>insertBack</code> should accept. It should accept the types of the fields of the struct. We then iterate over <code>containers</code> at compile time, which is our tuple of arrays.</p>
+<p>Then we just access the correct <code>argument</code> with <code>types[index]</code> and insert it into the array.</p>
+<p>We can also insert the struct itself.</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">void </span><span style="color:#8ec07c;">insertBack</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">T </span><span style="color:#fdf4c1;">t</span><span style="color:#fdf4c1aa;">){
+    </span><span style="color:#fa5c4b;">if</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">length </span><span style="color:#fe8019;">== </span><span style="color:#fdf4c1;">size</span><span style="color:#fdf4c1aa;">) </span><span style="color:#fdf4c1;">grow</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fa5c4b;">foreach</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">index</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">_</span><span style="color:#fdf4c1aa;">; </span><span style="color:#fdf4c1;">Types</span><span style="color:#fdf4c1aa;">){
+        </span><span style="color:#fdf4c1;">containers</span><span style="color:#fdf4c1aa;">[</span><span style="color:#fdf4c1;">index</span><span style="color:#fdf4c1aa;">][</span><span style="color:#fdf4c1;">length</span><span style="color:#fdf4c1aa;">] </span><span style="color:#fe8019;">= </span><span style="color:#fa5c4b;">__traits</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">getMember</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">t</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">MemberNames</span><span style="color:#fdf4c1aa;">[</span><span style="color:#fdf4c1;">index</span><span style="color:#fdf4c1aa;">]);
+    }
+    </span><span style="color:#fdf4c1;">length </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">length </span><span style="color:#fe8019;">+ </span><span style="color:#d3869b;">1</span><span style="color:#fdf4c1aa;">;
+}
+</span></code></pre>
+<p>We iterate over the Types to get the <code>index</code>. We use <code>index</code> to get the correct container and to find the correct field name of the struct. This works because the order is always the same.</p>
+<p>The code above for <code>Vec2</code> would roughly look like this</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">void </span><span style="color:#8ec07c;">insertBack</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">Vec2 </span><span style="color:#fdf4c1;">t</span><span style="color:#fdf4c1aa;">){
+    </span><span style="color:#fa5c4b;">if</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">length </span><span style="color:#fe8019;">== </span><span style="color:#fdf4c1;">size</span><span style="color:#fdf4c1aa;">) </span><span style="color:#fdf4c1;">grow</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fdf4c1;">containers</span><span style="color:#fdf4c1aa;">[</span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1aa;">][</span><span style="color:#fdf4c1;">length</span><span style="color:#fdf4c1aa;">] </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">t</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">x</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fdf4c1;">containers</span><span style="color:#fdf4c1aa;">[</span><span style="color:#d3869b;">1</span><span style="color:#fdf4c1aa;">][</span><span style="color:#fdf4c1;">length</span><span style="color:#fdf4c1aa;">] </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">t</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">y</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fdf4c1;">length </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">length </span><span style="color:#fe8019;">+ </span><span style="color:#d3869b;">1</span><span style="color:#fdf4c1aa;">;
+}
+</span></code></pre>
+<p>We can access the arrays with the field names. In D this is very easy to do with <code>opDispatch</code>.</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">ref auto </span><span style="color:#8ec07c;">opDispatch</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">string </span><span style="color:#fdf4c1;">name</span><span style="color:#fdf4c1aa;">)(){
+    </span><span style="color:#fa5c4b;">import </span><span style="color:#fdf4c1;">std</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">meta</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fdf4c1;">staticIndexOf</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fa5c4b;">alias </span><span style="color:#8ec07c;">index </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">staticIndexOf!(name, MemberNames)</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fa5c4b;">static assert</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">index </span><span style="color:#fe8019;">&gt;= </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1aa;">);
+    </span><span style="color:#fa5c4b;">return </span><span style="color:#fdf4c1;">containers</span><span style="color:#fdf4c1aa;">[</span><span style="color:#fdf4c1;">index</span><span style="color:#fdf4c1aa;">];
+}
+</span></code></pre>
+<p>In the example above for <code>Vec2</code> we can get to the array of all x's with <code>s.x</code> or all y's with 's.y'. <code>opDispatch</code> would roughly look like this at compile time if we call <code>s.x</code>.</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">ref auto </span><span style="color:#8ec07c;">opDispatch</span><span style="color:#fdf4c1aa;">(){
+    </span><span style="color:#fa5c4b;">import </span><span style="color:#fdf4c1;">std</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">meta</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fdf4c1;">staticIndexOf</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fa5c4b;">alias </span><span style="color:#8ec07c;">index </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">staticIndexOf!(</span><span style="color:#b8bb26;">&quot;x&quot;</span><span style="color:#fdf4c1;">, MemberNames)</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fa5c4b;">static assert</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">index </span><span style="color:#fe8019;">&gt;= </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1aa;">);
+    </span><span style="color:#fa5c4b;">return </span><span style="color:#fdf4c1;">containers</span><span style="color:#fdf4c1aa;">[</span><span style="color:#fdf4c1;">index</span><span style="color:#fdf4c1aa;">];
+}
+</span></code></pre>
+<p>We just get the index of <code>opDispatch</code> <code>name</code> in <code>MemberNames</code>, if it is not inside <code>MemberNames</code> <code>opDispatch</code> will fail. If it is inside <code>MemberNames</code> we just access the correct container with the index.</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">Server</span><span style="color:#fdf4c1aa;">{
+    </span><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">RemoteClients</span><span style="color:#fdf4c1aa;">{
+        Address address;
+        SysTime lastReceivedPacket;
+        </span><span style="font-style:italic;color:#928374;">//more data
+    </span><span style="color:#fdf4c1aa;">}
+    SOA</span><span style="color:#fe8019;">!</span><span style="color:#fdf4c1aa;">RemoteClient remoteClients;
+
+    </span><span style="color:#fa5c4b;">void </span><span style="color:#8ec07c;">poll</span><span style="color:#fdf4c1aa;">(){
+        </span><span style="font-style:italic;color:#928374;">//Address address
+        //recvfrom(buffer, address);
+    </span><span style="color:#fdf4c1aa;">}
+}
+</span></code></pre><h1 id="when-to-use-soa">When to use SoA</h1>
+<p>Firs ot all <code>SoA</code> is not a silver bullet and it doesn't mean you should replace <code>AoS</code> with <code>SoA</code> everywhere in your code base.</p>
+<p><code>SoA</code> makes sense if:</p>
+<ul>
+<li>You know that you want to store your data in an array.</li>
+<li>You want partial access to the data.</li>
+</ul>
+<p>But sometimes you still want to access all components of your data. An example would be a vector.</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">Vec3</span><span style="color:#fdf4c1aa;">{
+    </span><span style="color:#fa5c4b;">float </span><span style="color:#fdf4c1;">x</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fa5c4b;">float </span><span style="color:#fdf4c1;">y</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fa5c4b;">float </span><span style="color:#fdf4c1;">z</span><span style="color:#fdf4c1aa;">;
+}
+</span></code></pre>
+<p>Most operations will use all components anyways like add, subtract, dot, length and many more. And even if you sometimes end up with</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">Vec3</span><span style="color:#fdf4c1aa;">{
+    </span><span style="color:#fa5c4b;">float </span><span style="color:#fdf4c1;">x</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fa5c4b;">float </span><span style="color:#fdf4c1;">y</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fa5c4b;">float </span><span style="color:#fdf4c1;">z</span><span style="color:#fdf4c1aa;">;
+}
+
+</span><span style="color:#fdf4c1;">Array</span><span style="color:#fe8019;">!</span><span style="color:#fdf4c1;">Vec3 positions</span><span style="color:#fdf4c1aa;">;
+
+</span><span style="color:#fdf4c1;">positions</span><span style="color:#fdf4c1aa;">[].</span><span style="color:#fdf4c1;">filter</span><span style="color:#fe8019;">!</span><span style="color:#fdf4c1;">(v </span><span style="color:#fa5c4b;">=&gt; </span><span style="color:#fdf4c1;">v.x </span><span style="color:#fe8019;">&lt; </span><span style="color:#d3869b;">10.0</span><span style="color:#fa5c4b;">f</span><span style="color:#fdf4c1;">)</span><span style="color:#fdf4c1aa;">;
+</span></code></pre>
+<p>and you want to filter all vectors where the <code>x component</code> is less than <code>10.0f</code>, you  will still only load two additional floats. Also a <code>Vec3</code> struct won't get bigger in time, other data structures might grow and become a bottleneck in the future.</p>
+<h1 id="isn-t-soa-premature-optimization">Isn't SoA premature optimization?</h1>
+<p>In my opinion it is not. The problem with <code>AoS</code> is that if it becomes a performance bottleneck in the future, you will have to refactor a lot of code. For example you might want to pack your data into a struct hot and cold like this:</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">Bar</span><span style="color:#fdf4c1aa;">{
+    </span><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">Hot</span><span style="color:#fdf4c1aa;">{
+        </span><span style="color:#fa5c4b;">Data1 </span><span style="color:#fdf4c1;">d1</span><span style="color:#fdf4c1aa;">;
+        </span><span style="color:#fa5c4b;">Data2 </span><span style="color:#fdf4c1;">d2</span><span style="color:#fdf4c1aa;">;
+        .</span><span style="background-color:#932b1e;color:#fdf4c1;">.</span><span style="color:#fdf4c1aa;">.
+    </span><span style="background-color:#932b1e;color:#fdf4c1;">}</span><span style="color:#fdf4c1aa;">
+    </span><span style="background-color:#932b1e;color:#fdf4c1;">struct</span><span style="color:#fdf4c1aa;"> </span><span style="color:#fdf4c1;">Cold</span><span style="background-color:#932b1e;color:#fdf4c1;">{</span><span style="color:#fdf4c1aa;">
+        </span><span style="color:#fa5c4b;">Data3 </span><span style="color:#fdf4c1;">d3</span><span style="color:#fdf4c1aa;">;
+        </span><span style="color:#fa5c4b;">Data4 </span><span style="color:#fdf4c1;">d4</span><span style="color:#fdf4c1aa;">;
+        .</span><span style="background-color:#932b1e;color:#fdf4c1;">.</span><span style="color:#fdf4c1aa;">.
+    </span><span style="background-color:#932b1e;color:#fdf4c1;">}</span><span style="color:#fdf4c1aa;">
+
+    </span><span style="background-color:#932b1e;color:#fdf4c1;">Hot</span><span style="color:#fe8019;">* </span><span style="color:#fdf4c1;">hot</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fdf4c1;">Cold</span><span style="color:#fe8019;">* </span><span style="color:#fdf4c1;">cold</span><span style="color:#fdf4c1aa;">;
+}
+</span></code></pre>
+<p>but depending on the language you will still have to refactor a lot of code. It might save you some trouble to think about your data access early on.</p>
+<p><a href="https://www.youtube.com/watch?v=ZHqFrNyLlpA">Jonathan Blow</a> has a language demonstration that covers SoA and anonymous variables.
+<em>Quick note: <code>Jonathan Blow</code>'s <code>using</code> is very similar to <code>alias this</code> in D.</em></p>
+<p><code>SoA</code> isn't much worse compared to <code>AoS</code> depending on the language you use.</p>
+<pre style="background-color:#282828;">
+<code><span style="font-style:italic;color:#928374;">//AoS
+</span><span style="color:#fdf4c1;">remoteClients</span><span style="color:#fdf4c1aa;">[</span><span style="color:#fdf4c1;">index</span><span style="color:#fdf4c1aa;">].</span><span style="color:#fdf4c1;">address</span><span style="color:#fdf4c1aa;">;
+
+</span><span style="font-style:italic;color:#928374;">//vs 
+
+//SoA
+</span><span style="color:#fdf4c1;">remoteClients</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">address</span><span style="color:#fdf4c1aa;">[</span><span style="color:#fdf4c1;">index</span><span style="color:#fdf4c1aa;">];
+
+</span></code></pre>
+<p>But <code>SoA</code> scales much better because you can partially access your data without needlessly loading unrelevant data into your cache.</p>
+
+</div>
+
+            </div>
+
+
+            <script>
+             renderMathInElement(document.body,
+                                 {
+                                     delimiters: [
+                                         {left: "$$", right: "$$", display: true},
+                                         {left: "$", right: "$", display: false},
+                                         {left: "\\[", right: "\\]", display: true}
+                                     ],
+                                 }
+             );
+            </script>
+    </body>
+</html>

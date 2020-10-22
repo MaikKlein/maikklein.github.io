@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+        <!-- Enable responsiveness on mobile devices-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+        <title>Maik Klein</title>
+
+        <!-- CSS -->
+        <link rel="stylesheet" href="https:&#x2F;&#x2F;maikklein.github.io/print.css" media="print">
+        <link rel="stylesheet" href="https:&#x2F;&#x2F;maikklein.github.io/poole.css">
+        <link rel="stylesheet" href="https:&#x2F;&#x2F;maikklein.github.io/lanyon.css">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.2/css/all.css" integrity="sha384-/rXc/GQVaYpyDdyxK+ecHPVYJSN9bmVFBvjA/9eOB+pb3F2w2N6fc5qB9Ew5yIns" crossorigin="anonymous">
+        <link rel="stylesheet" href="https:&#x2F;&#x2F;maikklein.github.io/app.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.8.3/contrib/auto-render.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.css" integrity="sha384-exe4Ak6B0EoJI0ogGxjJ8rn+RN3ftPnEQrGwX59KTCl5ybGzvHGKjhPKk/KC3abb" crossorigin="anonymous">
+<script sync src="https://platform.twitter.com/widgets.js"></script>
+<script>
+  window.onload = (function(){
+
+    var tweet = document.getElementById("tweet");
+    var id = tweet.getAttribute("tweetID");
+
+    twttr.widgets.createTweet(
+      id, tweet, 
+      {
+        conversation : 'none',    // or all
+        linkColor    : '#cc0000', // default is blue
+        theme        : 'light',    // or dark
+        align        : 'center'    
+      })
+    .then (function (el) {
+      el.contentDocument.querySelector(".footer").style.display = "none";
+    });
+
+  });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.js" integrity="sha384-OMvkZ24ANLwviZR2lVq8ujbE/bUO8IR1FdBrKLQBI14Gq5Xp/lksIccGkmKL8m+h" crossorigin="anonymous"></script>
+        <script
+            src="https://code.jquery.com/jquery-3.2.1.min.js"
+            integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+            crossorigin="anonymous"></script>
+        <script src="https:&#x2F;&#x2F;maikklein.github.io/site.js"></script>
+        
+
+        
+        
+    <script>
+        (function(d, s, id){
+           var js, fjs = d.getElementsByTagName(s)[0];
+           if (d.getElementById(id)) {return;}
+           js = d.createElement(s); js.id = id;
+           js.src = "https://assets.gfycat.com/gfycat.js";
+           fjs.parentNode.insertBefore(js, fjs);
+         }(document, 'script', 'gfycat-js'));
+    </script>
+    </head>
+
+    <body>
+        <div class="wrap">
+            <div class="masthead">
+                <div class="container">
+                    <h3 class="masthead-title">
+                        <a href="https:&#x2F;&#x2F;maikklein.github.io/" title="Home">Maik Klein</a>
+                        <small>Blog</small>
+                        <a href="https://github.com/maikklein" target="_blank"><i class="fab fa-github"></i></a>
+                        <a href="https://twitter.com/MaikKlein_DEV" target="_blank"><i class="fab fa-twitter"></i></a>
+                        <a href="https:&#x2F;&#x2F;maikklein.github.io/rss.xml" target="_blank"><i class="fas fa-rss"></i></a>
+                        <a href="https://www.patreon.com/maikklein" target="_blank"><i class="fab fa-patreon"></i></a>
+                    </h3>
+                </div>
+            </div>
+        </div>
+        <div class="content container">
+            
+<div class="post">
+  <h1 class="post-title">Tooling support while using Rust as a library</h1>
+  <span class="post-date">2017-08-27</span>
+  <ul>
+  
+  </ul>
+  <p>I recently started a SPIR-V compiler from scratch but I also wanted to see if I can actually build the compiler with the Rust compiler as a library. One possibility is to fork the Rust compiler and to add a binary crate like <a href="https://github.com/msiglreith/rust/tree/althaea">this</a>. In this case it just adds another binary module in the rustc crate. The problem that I had with this approach is that the turn around time not that great as a simple change results in rustc being rebuilt which takes at least 6min. Yesterday I tried to extend the Rust build system to produce another simple binary, but I failed. The build system is largely undocumented (I think). My first thought was to see how <code>rls</code> and <code>clippy</code> use the compiler.</p>
+<p>It turns out they just do </p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fdf4c1aa;">#![</span><span style="color:#fdf4c1;">feature</span><span style="color:#fdf4c1aa;">(rustc_private)]
+</span><span style="color:#fa5c4b;">extern crate</span><span style="color:#fdf4c1aa;"> rustc;
+</span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">main</span><span style="color:#fdf4c1aa;">() {
+    </span><span style="color:#fe8019;">...
+</span><span style="color:#fdf4c1aa;">}
+</span></code></pre>
+<p>The problem is that you don't get any tooling support if you use rustc like this, but I came up with a simple workaround which you can find <a href="https://github.com/MaikKlein/rlsl/commit/54b84576a5ee9b0eafaba0612a50fd336011ab0c">here</a>.</p>
+<p>I just add the Rust compiler as a submodule, and I add the library that I am going to use </p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fdf4c1aa;">[</span><span style="color:#8ec07c;">target.</span><span style="color:#b8bb26;">&#39;cfg(NOT_A_PLATFORM)&#39;</span><span style="color:#8ec07c;">.dependencies</span><span style="color:#fdf4c1aa;">]
+</span><span style="font-weight:bold;color:#8ec07c;">rustc </span><span style="color:#fdf4c1aa;">= {</span><span style="font-weight:bold;color:#8ec07c;">path </span><span style="color:#fdf4c1aa;">= </span><span style="color:#b8bb26;">&quot;compiler/rust/src/librustc&quot;</span><span style="color:#fdf4c1aa;">}
+</span></code></pre>
+<p>This way Rust will not try to compile <code>librustc</code> but tools like <code>intellij-rust</code> can still access the metadata.</p>
+<p><img src="https://i.imgur.com/EVk1xv7.gif" alt="" /></p>
+
+</div>
+
+            </div>
+
+
+            <script>
+             renderMathInElement(document.body,
+                                 {
+                                     delimiters: [
+                                         {left: "$$", right: "$$", display: true},
+                                         {left: "$", right: "$", display: false},
+                                         {left: "\\[", right: "\\]", display: true}
+                                     ],
+                                 }
+             );
+            </script>
+    </body>
+</html>
