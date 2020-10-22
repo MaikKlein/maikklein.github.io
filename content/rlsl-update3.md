@@ -38,6 +38,6 @@ I also struggled to have a good work life balance while working on RLSL and [ash
 
 # RLSL is dead, long live [rust-gpu](https://github.com/EmbarkStudios/rust-gpu)
 
-Fast forwarding 1.5 years, we now have [rust-gpu](https://github.com/EmbarkStudios/rust-gpu). See the [announcement](https://github.com/EmbarkStudios/rust-gpu/releases/tag/untagged-24d95f557cdab786f63e) for more details. `rust-gpu` will replace `RLSL`. `rust-gpu` is written by some extremely talented colleagues of mine, and I couldn't be happier with the work they have done. I am collaborating with the team although I am not actively committing code right now. I am extremely excited to be writing shaders in Rust soon and I hope you are as well.
+Fast forwarding 1.5 years, we now have [rust-gpu](https://github.com/EmbarkStudios/rust-gpu). See the [announcement](https://github.com/EmbarkStudios/rust-gpu/releases/tag/v0.1) for more details. `rust-gpu` will replace `RLSL`. `rust-gpu` is written by some extremely talented colleagues of mine, and I couldn't be happier with the work they have done. I am collaborating with the team although I am not actively committing code right now. I am extremely excited to be writing shaders in Rust soon and I hope you are as well.
 
 I want to thank you all for the support you have given me over the years. I can't tell you how much all of the kind comments helped me going though some of my harder times. Thank you ❤️.
