@@ -5,7 +5,7 @@ date  = 2020-10-22
 
 # History
 
-3 years ago I started a project called "Rust Like Shading Language" to bring Rust to the GPU. I was very unhappy with the current state of affairs of glsl and hlsl, and I imagined what shader programming would be like if we had proper tooling like formatting, compiler errors, proper type system, package manager, auto completion etc. After Vulkan introduced SPIR-V, I was anticipating the appearance of many new shading languages, but nothing really did and I decided to take the matters in my own hand.
+3 years ago I started a project called [Rust Like Shading Language or RLSL](https://github.com/MaikKlein/rlsl) to bring Rust to the GPU. I was very unhappy with the current state of affairs of glsl and hlsl, and I imagined what shader programming would be like if we had proper tooling like formatting, compiler errors, proper type system, package manager, auto completion etc. After Vulkan introduced SPIR-V, I was anticipating the appearance of many new shading languages, but nothing really did and I decided to take the matters in my own hand.
 
 Knowing nothing about compilers, I wrote a simple parser and type checker for a very simple language, and I could generate a triangle ![triangle](https://camo.githubusercontent.com/fcf8368d94842046bcb1856ecd69386109ce672f/687474703a2f2f692e696d6775722e636f6d2f50515a634c36772e6a7067) But I realized that writing your own compiler is quite the undertaking and I was thinking about using rustc instead.
 
