@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+        <!-- Enable responsiveness on mobile devices-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+        <title>Maik Klein</title>
+
+        <!-- CSS -->
+        <link rel="stylesheet" href="https:&#x2F;&#x2F;maikklein.github.io/print.css" media="print">
+        <link rel="stylesheet" href="https:&#x2F;&#x2F;maikklein.github.io/poole.css">
+        <link rel="stylesheet" href="https:&#x2F;&#x2F;maikklein.github.io/lanyon.css">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.2/css/all.css" integrity="sha384-/rXc/GQVaYpyDdyxK+ecHPVYJSN9bmVFBvjA/9eOB+pb3F2w2N6fc5qB9Ew5yIns" crossorigin="anonymous">
+        <link rel="stylesheet" href="https:&#x2F;&#x2F;maikklein.github.io/app.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.8.3/contrib/auto-render.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.css" integrity="sha384-exe4Ak6B0EoJI0ogGxjJ8rn+RN3ftPnEQrGwX59KTCl5ybGzvHGKjhPKk/KC3abb" crossorigin="anonymous">
+<script sync src="https://platform.twitter.com/widgets.js"></script>
+<script>
+  window.onload = (function(){
+
+    var tweet = document.getElementById("tweet");
+    var id = tweet.getAttribute("tweetID");
+
+    twttr.widgets.createTweet(
+      id, tweet, 
+      {
+        conversation : 'none',    // or all
+        linkColor    : '#cc0000', // default is blue
+        theme        : 'light',    // or dark
+        align        : 'center'    
+      })
+    .then (function (el) {
+      el.contentDocument.querySelector(".footer").style.display = "none";
+    });
+
+  });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.js" integrity="sha384-OMvkZ24ANLwviZR2lVq8ujbE/bUO8IR1FdBrKLQBI14Gq5Xp/lksIccGkmKL8m+h" crossorigin="anonymous"></script>
+        <script
+            src="https://code.jquery.com/jquery-3.2.1.min.js"
+            integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+            crossorigin="anonymous"></script>
+        <script src="https:&#x2F;&#x2F;maikklein.github.io/site.js"></script>
+        
+
+        
+        
+    <script>
+        (function(d, s, id){
+           var js, fjs = d.getElementsByTagName(s)[0];
+           if (d.getElementById(id)) {return;}
+           js = d.createElement(s); js.id = id;
+           js.src = "https://assets.gfycat.com/gfycat.js";
+           fjs.parentNode.insertBefore(js, fjs);
+         }(document, 'script', 'gfycat-js'));
+    </script>
+    </head>
+
+    <body>
+        <div class="wrap">
+            <div class="masthead">
+                <div class="container">
+                    <h3 class="masthead-title">
+                        <a href="https:&#x2F;&#x2F;maikklein.github.io/" title="Home">Maik Klein</a>
+                        <small>Blog</small>
+                        <a href="https://github.com/maikklein" target="_blank"><i class="fab fa-github"></i></a>
+                        <a href="https://twitter.com/MaikKlein_DEV" target="_blank"><i class="fab fa-twitter"></i></a>
+                        <a href="https:&#x2F;&#x2F;maikklein.github.io/rss.xml" target="_blank"><i class="fas fa-rss"></i></a>
+                        <a href="https://www.patreon.com/maikklein" target="_blank"><i class="fab fa-patreon"></i></a>
+                    </h3>
+                </div>
+            </div>
+        </div>
+        <div class="content container">
+            
+<div class="post">
+  <h1 class="post-title">First steps in Nom: Parsing pseudo GLSL</h1>
+  <span class="post-date">2016-11-27</span>
+  <ul>
+  
+  </ul>
+  <p>I am currently working on my rendering engine and I always wanted to streamline my shader pipeline. I want to detect <code>.glsl</code> files, parse them, extract the type information and generate Rust bindings inside the build script.</p>
+<p>GLSL can look like this:</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">#version</span><span style="color:#fdf4c1aa;"> 400
+</span><span style="color:#fa5c4b;">layout</span><span style="color:#fdf4c1aa;">(location </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1aa;">) </span><span style="color:#fa5c4b;">uniform vec4</span><span style="color:#fdf4c1aa;"> color;
+</span><span style="color:#fa5c4b;">layout</span><span style="color:#fdf4c1aa;">(location </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">1</span><span style="color:#fdf4c1aa;">) </span><span style="color:#fa5c4b;">uniform mat4</span><span style="color:#fdf4c1aa;"> mvp;
+
+</span><span style="color:#fa5c4b;">layout</span><span style="color:#fdf4c1aa;">(location </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1aa;">) </span><span style="color:#fa5c4b;">in vec4</span><span style="color:#fdf4c1aa;"> pos;
+</span><span style="color:#fa5c4b;">in vec2</span><span style="color:#fdf4c1aa;"> uv;
+
+</span><span style="color:#fa5c4b;">layout</span><span style="color:#fdf4c1aa;">(location </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1aa;">) </span><span style="color:#fa5c4b;">out vec3</span><span style="color:#fdf4c1aa;"> test;
+</span><span style="color:#fa5c4b;">void </span><span style="color:#8ec07c;">main</span><span style="color:#fdf4c1aa;">(){
+    </span><span style="font-style:italic;color:#928374;">//...
+</span><span style="color:#fdf4c1aa;">}
+</span></code></pre>
+<p>Here we have two <code>uniform</code> variables of type <code>vec4</code> and <code>mat4</code>, a <code>vec4</code> and a <code>vec2</code> as input and a <code>vec3</code> as output for a vertex shader.
+Before today I had never really written any parser besides for CSV or OBJ and I was always scared of it because I know how complex they can get.
+These are my first steps in Nom.</p>
+<p>We are going to parse the <code>GLSL</code> code from above.
+I started by defining an <code>enum</code>.</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fdf4c1aa;">#[</span><span style="color:#fdf4c1;">derive</span><span style="color:#fdf4c1aa;">(Debug)]
+</span><span style="color:#fa5c4b;">pub enum </span><span style="color:#8ec07c;">Glsl </span><span style="color:#fdf4c1aa;">{
+    Version(</span><span style="color:#fa5c4b;">u32</span><span style="color:#fdf4c1aa;">),
+    Input(</span><span style="color:#fabd2f;">Option</span><span style="color:#fdf4c1aa;">&lt;</span><span style="color:#fa5c4b;">u32</span><span style="color:#fdf4c1aa;">&gt;, </span><span style="color:#fabd2f;">String</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fabd2f;">String</span><span style="color:#fdf4c1aa;">),
+    Output(</span><span style="color:#fabd2f;">Option</span><span style="color:#fdf4c1aa;">&lt;</span><span style="color:#fa5c4b;">u32</span><span style="color:#fdf4c1aa;">&gt;, </span><span style="color:#fabd2f;">String</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fabd2f;">String</span><span style="color:#fdf4c1aa;">),
+    Uniform(</span><span style="color:#fabd2f;">Option</span><span style="color:#fdf4c1aa;">&lt;</span><span style="color:#fa5c4b;">u32</span><span style="color:#fdf4c1aa;">&gt;, </span><span style="color:#fabd2f;">String</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fabd2f;">String</span><span style="color:#fdf4c1aa;">),
+}
+</span></code></pre>
+<p>I just treat <code>Input</code>, <code>Output</code> and <code>Uniform</code> the same for now. There are edge cases that I just ignore for now for example we will not parse uniforms that are directly initialized nor array types.</p>
+<p>We start by parsing the <code>Version</code>:</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fabd2f;">named!</span><span style="color:#fdf4c1aa;">(glsl_version&lt;</span><span style="color:#fa5c4b;">u32</span><span style="color:#fdf4c1aa;">&gt;,
+    </span><span style="color:#fabd2f;">do_parse!</span><span style="color:#fdf4c1aa;">(
+        </span><span style="color:#fabd2f;">tag!</span><span style="color:#fdf4c1aa;">(</span><span style="color:#b8bb26;">&quot;#version&quot;</span><span style="color:#fdf4c1aa;">) </span><span style="color:#fe8019;">&gt;&gt;
+        </span><span style="color:#fabd2f;">opt!</span><span style="color:#fdf4c1aa;">(space) </span><span style="color:#fe8019;">&gt;&gt;
+</span><span style="color:#fdf4c1aa;">        number: </span><span style="color:#fabd2f;">map_res!</span><span style="color:#fdf4c1aa;">(
+            digit,
+            std::str::from_utf8
+        ) </span><span style="color:#fe8019;">&gt;&gt;
+        </span><span style="color:#fabd2f;">opt!</span><span style="color:#fdf4c1aa;">(multispace) </span><span style="color:#fe8019;">&gt;&gt;
+        </span><span style="color:#fdf4c1aa;">(number.parse::&lt;</span><span style="color:#fa5c4b;">u32</span><span style="color:#fdf4c1aa;">&gt;().</span><span style="color:#fabd2f;">unwrap</span><span style="color:#fdf4c1aa;">())
+    )
+);
+</span></code></pre>
+<p><code>glsl_version&lt;u32&gt;</code> will create a function with the name <code>glsl_version</code> and a return type of <code>u32</code>. We then look for a specific string that matches <code>#version</code>. It follows by 0 or more spaces which we express with <code>opt!(space)</code>, then we extract n characters that are digits into a variable called <code>number</code>. <code>multispace</code> recognizes spaces, tabs, carriage returns and line feeds. After that we parse the <code>number</code> into a <code>u32</code>. I call <code>.unwrap()</code> here because it shouldn't fail.</p>
+<p>I will do something really hacky that you should probably never do in production code but it helps us to get started.</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fabd2f;">named!</span><span style="color:#fdf4c1aa;">(glsl_alt&lt;</span><span style="color:#fabd2f;">Option</span><span style="color:#fdf4c1aa;">&lt;Glsl&gt;&gt;,
+        </span><span style="color:#fabd2f;">alt!</span><span style="color:#fdf4c1aa;">(
+              glsl_version </span><span style="color:#fe8019;">=&gt; </span><span style="color:#fdf4c1aa;">{ |</span><span style="color:#fdf4c1;">n</span><span style="color:#fdf4c1aa;">| </span><span style="color:#fabd2f;">Some</span><span style="color:#fdf4c1aa;">(Glsl::Version(n)) }
+            </span><span style="color:#fe8019;">| </span><span style="color:#fabd2f;">take!</span><span style="color:#fdf4c1aa;">(</span><span style="color:#d3869b;">1</span><span style="color:#fdf4c1aa;">) </span><span style="color:#fe8019;">=&gt; </span><span style="color:#fdf4c1aa;">{ |_| </span><span style="color:#fabd2f;">None </span><span style="color:#fdf4c1aa;">}
+        )
+);
+</span></code></pre>
+<p><code>alt!</code> is a conditional parser. It will try to execute the parser in order. If <code>glsl_version</code> fails we execute the <code>take!(1)</code> parser which consumes 1 byte and returns <code>None</code>. This is actually not the right place for <code>glsl_version</code> as the <code>#version</code> specifier should only occur at the top, but I will let it stay there for now.</p>
+<p>This parser only executes once which in the case of <code>#version</code> would be enough but we still need to parse <code>in</code>, <code>out</code> and <code>uniform</code>.</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fabd2f;">named!</span><span style="color:#fdf4c1aa;">(parse_glsl&lt;</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">[</span><span style="color:#fa5c4b;">u8</span><span style="color:#fdf4c1aa;">], </span><span style="color:#fabd2f;">Vec</span><span style="color:#fdf4c1aa;">&lt;</span><span style="color:#fabd2f;">Option</span><span style="color:#fdf4c1aa;">&lt;Glsl&gt;&gt; &gt;, </span><span style="color:#fabd2f;">many0!</span><span style="color:#fdf4c1aa;">(glsl_alt));
+</span></code></pre>
+<p><code>many0</code> will execute the parser repeatedly and will write the results into a <code>Vec</code>.</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fabd2f;">layout</span><span style="color:#fdf4c1aa;">(location </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1aa;">) uniform vec4 color;
+</span></code></pre>
+<p>First we will write a parser for the optional layout specifier.</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fabd2f;">named!</span><span style="color:#fdf4c1aa;">(glsl_location&lt;</span><span style="color:#fa5c4b;">u32</span><span style="color:#fdf4c1aa;">&gt;,
+    </span><span style="color:#fabd2f;">do_parse!</span><span style="color:#fdf4c1aa;">(
+        </span><span style="color:#fabd2f;">tag!</span><span style="color:#fdf4c1aa;">(</span><span style="color:#b8bb26;">&quot;layout&quot;</span><span style="color:#fdf4c1aa;">) </span><span style="color:#fe8019;">&gt;&gt;
+        </span><span style="color:#fabd2f;">opt!</span><span style="color:#fdf4c1aa;">(space) </span><span style="color:#fe8019;">&gt;&gt;
+        </span><span style="color:#fabd2f;">tag!</span><span style="color:#fdf4c1aa;">(</span><span style="color:#b8bb26;">&quot;(&quot;</span><span style="color:#fdf4c1aa;">) </span><span style="color:#fe8019;">&gt;&gt;
+        </span><span style="color:#fabd2f;">opt!</span><span style="color:#fdf4c1aa;">(space) </span><span style="color:#fe8019;">&gt;&gt;
+        </span><span style="color:#fabd2f;">tag!</span><span style="color:#fdf4c1aa;">(</span><span style="color:#b8bb26;">&quot;location&quot;</span><span style="color:#fdf4c1aa;">) </span><span style="color:#fe8019;">&gt;&gt;
+        </span><span style="color:#fabd2f;">opt!</span><span style="color:#fdf4c1aa;">(space) </span><span style="color:#fe8019;">&gt;&gt;
+        </span><span style="color:#fabd2f;">tag!</span><span style="color:#fdf4c1aa;">(</span><span style="color:#b8bb26;">&quot;=&quot;</span><span style="color:#fdf4c1aa;">) </span><span style="color:#fe8019;">&gt;&gt;
+        </span><span style="color:#fabd2f;">opt!</span><span style="color:#fdf4c1aa;">(space) </span><span style="color:#fe8019;">&gt;&gt;
+</span><span style="color:#fdf4c1aa;">        location: </span><span style="color:#fabd2f;">map_res!</span><span style="color:#fdf4c1aa;">(
+            digit,
+            std::str::from_utf8
+        ) </span><span style="color:#fe8019;">&gt;&gt;
+        </span><span style="color:#fabd2f;">opt!</span><span style="color:#fdf4c1aa;">(space) </span><span style="color:#fe8019;">&gt;&gt;
+        </span><span style="color:#fabd2f;">tag!</span><span style="color:#fdf4c1aa;">(</span><span style="color:#b8bb26;">&quot;)&quot;</span><span style="color:#fdf4c1aa;">) </span><span style="color:#fe8019;">&gt;&gt;
+        </span><span style="color:#fabd2f;">opt!</span><span style="color:#fdf4c1aa;">(space) </span><span style="color:#fe8019;">&gt;&gt;
+        </span><span style="color:#fdf4c1aa;">(location.parse::&lt;</span><span style="color:#fa5c4b;">u32</span><span style="color:#fdf4c1aa;">&gt;().</span><span style="color:#fabd2f;">unwrap</span><span style="color:#fdf4c1aa;">())
+    )
+);
+</span></code></pre>
+<p>I am sure this could be written more elegantly but it should do the trick. It is very similar to the version parser. Because I pretend that <code>in</code>, <code>out</code> and <code>uniform</code> are the same we will create a macro that generates a parser to avoid code duplication.</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fabd2f;">macro_rules! </span><span style="color:#8ec07c;">glsl_gen</span><span style="color:#fdf4c1aa;">(
+    ($name: ident, $i: expr) </span><span style="color:#fe8019;">=&gt; </span><span style="color:#fdf4c1aa;">(
+        </span><span style="color:#fabd2f;">named!</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">$name</span><span style="color:#fe8019;">&lt;</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fabd2f;">Option</span><span style="color:#fdf4c1aa;">&lt;</span><span style="color:#fa5c4b;">u32</span><span style="color:#fdf4c1aa;">&gt;, </span><span style="color:#fabd2f;">String</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fabd2f;">String</span><span style="color:#fdf4c1aa;">)</span><span style="color:#fe8019;">&gt;</span><span style="color:#fdf4c1aa;">,
+            </span><span style="color:#fabd2f;">do_parse!</span><span style="color:#fdf4c1aa;">(
+                location: </span><span style="color:#fabd2f;">opt!</span><span style="color:#fdf4c1aa;">(glsl_location) </span><span style="color:#fe8019;">&gt;&gt;
+                </span><span style="color:#fabd2f;">tag!</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">$i</span><span style="color:#fdf4c1aa;">) </span><span style="color:#fe8019;">&gt;&gt;
+                </span><span style="color:#fabd2f;">opt!</span><span style="color:#fdf4c1aa;">(space) </span><span style="color:#fe8019;">&gt;&gt;
+</span><span style="color:#fdf4c1aa;">                type_name: </span><span style="color:#fabd2f;">map_res!</span><span style="color:#fdf4c1aa;">(
+                    alphanumeric,
+                    std::str::from_utf8
+                ) </span><span style="color:#fe8019;">&gt;&gt;
+                </span><span style="color:#fabd2f;">opt!</span><span style="color:#fdf4c1aa;">(space) </span><span style="color:#fe8019;">&gt;&gt;
+</span><span style="color:#fdf4c1aa;">                name: </span><span style="color:#fabd2f;">map_res!</span><span style="color:#fdf4c1aa;">(
+                    alphanumeric,
+                    std::str::from_utf8
+                ) </span><span style="color:#fe8019;">&gt;&gt;
+                </span><span style="color:#fabd2f;">opt!</span><span style="color:#fdf4c1aa;">(space) </span><span style="color:#fe8019;">&gt;&gt;
+                </span><span style="color:#fa5c4b;">char</span><span style="color:#fe8019;">!</span><span style="color:#fdf4c1aa;">(</span><span style="color:#b8bb26;">&#39;;&#39;</span><span style="color:#fdf4c1aa;">) </span><span style="color:#fe8019;">&gt;&gt;
+                </span><span style="color:#fabd2f;">opt!</span><span style="color:#fdf4c1aa;">(multispace) </span><span style="color:#fe8019;">&gt;&gt;
+                </span><span style="color:#fdf4c1aa;">(location,
+                 FromStr::from_str(type_name).</span><span style="color:#fabd2f;">unwrap</span><span style="color:#fdf4c1aa;">(),
+                 FromStr::from_str(name).</span><span style="color:#fabd2f;">unwrap</span><span style="color:#fdf4c1aa;">())
+            )
+        );
+    )
+);
+
+</span><span style="color:#fabd2f;">glsl_gen!</span><span style="color:#fdf4c1aa;">(glsl_in, </span><span style="color:#b8bb26;">&quot;in&quot;</span><span style="color:#fdf4c1aa;">);
+</span><span style="color:#fabd2f;">glsl_gen!</span><span style="color:#fdf4c1aa;">(glsl_out, </span><span style="color:#b8bb26;">&quot;out&quot;</span><span style="color:#fdf4c1aa;">);
+</span><span style="font-style:italic;color:#928374;">//Note: Doesn&#39;t parse if the uniform has a default initialization
+</span><span style="color:#fabd2f;">glsl_gen!</span><span style="color:#fdf4c1aa;">(glsl_uniform, </span><span style="color:#b8bb26;">&quot;uniform&quot;</span><span style="color:#fdf4c1aa;">);
+</span></code></pre>
+<p>First we use the <code>glsl_location</code> parser that we just created and write the value into the variable <code>location</code>. <code>location</code> is of type <code>Option&lt;u32&gt;</code>. After that we basically do the same thing as we did in <code>glsl_version</code> and <code>glsl_location</code>. The only difference is that we return a tuple of type <code>(Option&lt;u32&gt;, String, String)</code>.</p>
+<p>Now we can update <code>glsl_alt</code>.</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fabd2f;">named!</span><span style="color:#fdf4c1aa;">(glsl_alt&lt;</span><span style="color:#fabd2f;">Option</span><span style="color:#fdf4c1aa;">&lt;Glsl&gt;&gt;,
+        </span><span style="color:#fabd2f;">alt!</span><span style="color:#fdf4c1aa;">(
+              glsl_version </span><span style="color:#fe8019;">=&gt; </span><span style="color:#fdf4c1aa;">{ |</span><span style="color:#fdf4c1;">n</span><span style="color:#fdf4c1aa;">| </span><span style="color:#fabd2f;">Some</span><span style="color:#fdf4c1aa;">(Glsl::Version(n)) }
+            </span><span style="color:#fe8019;">|</span><span style="color:#fdf4c1aa;"> glsl_in </span><span style="color:#fe8019;">=&gt; </span><span style="color:#fdf4c1aa;">{ |(</span><span style="color:#fdf4c1;">loc</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">ty</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">name</span><span style="color:#fdf4c1aa;">)| </span><span style="color:#fabd2f;">Some</span><span style="color:#fdf4c1aa;">(Glsl::Input(loc, ty, name)) }
+            </span><span style="color:#fe8019;">|</span><span style="color:#fdf4c1aa;"> glsl_out </span><span style="color:#fe8019;">=&gt; </span><span style="color:#fdf4c1aa;">{ |(</span><span style="color:#fdf4c1;">loc</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">ty</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">name</span><span style="color:#fdf4c1aa;">)| </span><span style="color:#fabd2f;">Some</span><span style="color:#fdf4c1aa;">(Glsl::Output(loc, ty, name)) }
+            </span><span style="color:#fe8019;">|</span><span style="color:#fdf4c1aa;"> glsl_uniform </span><span style="color:#fe8019;">=&gt; </span><span style="color:#fdf4c1aa;">{ |(</span><span style="color:#fdf4c1;">loc</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">ty</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">name</span><span style="color:#fdf4c1aa;">)| </span><span style="color:#fabd2f;">Some</span><span style="color:#fdf4c1aa;">(Glsl::Uniform(loc, ty, name)) }
+            </span><span style="color:#fe8019;">| </span><span style="color:#fabd2f;">take!</span><span style="color:#fdf4c1aa;">(</span><span style="color:#d3869b;">1</span><span style="color:#fdf4c1aa;">) </span><span style="color:#fe8019;">=&gt; </span><span style="color:#fdf4c1aa;">{ |_| </span><span style="color:#fabd2f;">None </span><span style="color:#fdf4c1aa;">}
+        )
+);
+</span></code></pre>
+<p>I hope you can see why I have written <code>glsl_alt</code> that way, it made it easy to get started but it comes with some problems. Every byte that fails to parse will add a <code>None</code> into a <code>Vec</code>.</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">main</span><span style="color:#fdf4c1aa;">() {
+    </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> s </span><span style="color:#fe8019;">= </span><span style="color:#b8bb26;">&quot;
+        #version 400
+        layout(location = 0) uniform vec4 color;
+        layout(location = 1) uniform mat4 mvp;
+
+        layout(location = 0) in vec4 pos;
+        in vec2 uv;
+
+        layout(location = 0) out vec3 test;
+        void main(){
+            //...
+        }
+    &quot;</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fa5c4b;">if let </span><span style="color:#fdf4c1aa;">IResult::Done(</span><span style="color:#fe8019;">_</span><span style="color:#fdf4c1aa;">, o) </span><span style="color:#fe8019;">= </span><span style="color:#fabd2f;">parse_glsl</span><span style="color:#fdf4c1aa;">(s.</span><span style="color:#fabd2f;">as_bytes</span><span style="color:#fdf4c1aa;">()){
+        </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> v: </span><span style="color:#fabd2f;">Vec</span><span style="color:#fdf4c1aa;">&lt;Glsl&gt; </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> o.</span><span style="color:#fabd2f;">into_iter</span><span style="color:#fdf4c1aa;">().</span><span style="color:#fabd2f;">filter</span><span style="color:#fdf4c1aa;">(|</span><span style="color:#fdf4c1;">x</span><span style="color:#fdf4c1aa;">| x.</span><span style="color:#fabd2f;">is_some</span><span style="color:#fdf4c1aa;">()).</span><span style="color:#fabd2f;">map</span><span style="color:#fdf4c1aa;">(|</span><span style="color:#fdf4c1;">x</span><span style="color:#fdf4c1aa;">| x.</span><span style="color:#fabd2f;">unwrap</span><span style="color:#fdf4c1aa;">()).</span><span style="color:#fabd2f;">collect</span><span style="color:#fdf4c1aa;">();
+        </span><span style="color:#fabd2f;">println!</span><span style="color:#fdf4c1aa;">(</span><span style="color:#b8bb26;">&quot;</span><span style="color:#fdf4c1;">{:?}</span><span style="color:#b8bb26;">&quot;</span><span style="color:#fdf4c1aa;">, v);
+    }
+}
+</span></code></pre>
+<p>For now I am just going to filter all those <code>None</code>'s.</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fdf4c1aa;">[Version(</span><span style="color:#d3869b;">400</span><span style="color:#fdf4c1aa;">),
+ Uniform(</span><span style="color:#fabd2f;">Some</span><span style="color:#fdf4c1aa;">(</span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1aa;">), </span><span style="color:#b8bb26;">&quot;vec4&quot;</span><span style="color:#fdf4c1aa;">, </span><span style="color:#b8bb26;">&quot;color&quot;</span><span style="color:#fdf4c1aa;">),
+ Uniform(</span><span style="color:#fabd2f;">Some</span><span style="color:#fdf4c1aa;">(</span><span style="color:#d3869b;">1</span><span style="color:#fdf4c1aa;">), </span><span style="color:#b8bb26;">&quot;mat4&quot;</span><span style="color:#fdf4c1aa;">, </span><span style="color:#b8bb26;">&quot;mvp&quot;</span><span style="color:#fdf4c1aa;">),
+ Input(</span><span style="color:#fabd2f;">Some</span><span style="color:#fdf4c1aa;">(</span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1aa;">), </span><span style="color:#b8bb26;">&quot;vec4&quot;</span><span style="color:#fdf4c1aa;">, </span><span style="color:#b8bb26;">&quot;pos&quot;</span><span style="color:#fdf4c1aa;">),
+ Input(</span><span style="color:#fabd2f;">None</span><span style="color:#fdf4c1aa;">, </span><span style="color:#b8bb26;">&quot;vec2&quot;</span><span style="color:#fdf4c1aa;">, </span><span style="color:#b8bb26;">&quot;uv&quot;</span><span style="color:#fdf4c1aa;">),
+ Output(</span><span style="color:#fabd2f;">Some</span><span style="color:#fdf4c1aa;">(</span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1aa;">), </span><span style="color:#b8bb26;">&quot;vec3&quot;</span><span style="color:#fdf4c1aa;">, </span><span style="color:#b8bb26;">&quot;test&quot;</span><span style="color:#fdf4c1aa;">)]
+</span></code></pre>
+<p>For the first day of using <code>Nom</code> I call this a success, it was much easier than I thought. Obviously I completely ignored errors and edge cases and tons of other stuff but this is work for another day.</p>
+
+</div>
+
+            </div>
+
+
+            <script>
+             renderMathInElement(document.body,
+                                 {
+                                     delimiters: [
+                                         {left: "$$", right: "$$", display: true},
+                                         {left: "$", right: "$", display: false},
+                                         {left: "\\[", right: "\\]", display: true}
+                                     ],
+                                 }
+             );
+            </script>
+    </body>
+</html>

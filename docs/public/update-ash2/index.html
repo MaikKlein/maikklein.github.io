@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+        <!-- Enable responsiveness on mobile devices-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+        <title>Maik Klein</title>
+
+        <!-- CSS -->
+        <link rel="stylesheet" href="https:&#x2F;&#x2F;maikklein.github.io/print.css" media="print">
+        <link rel="stylesheet" href="https:&#x2F;&#x2F;maikklein.github.io/poole.css">
+        <link rel="stylesheet" href="https:&#x2F;&#x2F;maikklein.github.io/lanyon.css">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.2/css/all.css" integrity="sha384-/rXc/GQVaYpyDdyxK+ecHPVYJSN9bmVFBvjA/9eOB+pb3F2w2N6fc5qB9Ew5yIns" crossorigin="anonymous">
+        <link rel="stylesheet" href="https:&#x2F;&#x2F;maikklein.github.io/app.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.8.3/contrib/auto-render.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.css" integrity="sha384-exe4Ak6B0EoJI0ogGxjJ8rn+RN3ftPnEQrGwX59KTCl5ybGzvHGKjhPKk/KC3abb" crossorigin="anonymous">
+<script sync src="https://platform.twitter.com/widgets.js"></script>
+<script>
+  window.onload = (function(){
+
+    var tweet = document.getElementById("tweet");
+    var id = tweet.getAttribute("tweetID");
+
+    twttr.widgets.createTweet(
+      id, tweet, 
+      {
+        conversation : 'none',    // or all
+        linkColor    : '#cc0000', // default is blue
+        theme        : 'light',    // or dark
+        align        : 'center'    
+      })
+    .then (function (el) {
+      el.contentDocument.querySelector(".footer").style.display = "none";
+    });
+
+  });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.js" integrity="sha384-OMvkZ24ANLwviZR2lVq8ujbE/bUO8IR1FdBrKLQBI14Gq5Xp/lksIccGkmKL8m+h" crossorigin="anonymous"></script>
+        <script
+            src="https://code.jquery.com/jquery-3.2.1.min.js"
+            integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+            crossorigin="anonymous"></script>
+        <script src="https:&#x2F;&#x2F;maikklein.github.io/site.js"></script>
+        
+
+        
+        
+    <script>
+        (function(d, s, id){
+           var js, fjs = d.getElementsByTagName(s)[0];
+           if (d.getElementById(id)) {return;}
+           js = d.createElement(s); js.id = id;
+           js.src = "https://assets.gfycat.com/gfycat.js";
+           fjs.parentNode.insertBefore(js, fjs);
+         }(document, 'script', 'gfycat-js'));
+    </script>
+    </head>
+
+    <body>
+        <div class="wrap">
+            <div class="masthead">
+                <div class="container">
+                    <h3 class="masthead-title">
+                        <a href="https:&#x2F;&#x2F;maikklein.github.io/" title="Home">Maik Klein</a>
+                        <small>Blog</small>
+                        <a href="https://github.com/maikklein" target="_blank"><i class="fab fa-github"></i></a>
+                        <a href="https://twitter.com/MaikKlein_DEV" target="_blank"><i class="fab fa-twitter"></i></a>
+                        <a href="https:&#x2F;&#x2F;maikklein.github.io/rss.xml" target="_blank"><i class="fas fa-rss"></i></a>
+                        <a href="https://www.patreon.com/maikklein" target="_blank"><i class="fab fa-patreon"></i></a>
+                    </h3>
+                </div>
+            </div>
+        </div>
+        <div class="content container">
+            
+<div class="post">
+  <h1 class="post-title">Final progress report for Ash</h1>
+  <span class="post-date">2016-12-29</span>
+  <ul>
+  
+      <li>
+          <a href="#custom-allocators">Custom allocators</a>
+          
+      </li>
+  
+      <li>
+          <a href="#extension-names">Extension names</a>
+          
+      </li>
+  
+      <li>
+          <a href="#crossplatform-examples">Crossplatform examples</a>
+          
+      </li>
+  
+      <li>
+          <a href="#extension-loading">Extension loading</a>
+          
+      </li>
+  
+      <li>
+          <a href="#when-will-it-be-stable">When will it be stable?</a>
+          
+      </li>
+  
+  </ul>
+  <p><a href="https://github.com/MaikKlein/ash">Link to Ash</a></p>
+<h1 id="custom-allocators">Custom allocators</h1>
+<p>I exposed custom allocators to every function that requires it. I decided to go with Optional&lt;&amp;vk::allocationCallbacks&gt;</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">unsafe fn </span><span style="color:#8ec07c;">create_instance</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">,
+                          </span><span style="color:#fdf4c1;">create_info</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">vk::InstanceCreateInfo,
+                          </span><span style="color:#fdf4c1;">allocation_callbacks</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fabd2f;">Option</span><span style="color:#fdf4c1aa;">&lt;</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">vk::AllocationCallbacks&gt;)
+                          -&gt; </span><span style="color:#fabd2f;">Result</span><span style="color:#fdf4c1aa;">&lt;Instance, InstanceError&gt;;
+</span></code></pre>
+<p>Because allocators are unsafe, I also had to mark every function that can take an allocator as unsafe.</p>
+<h1 id="extension-names">Extension names</h1>
+<p>Every extension now exposes the Vulkan name as a <code>CStr</code>.</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">use </span><span style="color:#fdf4c1aa;">ash::extensions::{Swapchain, XlibSurface, Surface, DebugReport};
+#[</span><span style="color:#fdf4c1;">cfg</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">all(unix, not(target_os </span><span style="color:#fe8019;">= </span><span style="color:#b8bb26;">&quot;android&quot;</span><span style="color:#fdf4c1;">))</span><span style="color:#fdf4c1aa;">)]
+</span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">extension_names</span><span style="color:#fdf4c1aa;">() -&gt; </span><span style="color:#fabd2f;">Vec</span><span style="color:#fdf4c1aa;">&lt;</span><span style="color:#fa5c4b;">*const i8</span><span style="color:#fdf4c1aa;">&gt; {
+    </span><span style="color:#fabd2f;">vec!</span><span style="color:#fdf4c1aa;">[
+        Surface::name().</span><span style="color:#fabd2f;">as_ptr</span><span style="color:#fdf4c1aa;">(),
+        XlibSurface::name().</span><span style="color:#fabd2f;">as_ptr</span><span style="color:#fdf4c1aa;">(),
+        DebugReport::name().</span><span style="color:#fabd2f;">as_ptr</span><span style="color:#fdf4c1aa;">()
+    ]
+}
+</span></code></pre><h1 id="crossplatform-examples">Crossplatform examples</h1>
+<p>The examples should now work on Linux and Windows. Today I have finally installed Rust and the Vulkan SDK on my windows machine to test if the examples would run.</p>
+<h1 id="extension-loading">Extension loading</h1>
+<p>I exposed all <a href="https://github.com/MaikKlein/ash/tree/master/src/extensions">extensions</a> which meant that I could finally rewrite the loader. Previously I loaded every possible function that I exposed. As I explained in my previous post, this meant that some function pointers had to remain uninitialized because some extensions could not be loaded.</p>
+<p>This meant that if you would try to access a function pointer that failed to load you would crash. I have spent time to read through several OpenGL / Vulkan codebases and this is how everyone seems to do it, they just let it crash. </p>
+<p>In <code>Ash</code> instead of letting it crash, it will just fail at loading time. You will get an <code>Result</code> that contains all function pointers that failed to load. Doing it that way seems much cleaner but it comes with another problem and that is extensibility.</p>
+<p>Currently Vulkan is at version <code>1.0.38</code>, and Vulkan essentially uses <a href="http://semver.org/">Semver</a>. This means that Vulkan will most likely introduce new functions in a minor version update. <code>Ash</code> uses a load everything or fail approach and this means that I have to solve that particular problem.</p>
+<p>I have a few options, I could implement <code>Ash</code> as a generator, that would output a Vulkan wrapper for a specific version.</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fdf4c1aa;">./generateAsh 1.7
+</span></code></pre>
+<p>A few OpenGL loader do this, but the problem is how do you handle older versions? You could generate a few versions like OpenGL3, OpenGL4 and use them to implement your renderer, or you could just use the highest version and if you need to go lower only initialize function pointers for the lower version.</p>
+<p>I decided to try a trait based approach.</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">pub trait </span><span style="color:#8ec07c;">InstanceMajor1Minor0 </span><span style="color:#fdf4c1aa;">{
+    </span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">handle</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">) -&gt; vk::Instance;
+    </span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">fp_major1_minor0</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">) -&gt; </span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">vk::InstanceFn;
+    </span><span style="color:#fa5c4b;">unsafe fn </span><span style="color:#8ec07c;">create_device</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">,
+                            </span><span style="color:#fdf4c1;">physical_device</span><span style="color:#fdf4c1aa;">: vk::PhysicalDevice,
+                            </span><span style="color:#fdf4c1;">create_info</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">vk::DeviceCreateInfo,
+                            </span><span style="color:#fdf4c1;">allocation_callbacks</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fabd2f;">Option</span><span style="color:#fdf4c1aa;">&lt;</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">vk::AllocationCallbacks&gt;)
+                            -&gt; </span><span style="color:#fabd2f;">Result</span><span style="color:#fdf4c1aa;">&lt;Device, DeviceError&gt; {
+        </span><span style="color:#fa5c4b;">let mut</span><span style="color:#fdf4c1aa;"> device: vk::Device </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">mem::uninitialized();
+        </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> err_code </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fabd2f;">fp_major1_minor0</span><span style="color:#fdf4c1aa;">()
+            .</span><span style="color:#fabd2f;">create_device</span><span style="color:#fdf4c1aa;">(physical_device,
+                           create_info,
+                           allocation_callbacks.</span><span style="color:#fabd2f;">as_raw_ptr</span><span style="color:#fdf4c1aa;">(),
+                           </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">mut</span><span style="color:#fdf4c1aa;"> device);
+        </span><span style="color:#fa5c4b;">if</span><span style="color:#fdf4c1aa;"> err_code </span><span style="color:#fe8019;">!= </span><span style="color:#fdf4c1aa;">vk::Result::Success {
+            </span><span style="color:#fa5c4b;">return </span><span style="color:#fabd2f;">Err</span><span style="color:#fdf4c1aa;">(DeviceError::VkError(err_code));
+        }
+        </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> device_fn </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">vk::DeviceFn::load(|</span><span style="color:#fdf4c1;">name</span><span style="color:#fdf4c1aa;">| {
+                mem::transmute(</span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fabd2f;">fp_major1_minor0</span><span style="color:#fdf4c1aa;">().</span><span style="color:#fabd2f;">get_device_proc_addr</span><span style="color:#fdf4c1aa;">(device, name.</span><span style="color:#fabd2f;">as_ptr</span><span style="color:#fdf4c1aa;">()))
+            }).</span><span style="color:#fabd2f;">map_err</span><span style="color:#fdf4c1aa;">(|</span><span style="color:#fdf4c1;">err</span><span style="color:#fdf4c1aa;">| DeviceError::LoadError(err))</span><span style="color:#fe8019;">?</span><span style="color:#fdf4c1aa;">;
+        </span><span style="color:#fabd2f;">Ok</span><span style="color:#fdf4c1aa;">(Device::from_raw(device, device_fn))
+    }
+    </span><span style="font-style:italic;color:#928374;">// rest
+</span><span style="color:#fa5c4b;">pub trait </span><span style="color:#8ec07c;">InstanceMajor1Minor1</span><span style="color:#fdf4c1aa;">: InstanceMajor1Minor0 {}
+</span><span style="color:#fa5c4b;">pub trait </span><span style="color:#8ec07c;">InstanceMajor1Minor2</span><span style="color:#fdf4c1aa;">: InstanceMajor1Minor1 {}
+</span><span style="font-style:italic;color:#928374;">//...
+</span><span style="color:#fdf4c1aa;">}
+</span></code></pre>
+<p>Instead of implementing all the functions directly on <code>Instance</code>, I would implement them directly in the trait. Every function now lives in the correct version and it is trivial to add functions for a newer spec. You can not accidentally call a function that hasn't been loaded as everything is checked at compile time.</p>
+<p>In your renderer you could now easily create a fallback to a different version.</p>
+<pre style="background-color:#282828;">
+<code><span style="font-style:italic;color:#928374;">// pseudo code
+</span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">fall_back_create_instance</span><span style="color:#fdf4c1aa;">() -&gt; </span><span style="color:#fabd2f;">Result</span><span style="color:#fdf4c1aa;">&lt;impl InstanceMajor1Minor7, impl InstanceMajor1Minor0&gt;;
+</span></code></pre>
+<p>You can still pass newer API's to an older one, for example in <code>struct Renderer&lt;Instance: InstanceMajor1Minor7&gt;{...}</code> you can still pass in an instance of version 1.8. This is because the Vulkan spec doesn't remove older functions. For example 1.3 contains 1.2 contains 1.1 contains 1.0 which maps nicely to trait inheritance.
+This seems like it would be the best approach, but I still don't like the names of the traits.</p>
+<h1 id="when-will-it-be-stable">When will it be stable?</h1>
+<p>I don't expect many big changes anymore that would effect stability. The last big change will be to make <code>Ash</code> extensible, after that <code>Ash</code> will still remain &lt;1.0 as I still want to gather more usage experience. The breakage will most likely be minimal.</p>
+
+</div>
+
+            </div>
+
+
+            <script>
+             renderMathInElement(document.body,
+                                 {
+                                     delimiters: [
+                                         {left: "$$", right: "$$", display: true},
+                                         {left: "$", right: "$", display: false},
+                                         {left: "\\[", right: "\\]", display: true}
+                                     ],
+                                 }
+             );
+            </script>
+    </body>
+</html>

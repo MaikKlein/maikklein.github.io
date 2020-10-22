@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+        <!-- Enable responsiveness on mobile devices-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+        <title>Maik Klein</title>
+
+        <!-- CSS -->
+        <link rel="stylesheet" href="https:&#x2F;&#x2F;maikklein.github.io/print.css" media="print">
+        <link rel="stylesheet" href="https:&#x2F;&#x2F;maikklein.github.io/poole.css">
+        <link rel="stylesheet" href="https:&#x2F;&#x2F;maikklein.github.io/lanyon.css">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.2/css/all.css" integrity="sha384-/rXc/GQVaYpyDdyxK+ecHPVYJSN9bmVFBvjA/9eOB+pb3F2w2N6fc5qB9Ew5yIns" crossorigin="anonymous">
+        <link rel="stylesheet" href="https:&#x2F;&#x2F;maikklein.github.io/app.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.8.3/contrib/auto-render.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.css" integrity="sha384-exe4Ak6B0EoJI0ogGxjJ8rn+RN3ftPnEQrGwX59KTCl5ybGzvHGKjhPKk/KC3abb" crossorigin="anonymous">
+<script sync src="https://platform.twitter.com/widgets.js"></script>
+<script>
+  window.onload = (function(){
+
+    var tweet = document.getElementById("tweet");
+    var id = tweet.getAttribute("tweetID");
+
+    twttr.widgets.createTweet(
+      id, tweet, 
+      {
+        conversation : 'none',    // or all
+        linkColor    : '#cc0000', // default is blue
+        theme        : 'light',    // or dark
+        align        : 'center'    
+      })
+    .then (function (el) {
+      el.contentDocument.querySelector(".footer").style.display = "none";
+    });
+
+  });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.js" integrity="sha384-OMvkZ24ANLwviZR2lVq8ujbE/bUO8IR1FdBrKLQBI14Gq5Xp/lksIccGkmKL8m+h" crossorigin="anonymous"></script>
+        <script
+            src="https://code.jquery.com/jquery-3.2.1.min.js"
+            integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+            crossorigin="anonymous"></script>
+        <script src="https:&#x2F;&#x2F;maikklein.github.io/site.js"></script>
+        
+
+        
+        
+    <script>
+        (function(d, s, id){
+           var js, fjs = d.getElementsByTagName(s)[0];
+           if (d.getElementById(id)) {return;}
+           js = d.createElement(s); js.id = id;
+           js.src = "https://assets.gfycat.com/gfycat.js";
+           fjs.parentNode.insertBefore(js, fjs);
+         }(document, 'script', 'gfycat-js'));
+    </script>
+    </head>
+
+    <body>
+        <div class="wrap">
+            <div class="masthead">
+                <div class="container">
+                    <h3 class="masthead-title">
+                        <a href="https:&#x2F;&#x2F;maikklein.github.io/" title="Home">Maik Klein</a>
+                        <small>Blog</small>
+                        <a href="https://github.com/maikklein" target="_blank"><i class="fab fa-github"></i></a>
+                        <a href="https://twitter.com/MaikKlein_DEV" target="_blank"><i class="fab fa-twitter"></i></a>
+                        <a href="https:&#x2F;&#x2F;maikklein.github.io/rss.xml" target="_blank"><i class="fas fa-rss"></i></a>
+                        <a href="https://www.patreon.com/maikklein" target="_blank"><i class="fab fa-patreon"></i></a>
+                    </h3>
+                </div>
+            </div>
+        </div>
+        <div class="content container">
+            
+<div class="post">
+  <h1 class="post-title">Metaprogramming with type objects in D</h1>
+  <span class="post-date">2016-03-01</span>
+  <ul>
+  
+  </ul>
+  <p>I am going to introduce you to <code>Type Objects</code> and why they might be useful in combination with metaprogramming.
+This blog post is heavily inspired by <a href="https://github.com/boostorg/hana">Boost Hana</a>.</p>
+<p>Let us start with an example. If we would want to implement an <code>Algebraic Data Type</code> we would need to find out the maximal size of the types it should contain. In D that is pretty easy</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">import </span><span style="color:#fdf4c1;">std</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">meta</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fdf4c1;">AliasSeq</span><span style="color:#fdf4c1aa;">;
+</span><span style="color:#fa5c4b;">import </span><span style="color:#fdf4c1;">std</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">traits</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fdf4c1;">Largest</span><span style="color:#fdf4c1aa;">;
+</span><span style="color:#fa5c4b;">alias </span><span style="color:#8ec07c;">Types </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">AliasSeq!(</span><span style="color:#fa5c4b;">int</span><span style="color:#fdf4c1;">, </span><span style="color:#fa5c4b;">float</span><span style="color:#fdf4c1;">, </span><span style="color:#fa5c4b;">char</span><span style="color:#fdf4c1;">, </span><span style="color:#fa5c4b;">double</span><span style="color:#fdf4c1;">)</span><span style="color:#fdf4c1aa;">;
+</span><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">maxSize </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">Largest!(Types)</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">sizeof</span><span style="color:#fdf4c1aa;">;
+</span><span style="color:#fdf4c1;">writeln(maxSize)</span><span style="color:#fdf4c1aa;">;</span><span style="font-style:italic;color:#928374;">//8 bytes
+</span></code></pre>
+<p>Largest is implemented like this</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">template </span><span style="color:#8ec07c;">Largest</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">T</span><span style="color:#fe8019;">...</span><span style="color:#fdf4c1aa;">) </span><span style="color:#fa5c4b;">if</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">T</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">length </span><span style="color:#fe8019;">&gt;= </span><span style="color:#d3869b;">1</span><span style="color:#fdf4c1aa;">)
+{
+    </span><span style="color:#fa5c4b;">static if </span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">T</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">length </span><span style="color:#fe8019;">== </span><span style="color:#d3869b;">1</span><span style="color:#fdf4c1aa;">)
+    {
+        </span><span style="color:#fa5c4b;">alias </span><span style="color:#8ec07c;">Largest </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">T</span><span style="color:#fdf4c1aa;">[</span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1aa;">];
+    }
+    </span><span style="color:#fa5c4b;">else static if </span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">T</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">length </span><span style="color:#fe8019;">== </span><span style="color:#d3869b;">2</span><span style="color:#fdf4c1aa;">)
+    {
+        </span><span style="color:#fa5c4b;">static if</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">T</span><span style="color:#fdf4c1aa;">[</span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1aa;">].</span><span style="color:#fdf4c1;">sizeof </span><span style="color:#fe8019;">&gt;= </span><span style="color:#fdf4c1;">T</span><span style="color:#fdf4c1aa;">[</span><span style="color:#d3869b;">1</span><span style="color:#fdf4c1aa;">].</span><span style="color:#fdf4c1;">sizeof</span><span style="color:#fdf4c1aa;">)
+        {
+            </span><span style="color:#fa5c4b;">alias </span><span style="color:#8ec07c;">Largest </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">T</span><span style="color:#fdf4c1aa;">[</span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1aa;">];
+        }
+        </span><span style="color:#fa5c4b;">else
+        </span><span style="color:#fdf4c1aa;">{
+            </span><span style="color:#fa5c4b;">alias </span><span style="color:#8ec07c;">Largest </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">T</span><span style="color:#fdf4c1aa;">[</span><span style="color:#d3869b;">1</span><span style="color:#fdf4c1aa;">];
+        }
+    }
+    </span><span style="color:#fa5c4b;">else
+    </span><span style="color:#fdf4c1aa;">{
+        </span><span style="color:#fa5c4b;">alias </span><span style="color:#8ec07c;">Largest </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">Largest!(Largest!(T[</span><span style="color:#d3869b;">0 </span><span style="color:#fe8019;">.. </span><span style="color:#fdf4c1;">$</span><span style="color:#fe8019;">/</span><span style="color:#d3869b;">2</span><span style="color:#fdf4c1;">]), Largest!(T[$</span><span style="color:#fe8019;">/</span><span style="color:#d3869b;">2 </span><span style="color:#fe8019;">.. </span><span style="color:#fdf4c1;">$]))</span><span style="color:#fdf4c1aa;">;
+    }
+}
+</span></code></pre>
+<p>But if <code>Largest</code> wouldn't be available, it would be quite annoying to always create a new template. Alternatively we could implement <code>Largest</code> like this</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">import </span><span style="color:#fdf4c1;">std</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">meta</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fdf4c1;">AliasSeq</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">staticMap</span><span style="color:#fdf4c1aa;">;
+</span><span style="color:#fa5c4b;">import </span><span style="color:#fdf4c1;">std</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">traits</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fdf4c1;">Largest</span><span style="color:#fdf4c1aa;">;
+</span><span style="color:#fa5c4b;">import </span><span style="color:#fdf4c1;">std</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">algorithm</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">comparison</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fdf4c1;">max</span><span style="color:#fdf4c1aa;">;
+</span><span style="color:#fa5c4b;">alias </span><span style="color:#8ec07c;">Types </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">AliasSeq!(</span><span style="color:#fa5c4b;">int</span><span style="color:#fdf4c1;">, </span><span style="color:#fa5c4b;">float</span><span style="color:#fdf4c1;">, </span><span style="color:#fa5c4b;">char</span><span style="color:#fdf4c1;">, </span><span style="color:#fa5c4b;">double</span><span style="color:#fdf4c1;">)</span><span style="color:#fdf4c1aa;">;
+</span><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">size</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">T</span><span style="color:#fdf4c1aa;">) </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">T</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">sizeof</span><span style="color:#fdf4c1aa;">;
+</span><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">maxSize </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">max(staticMap!(size, Types))</span><span style="color:#fdf4c1aa;">;
+</span><span style="color:#fdf4c1;">writeln(maxSize)</span><span style="color:#fdf4c1aa;">;</span><span style="font-style:italic;color:#928374;">//8 byte
+</span></code></pre>
+<p>Not much worse because we can reuse the standard library but we also had to create a new template to convert types into sizes. This is a general pattern in metaprogramming. If you want to do type level metaprogramming you have to use templates but wouldn't it be nice if we could use ordinary functions?</p>
+<p>Instead of doing type computations with templates we will create <code>Type Objects</code>.</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">import </span><span style="color:#fdf4c1;">std</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">traits</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fdf4c1;">isInstanceOf</span><span style="color:#fdf4c1aa;">;
+</span><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">isType</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">T</span><span style="color:#fdf4c1aa;">) </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">isInstanceOf!(Type, T)</span><span style="color:#fdf4c1aa;">;
+</span><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">Type</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">T</span><span style="color:#fdf4c1aa;">){
+    </span><span style="color:#fa5c4b;">alias </span><span style="color:#8ec07c;">type </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">T</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fa5c4b;">string </span><span style="color:#8ec07c;">toString</span><span style="color:#fdf4c1aa;">()
+    {
+        </span><span style="color:#fa5c4b;">return </span><span style="color:#b8bb26;">&quot;Type!(&quot;</span><span style="color:#fe8019;">~</span><span style="color:#fdf4c1;">T</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">stringof</span><span style="color:#fe8019;">~</span><span style="color:#b8bb26;">&quot;)&quot;</span><span style="color:#fdf4c1aa;">;
+    }
+}
+</span></code></pre><pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">t  </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">Type!(</span><span style="color:#fa5c4b;">int</span><span style="color:#fdf4c1;">)()</span><span style="color:#fdf4c1aa;">;
+</span><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">t1 </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">Type!(</span><span style="color:#fa5c4b;">string</span><span style="color:#fdf4c1;">)()</span><span style="color:#fdf4c1aa;">;
+</span></code></pre>
+<p>You may wonder why we do this. The answer is simple, we now can use <code>Types</code> like ordinary objects. Let us create a simple <code>equals</code> function that checks if two <code>Types</code> are actually the same.</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">equals</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">A</span><span style="color:#fdf4c1aa;">,</span><span style="color:#fdf4c1;">B</span><span style="color:#fdf4c1aa;">)(</span><span style="color:#fdf4c1;">Type</span><span style="color:#fe8019;">!</span><span style="color:#fdf4c1;">A</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">Type</span><span style="color:#fe8019;">!</span><span style="color:#fdf4c1;">B</span><span style="color:#fdf4c1aa;">)</span><span style="background-color:#932b1e;color:#fdf4c1;">{</span><span style="color:#fdf4c1aa;">
+    </span><span style="color:#fa5c4b;">return is</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">A </span><span style="color:#fe8019;">== </span><span style="color:#fa5c4b;">B</span><span style="color:#fdf4c1aa;">);
+</span><span style="background-color:#932b1e;color:#fdf4c1;">}</span><span style="color:#fdf4c1aa;">
+</span><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">t  </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">Type!(</span><span style="color:#fa5c4b;">int</span><span style="color:#fdf4c1;">)()</span><span style="color:#fdf4c1aa;">;
+</span><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">t1 </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">Type!(</span><span style="color:#fa5c4b;">string</span><span style="color:#fdf4c1;">)()</span><span style="color:#fdf4c1aa;">;
+
+</span><span style="color:#fdf4c1;">writeln(t.equals(t1))</span><span style="color:#fdf4c1aa;">; </span><span style="font-style:italic;color:#928374;">// false
+</span><span style="color:#fdf4c1;">writeln(equals(t, t1))</span><span style="color:#fdf4c1aa;">; </span><span style="font-style:italic;color:#928374;">// false
+</span><span style="color:#fdf4c1;">writeln(equals(Type!</span><span style="color:#fa5c4b;">int</span><span style="color:#fdf4c1;">(), Type!</span><span style="color:#fa5c4b;">int</span><span style="color:#fdf4c1;">()))</span><span style="color:#fdf4c1aa;">; </span><span style="font-style:italic;color:#928374;">// true
+</span></code></pre>
+<p>Types itself are not that interesting, let us create a <code>TypeTuple</code> that can hold any number of <code>Types</code>.</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">isTypeTuple</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">T</span><span style="color:#fdf4c1aa;">) </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">isInstanceOf!(TypeTuple, T)</span><span style="color:#fdf4c1aa;">;
+
+</span><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">TypeTuple</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">Types</span><span style="color:#fe8019;">...</span><span style="color:#fdf4c1aa;">){
+    </span><span style="color:#fa5c4b;">import </span><span style="color:#fdf4c1;">std</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">meta</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fdf4c1;">allSatisfy</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fa5c4b;">static assert</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">allSatisfy!(isType, Types)</span><span style="color:#fdf4c1aa;">, </span><span style="color:#b8bb26;">&quot;Variadic parameters need to be of type &#39;Type!&#39;&quot;</span><span style="color:#fdf4c1aa;">);
+    </span><span style="color:#fa5c4b;">Types </span><span style="color:#fdf4c1;">expand</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fa5c4b;">alias </span><span style="color:#fdf4c1;">expand </span><span style="color:#fa5c4b;">this</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fa5c4b;">string </span><span style="color:#8ec07c;">toString</span><span style="color:#fdf4c1aa;">()
+    {
+        </span><span style="color:#fa5c4b;">import </span><span style="color:#fdf4c1;">std</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">range</span><span style="color:#fdf4c1aa;">;
+        </span><span style="color:#fa5c4b;">string</span><span style="color:#fdf4c1aa;">[] </span><span style="color:#fdf4c1;">s</span><span style="color:#fdf4c1aa;">;
+        </span><span style="color:#fa5c4b;">foreach</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">t</span><span style="color:#fdf4c1aa;">; </span><span style="color:#fdf4c1;">expand</span><span style="color:#fdf4c1aa;">){
+            </span><span style="color:#fdf4c1;">s</span><span style="color:#fe8019;">~= </span><span style="color:#fdf4c1;">t</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">toString()</span><span style="color:#fdf4c1aa;">;
+        }
+        </span><span style="color:#fa5c4b;">return </span><span style="color:#b8bb26;">&quot;TypeTuple!(&quot; </span><span style="color:#fe8019;">~ </span><span style="color:#fdf4c1;">s</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">join(</span><span style="color:#b8bb26;">&quot;, &quot;</span><span style="color:#fdf4c1;">) </span><span style="color:#fe8019;">~</span><span style="color:#b8bb26;">&quot;)&quot;</span><span style="color:#fdf4c1aa;">;
+    }
+}
+</span><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">typeTuple</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">Types</span><span style="color:#fe8019;">...</span><span style="color:#fdf4c1aa;">)(</span><span style="color:#fdf4c1;">Types</span><span style="color:#fdf4c1aa;">)</span><span style="background-color:#932b1e;color:#fdf4c1;">{</span><span style="color:#fdf4c1aa;">
+    </span><span style="color:#fa5c4b;">return </span><span style="color:#fdf4c1;">TypeTuple!Types()</span><span style="color:#fdf4c1aa;">;
+</span><span style="background-color:#932b1e;color:#fdf4c1;">}</span><span style="color:#fdf4c1aa;">
+</span></code></pre>
+<p>By the way you may wonder why we created a <code>toString</code> method here. This is because <code>D</code> sometimes doesn't like to print types that were generated and it might not print the actual type and inserts some pseudo symbols like <code>F!int</code> instead of <code>Type!int</code>.</p>
+<p>We can use <code>TypeTuple</code> like this:</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">types </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">TypeTuple!(Type!</span><span style="color:#fa5c4b;">int</span><span style="color:#fdf4c1;">, Type!</span><span style="color:#fa5c4b;">char</span><span style="color:#fdf4c1;">, Type!</span><span style="color:#fa5c4b;">float</span><span style="color:#fdf4c1;">, Type!</span><span style="color:#fa5c4b;">double</span><span style="color:#fdf4c1;">)()</span><span style="color:#fdf4c1aa;">;
+</span><span style="font-style:italic;color:#928374;">//or
+</span><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">types </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">typeTuple(Type!</span><span style="color:#fa5c4b;">int</span><span style="color:#fdf4c1;">, Type!</span><span style="color:#fa5c4b;">char</span><span style="color:#fdf4c1;">, Type!</span><span style="color:#fa5c4b;">float</span><span style="color:#fdf4c1;">, Type!</span><span style="color:#fa5c4b;">double</span><span style="color:#fdf4c1;">)</span><span style="color:#fdf4c1aa;">;
+</span></code></pre>
+<p>It is just a bit of boilerplate which we can easily avoid with a helper function</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">tupleFromTypes</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">Ts</span><span style="color:#fe8019;">...</span><span style="color:#fdf4c1aa;">)()</span><span style="background-color:#932b1e;color:#fdf4c1;">{</span><span style="color:#fdf4c1aa;">
+    </span><span style="color:#fa5c4b;">import </span><span style="color:#fdf4c1;">std</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">meta</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fdf4c1;">staticMap</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fa5c4b;">return </span><span style="color:#fdf4c1;">TypeTuple!(staticMap!(Type, Ts))()</span><span style="color:#fdf4c1aa;">;
+</span><span style="background-color:#932b1e;color:#fdf4c1;">}</span><span style="color:#fdf4c1aa;">
+</span><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">types </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">tupleFromTypes!(</span><span style="color:#fa5c4b;">int</span><span style="color:#fdf4c1;">,</span><span style="color:#fa5c4b;">double</span><span style="color:#fdf4c1;">, </span><span style="color:#fa5c4b;">int</span><span style="color:#fdf4c1;">,</span><span style="color:#fa5c4b;">float</span><span style="color:#fdf4c1;">)</span><span style="color:#fdf4c1aa;">;
+</span></code></pre>
+<p>Now we can start to implement some nice metafunctions. We start by implementing <code>filter</code>.</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">filter</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">alias </span><span style="color:#fdf4c1;">f</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">Tup</span><span style="color:#fdf4c1aa;">)(</span><span style="color:#fdf4c1;">Tup</span><span style="color:#fdf4c1aa;">)</span><span style="background-color:#932b1e;color:#fdf4c1;">{</span><span style="color:#fdf4c1aa;">
+    </span><span style="color:#fa5c4b;">static assert</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">isTypeTuple!(Tup)</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">tup</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">stringof</span><span style="color:#fe8019;">~</span><span style="color:#b8bb26;">&quot; is not a TypeTuple.&quot;</span><span style="color:#fdf4c1aa;">);
+    </span><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">tup </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">Tup()</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fa5c4b;">static if</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">tup</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">length </span><span style="color:#fe8019;">== </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1aa;">){
+        </span><span style="color:#fa5c4b;">return </span><span style="color:#fdf4c1;">typeTuple()</span><span style="color:#fdf4c1aa;">;
+    }
+    </span><span style="color:#fa5c4b;">else static if</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">f(tup[</span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1;">])</span><span style="color:#fdf4c1aa;">){
+        </span><span style="color:#fa5c4b;">return </span><span style="color:#fdf4c1;">typeTuple(tup[</span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1;">], filter!(f)(typeTuple(tup[</span><span style="color:#d3869b;">1</span><span style="color:#fe8019;">..</span><span style="color:#fdf4c1;">$])).expand)</span><span style="color:#fdf4c1aa;">;
+    }
+    </span><span style="color:#fa5c4b;">else</span><span style="color:#fdf4c1aa;">{
+        </span><span style="color:#fa5c4b;">return </span><span style="color:#fdf4c1;">filter!(f)(typeTuple(tup[</span><span style="color:#d3869b;">1</span><span style="color:#fe8019;">..</span><span style="color:#fdf4c1;">$]))</span><span style="color:#fdf4c1aa;">;
+    }
+</span><span style="background-color:#932b1e;color:#fdf4c1;">}</span><span style="color:#fdf4c1aa;">
+</span></code></pre>
+<p>We can now use it like this:</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">types </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">tupleFromTypes!(</span><span style="color:#fa5c4b;">int</span><span style="color:#fdf4c1;">, </span><span style="color:#fa5c4b;">double</span><span style="color:#fdf4c1;">, </span><span style="color:#fa5c4b;">string</span><span style="color:#fdf4c1;">, </span><span style="color:#fa5c4b;">float</span><span style="color:#fdf4c1;">)</span><span style="color:#fdf4c1aa;">;
+</span><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">biggerThan4 </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">filter!(t </span><span style="color:#fa5c4b;">=&gt; </span><span style="color:#fdf4c1;">t.type.sizeof </span><span style="color:#fe8019;">&gt; </span><span style="color:#d3869b;">4</span><span style="color:#fdf4c1;">)(types)</span><span style="color:#fdf4c1aa;">;
+</span><span style="color:#fdf4c1;">writeln(biggerThan4)</span><span style="color:#fdf4c1aa;">;</span><span style="font-style:italic;color:#928374;">// TypeTuple!(Type!(double), Type!(string))
+</span></code></pre>
+<p>The code above filters our <code>TypeTuple</code> with an ordinary lambda function. The resulting <code>Types</code> must be bigger than 4 bytes. We can also implement <code>map</code></p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">map</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">alias </span><span style="color:#fdf4c1;">f</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">Tup</span><span style="color:#fdf4c1aa;">)(</span><span style="color:#fdf4c1;">Tup</span><span style="color:#fdf4c1aa;">)</span><span style="background-color:#932b1e;color:#fdf4c1;">{</span><span style="color:#fdf4c1aa;">
+    </span><span style="color:#fa5c4b;">static assert</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">isTypeTuple!(Tup)</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">tup</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">stringof</span><span style="color:#fe8019;">~</span><span style="color:#b8bb26;">&quot; is not a TypeTuple.&quot;</span><span style="color:#fdf4c1aa;">);
+    </span><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">tup </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">Tup()</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fa5c4b;">static if</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">tup</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">length </span><span style="color:#fe8019;">== </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1aa;">){
+        </span><span style="color:#fa5c4b;">return </span><span style="color:#fdf4c1;">typeTuple!()</span><span style="color:#fdf4c1aa;">;
+    }
+    </span><span style="color:#fa5c4b;">else</span><span style="color:#fdf4c1aa;">{
+        </span><span style="color:#fa5c4b;">return </span><span style="color:#fdf4c1;">typeTuple(f(tup[</span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1;">]), map!(f)(typeTuple(tup[</span><span style="color:#d3869b;">1</span><span style="color:#fe8019;">..</span><span style="color:#fdf4c1;">$])).expand)</span><span style="color:#fdf4c1aa;">;
+    }
+</span><span style="background-color:#932b1e;color:#fdf4c1;">}</span><span style="color:#fdf4c1aa;">
+</span></code></pre><pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">types </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">tupleFromTypes!(</span><span style="color:#fa5c4b;">int</span><span style="color:#fdf4c1;">, </span><span style="color:#fa5c4b;">double</span><span style="color:#fdf4c1;">, </span><span style="color:#fa5c4b;">string</span><span style="color:#fdf4c1;">, </span><span style="color:#fa5c4b;">float</span><span style="color:#fdf4c1;">)</span><span style="color:#fdf4c1aa;">;
+</span><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">onlyInts </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">map!(t </span><span style="color:#fa5c4b;">=&gt; </span><span style="color:#fdf4c1;">Type!</span><span style="color:#fa5c4b;">int</span><span style="color:#fdf4c1;">())(types)</span><span style="color:#fdf4c1aa;">;
+</span><span style="color:#fdf4c1;">writeln(onlyInts)</span><span style="color:#fdf4c1aa;">;</span><span style="font-style:italic;color:#928374;">// TypeTuple!(Type!(int), Type!(int), Type!(int), Type!(int))
+</span></code></pre>
+<p>We replace every <code>Type</code> with <code>Type!int</code> which is probably not that useful. We could also replace only types that are actually bigger than 4 bytes with <code>Type!int</code>.</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">types </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">tupleFromTypes!(</span><span style="color:#fa5c4b;">int</span><span style="color:#fdf4c1;">, </span><span style="color:#fa5c4b;">double</span><span style="color:#fdf4c1;">, </span><span style="color:#fa5c4b;">string</span><span style="color:#fdf4c1;">, </span><span style="color:#fa5c4b;">float</span><span style="color:#fdf4c1;">)</span><span style="color:#fdf4c1aa;">;
+</span><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">smallerThan5 </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">map!((t){
+    </span><span style="color:#fa5c4b;">static if</span><span style="color:#fdf4c1;">(t.type.sizeof </span><span style="color:#fe8019;">&gt; </span><span style="color:#d3869b;">4</span><span style="color:#fdf4c1;">){
+        </span><span style="color:#fa5c4b;">return </span><span style="color:#fdf4c1;">Type!</span><span style="color:#fa5c4b;">int</span><span style="color:#fdf4c1;">();
+    }
+    </span><span style="color:#fa5c4b;">else</span><span style="color:#fdf4c1;">{
+        </span><span style="color:#fa5c4b;">return </span><span style="color:#fdf4c1;">t;
+    }
+})(types)</span><span style="color:#fdf4c1aa;">;</span><span style="font-style:italic;color:#928374;">// TypeTuple!(Type!(int), Type!(int), Type!(int), Type!(float))
+</span><span style="color:#fdf4c1;">writeln(smallerThan5)</span><span style="color:#fdf4c1aa;">;
+</span></code></pre>
+<p>The possibilities are almost endless and you can use it like any other function. Just remember that it needs to be executed at compile time which means you have to use <code>static if</code> instead of an ordinary <code>if</code>.</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">indexOf</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">T</span><span style="color:#fdf4c1aa;">,</span><span style="color:#fdf4c1;">Tup</span><span style="color:#fdf4c1aa;">)(</span><span style="color:#fdf4c1;">T</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">Tup</span><span style="color:#fdf4c1aa;">)</span><span style="background-color:#932b1e;color:#fdf4c1;">{</span><span style="color:#fdf4c1aa;">
+    </span><span style="color:#fa5c4b;">static assert</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">isTypeTuple!(Tup)</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">tup</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">stringof</span><span style="color:#fe8019;">~</span><span style="color:#b8bb26;">&quot; is not a TypeTuple.&quot;</span><span style="color:#fdf4c1aa;">);
+    </span><span style="color:#fa5c4b;">static assert</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">isType!(T)</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">T</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">stringof</span><span style="color:#fe8019;">~</span><span style="color:#b8bb26;">&quot; is not a Type.&quot;</span><span style="color:#fdf4c1aa;">);
+    </span><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">t </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">T()</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">tup </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">Tup()</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fa5c4b;">foreach</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">index</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">type</span><span style="color:#fdf4c1aa;">; </span><span style="color:#fdf4c1;">tup</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">expand</span><span style="color:#fdf4c1aa;">){
+        </span><span style="color:#fa5c4b;">if</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">type</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">equals(t)</span><span style="color:#fdf4c1aa;">){
+            </span><span style="color:#fa5c4b;">return </span><span style="color:#fdf4c1;">index</span><span style="color:#fdf4c1aa;">;
+        }
+    }
+    </span><span style="color:#fa5c4b;">return </span><span style="color:#fe8019;">-</span><span style="color:#d3869b;">1</span><span style="color:#fdf4c1aa;">;
+</span><span style="background-color:#932b1e;color:#fdf4c1;">}</span><span style="color:#fdf4c1aa;">
+</span><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">types </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">tupleFromTypes!(</span><span style="color:#fa5c4b;">int</span><span style="color:#fdf4c1;">, </span><span style="color:#fa5c4b;">double</span><span style="color:#fdf4c1;">, </span><span style="color:#fa5c4b;">string</span><span style="color:#fdf4c1;">, </span><span style="color:#fa5c4b;">float</span><span style="color:#fdf4c1;">)</span><span style="color:#fdf4c1aa;">;
+</span><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">index </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">indexOf(Type!</span><span style="color:#fa5c4b;">string</span><span style="color:#fdf4c1;">(), types)</span><span style="color:#fdf4c1aa;">;
+</span><span style="color:#fdf4c1;">writeln(index)</span><span style="color:#fdf4c1aa;">;</span><span style="font-style:italic;color:#928374;">// 2
+
+</span></code></pre>
+<p>And last but not least, we can implement quicksort for types.</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">partition</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">alias </span><span style="color:#fdf4c1;">f</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">Tup</span><span style="color:#fdf4c1aa;">)(</span><span style="color:#fdf4c1;">Tup</span><span style="color:#fdf4c1aa;">)</span><span style="background-color:#932b1e;color:#fdf4c1;">{</span><span style="color:#fdf4c1aa;">
+    </span><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">tup </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">Tup()</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fa5c4b;">return </span><span style="color:#fdf4c1;">partitionImpl!(f)(tup, typeTuple(), typeTuple())</span><span style="color:#fdf4c1aa;">;
+</span><span style="background-color:#932b1e;color:#fdf4c1;">}</span><span style="color:#fdf4c1aa;">
+
+</span><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">partitionImpl</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">alias </span><span style="color:#fdf4c1;">f</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">Tup</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">TupLeft</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">TupRight</span><span style="color:#fdf4c1aa;">)(</span><span style="color:#fdf4c1;">Tup</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">TupLeft</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">TupRight</span><span style="color:#fdf4c1aa;">)</span><span style="background-color:#932b1e;color:#fdf4c1;">{</span><span style="color:#fdf4c1aa;">
+    </span><span style="color:#fa5c4b;">import </span><span style="color:#fdf4c1;">std</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">typecons</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fdf4c1;">tuple</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">tup </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">Tup()</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">l </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">TupLeft()</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">r </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">TupRight()</span><span style="color:#fdf4c1aa;">;
+
+    </span><span style="color:#fa5c4b;">static if</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">tup</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">length </span><span style="color:#fe8019;">== </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1aa;">){
+        </span><span style="color:#fa5c4b;">return </span><span style="color:#fdf4c1;">tuple(l, r)</span><span style="color:#fdf4c1aa;">;
+    }
+    </span><span style="color:#fa5c4b;">else</span><span style="color:#fdf4c1aa;">{
+        </span><span style="color:#fa5c4b;">static if</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">f(tup[</span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1;">])</span><span style="color:#fdf4c1aa;">){
+            </span><span style="color:#fa5c4b;">return </span><span style="color:#fdf4c1;">partitionImpl!(f)(typeTuple(tup[</span><span style="color:#d3869b;">1</span><span style="color:#fe8019;">..</span><span style="color:#fdf4c1;">$]), typeTuple(tup[</span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1;">], l.expand), typeTuple(r.expand))</span><span style="color:#fdf4c1aa;">;
+        }
+        </span><span style="color:#fa5c4b;">else</span><span style="color:#fdf4c1aa;">{
+            </span><span style="color:#fa5c4b;">return </span><span style="color:#fdf4c1;">partitionImpl!(f)(typeTuple(tup[</span><span style="color:#d3869b;">1</span><span style="color:#fe8019;">..</span><span style="color:#fdf4c1;">$]), typeTuple(l.expand), typeTuple(tup[</span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1;">], r.expand))</span><span style="color:#fdf4c1aa;">;
+        }
+
+    }
+</span><span style="background-color:#932b1e;color:#fdf4c1;">}</span><span style="color:#fdf4c1aa;">
+
+</span><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">sort</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">alias </span><span style="color:#fdf4c1;">f</span><span style="color:#fdf4c1aa;">,</span><span style="color:#fdf4c1;">Tup</span><span style="color:#fdf4c1aa;">)(</span><span style="color:#fdf4c1;">Tup</span><span style="color:#fdf4c1aa;">)</span><span style="background-color:#932b1e;color:#fdf4c1;">{</span><span style="color:#fdf4c1aa;">
+    </span><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">tup </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">Tup()</span><span style="color:#fdf4c1aa;">;
+    </span><span style="color:#fa5c4b;">static if</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">tup</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">length </span><span style="color:#fe8019;">== </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1aa;">){
+        </span><span style="color:#fa5c4b;">return </span><span style="color:#fdf4c1;">typeTuple()</span><span style="color:#fdf4c1aa;">;
+    }
+    </span><span style="color:#fa5c4b;">else static if</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">tup</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">length </span><span style="color:#fe8019;">== </span><span style="color:#d3869b;">1</span><span style="color:#fdf4c1aa;">){
+        </span><span style="color:#fa5c4b;">return </span><span style="color:#fdf4c1;">typeTuple(tup[</span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1;">])</span><span style="color:#fdf4c1aa;">;
+    }
+    </span><span style="color:#fa5c4b;">else</span><span style="color:#fdf4c1aa;">{
+        </span><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">middle</span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">tup</span><span style="color:#fdf4c1aa;">[</span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1aa;">];
+        </span><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">t </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">partition!(t </span><span style="color:#fa5c4b;">=&gt; </span><span style="color:#fdf4c1;">f(t, middle))(typeTuple(tup[</span><span style="color:#d3869b;">1</span><span style="color:#fe8019;">..</span><span style="color:#fdf4c1;">$]))</span><span style="color:#fdf4c1aa;">;
+        </span><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">left </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">t</span><span style="color:#fdf4c1aa;">[</span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1aa;">];
+        </span><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">right </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">t</span><span style="color:#fdf4c1aa;">[</span><span style="color:#d3869b;">1</span><span style="color:#fdf4c1aa;">];
+        </span><span style="color:#fa5c4b;">return </span><span style="color:#fdf4c1;">typeTuple(left.expand, middle, right.expand)</span><span style="color:#fdf4c1aa;">;
+    }
+</span><span style="background-color:#932b1e;color:#fdf4c1;">}</span><span style="color:#fdf4c1aa;">
+</span></code></pre>
+<p>I needed to create another helper function <code>partition</code> which just splits a <code>TypeTuple</code> into two <code>TypeTuples</code> based on a predicate.</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">types </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">tupleFromTypes!(</span><span style="color:#fa5c4b;">int</span><span style="color:#fdf4c1;">, </span><span style="color:#fa5c4b;">double</span><span style="color:#fdf4c1;">, </span><span style="color:#fa5c4b;">string</span><span style="color:#fdf4c1;">, </span><span style="color:#fa5c4b;">float</span><span style="color:#fdf4c1;">)</span><span style="color:#fdf4c1aa;">;
+</span><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">sortedTypes </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">sort!((t1, t2) </span><span style="color:#fa5c4b;">=&gt; </span><span style="color:#fdf4c1;">t1.type.sizeof </span><span style="color:#fe8019;">&gt; </span><span style="color:#fdf4c1;">t2.type.sizeof)(types)</span><span style="color:#fdf4c1aa;">;
+</span><span style="color:#fdf4c1;">writeln(sortedTypes)</span><span style="color:#fdf4c1aa;">;</span><span style="font-style:italic;color:#928374;">// TypeTuple!(Type!(string), Type!(double), Type!(int), Type!(float))
+</span></code></pre>
+<p>Now it is also trivial to get the maximum size</p>
+<pre style="background-color:#282828;">
+<code><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">types </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">tupleFromTypes!(</span><span style="color:#fa5c4b;">int</span><span style="color:#fdf4c1;">, </span><span style="color:#fa5c4b;">double</span><span style="color:#fdf4c1;">, </span><span style="color:#fa5c4b;">string</span><span style="color:#fdf4c1;">, </span><span style="color:#fa5c4b;">float</span><span style="color:#fdf4c1;">)</span><span style="color:#fdf4c1aa;">;
+</span><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">sortedTypes </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">sort!((t1, t2) </span><span style="color:#fa5c4b;">=&gt; </span><span style="color:#fdf4c1;">t1.type.sizeof </span><span style="color:#fe8019;">&gt; </span><span style="color:#fdf4c1;">t2.type.sizeof)(types)</span><span style="color:#fdf4c1aa;">;
+</span><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">maxSize </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">sortedTypes</span><span style="color:#fdf4c1aa;">[</span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1aa;">].</span><span style="color:#fdf4c1;">sizeof</span><span style="color:#fdf4c1aa;">;
+</span><span style="color:#fdf4c1;">writeln(maxSize)</span><span style="color:#fdf4c1aa;">;</span><span style="font-style:italic;color:#928374;">// 8 bytes
+</span></code></pre>
+<p><code>Type Objects</code> allow metaprogramming to look like normal functional programming just with types.</p>
+
+</div>
+
+            </div>
+
+
+            <script>
+             renderMathInElement(document.body,
+                                 {
+                                     delimiters: [
+                                         {left: "$$", right: "$$", display: true},
+                                         {left: "$", right: "$", display: false},
+                                         {left: "\\[", right: "\\]", display: true}
+                                     ],
+                                 }
+             );
+            </script>
+    </body>
+</html>
