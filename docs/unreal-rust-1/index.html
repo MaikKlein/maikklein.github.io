@@ -160,30 +160,31 @@
 <li><a href="https://www.youtube.com/playlist?list=PLps1NSMUeqzicmTej83z-n1J383u1UVq1">Devlog on Youtube</a></li>
 </ul>
 <h1 id="introduction">Introduction</h1>
-<p>&quot;What if I could write a game in Rust, but use Unreal as a renderer?&quot;. After a bit of thinking I came to the conclusion that exposing the Unreal renderer to Rust via C ffi was way more work than I was willing to do. But what if I could just build on top of Unreal instead? I could just move actors (Unreal gameobjects) around with Rust. That seemed much more managable, so I sat down and hacked something up.</p>
-<p>After a week I exposed a few functions that allowed me to get inputs, and set and get the position of an actor. With this I could finally move around a character inside Unreal 🥳.</p>
+<p>A few months ago I asked myself &quot;What if I could write a game in Rust, but use Unreal as a renderer?&quot;. After a bit of thinking I came to the conclusion that exposing the Unreal renderer to Rust via C ffi was way more work than I was willing to do. But what if I could just build on top of Unreal instead? I could just move actors (Unreal gameobjects) around with Rust. That seemed much more manageable, so I sat down and hacked something up.</p>
+<p>After a week I exposed a few functions that allowed me to get inputs, set and get the position of an actor. With this I could finally move a character around in Unreal 🥳.</p>
 <div>
     <video width="100%" controls loop mute autoplay>
         <source src='https:&#x2F;&#x2F;user-images.githubusercontent.com&#x2F;1994306&#x2F;187089570-557a4578-afc8-4063-b18d-3e2c2495354e.mp4' type="video/mp4">
     </video>
 </div>
-<p>While exciting, it was quite boring to watch. What if I could play animations? I investigated how Unreal drives animations. And in this example the character here is already rigged with animations, and those animations are driven by an <code>AnimationBlueprint</code>. All I had to do is pipe in the velocity that the character is running at, and the <code>AnimationBlueprint</code> would to the rest. I just exposed an ffi function <code>GetRustVelocity</code> and my character  was running.</p>
+<p>While exciting, it was quite boring to watch. What if I could play animations?</p>
+<p>I investigated how Unreal drives animations. And in this example the character here is already rigged and has animations. Those animations are driven by an <code>AnimationBlueprint</code>. All I had to do is pipe in the velocity that the character is running at, and the <code>AnimationBlueprint</code> would to the rest. I just exposed an ffi function <code>GetRustVelocity</code> and my character was running.</p>
 <div>
     <video width="100%" controls loop mute autoplay>
         <source src='https:&#x2F;&#x2F;user-images.githubusercontent.com&#x2F;1994306&#x2F;187089573-3fa0583f-707b-4b1d-8842-ff8980a23297.mp4' type="video/mp4">
     </video>
 </div>
-<p>For me that was quite magical. With almost no work, I could move a character around with Rust in Unreal. At that time I also had proper hot reloading, so I could easily make changes while playing in the editor. Another realization was that I could not crash the edtior from within Rust at all, that made experimenting much more fun. But more on that later.</p>
+<p>For me that was quite magical. With almost no work, I could move a character around with Rust in Unreal.</p>
 <p>But I wanted to do more than just moving around. I wanted to play sounds, do physics, have 3d pathfinding, spawn particles, create prefabs, do networking. This made me realize that I actually did not want to use Unreal just as a renderer, I wanted to use the whole engine. Why implement it myself if I can just expose a few functions?</p>
 <p>And <code>unreal-rust</code> was born.</p>
-<p>(I also recorded a bunch of videos during development and created a <a href="https://www.youtube.com/playlist?list=PLps1NSMUeqzicmTej83z-n1J383u1UVq1">playlist on youtube</a>)</p>
 <h1 id="what-is-unreal-rust">What is <code>unreal-rust</code>?</h1>
 <p>TL;DR <code>unreal-rust</code> allows you to write games with Unreal Engine in Rust.</p>
 <p><code>unreal-rust</code> is an opinionated Rust integration for Unreal. Rust cares about ownership, mutability and lifetimes. Mapping Unreal concepts to Rust 1 to 1 would only cause a headache.
 Instead <code>unreal-rust</code> will be written on top of the Unreal <code>AActor</code> and expose its API in a Rust friendly way.</p>
-<p>The first big change is that <code>unreal-rust</code> will use an Entity Component System (ECS). For <code>unreal-rust</code> I decided to use <a href="https://bevyengine.org/">bevy</a> instead of rolling my own. I am just a single developer and I have to pick my battles. Writing and maintaining an ECS would distract me from doing actual work. The folks at <a href="https://bevyengine.org/">bevy</a> have done a wonderful work making the ECS user friendly 🥰.</p>
+<p>The first big change is that <code>unreal-rust</code> will use an Entity Component System (ECS). For <code>unreal-rust</code> I decided to use <a href="https://bevyengine.org/">bevy</a> instead of rolling my own. I am just a single developer and I have to pick my battles. Writing and maintaining an ECS would distract me from doing actual work. The folks at <a href="https://bevyengine.org/">bevy</a> have done a wonderful job of making the ECS user friendly 🥰.</p>
 <p>I want to deeply integrate Rust into Unreal and everything should be accessible. You can add Rust <code>Components</code> to <code>AActor</code> in the editor. For example you can add a <code>CharacterConfigComponent</code> to the <code>PlayerActor</code>, which you can then access from within Rust. This allows to configure your character from Unreal without needing to touch any code.
 Additionally you can access Rust <code>Components</code> from within Blueprint. This allows you to drive Animation blueprints, or pass data into your UI.</p>
+<p>Rust communicates with Unreal through C FFI. Its a bit out of scope for this blog post but I did a small write up to explain how it works in the <a href="https://github.com/MaikKlein/unreal-rust/wiki/FFI">unreal rust wiki</a>.</p>
 <h2 id="editor-components-and-reflection">Editor components and reflection</h2>
 <p>To make your <code>Components</code> visible in the editor/blueprint all you have to do is to add the <code>Component</code> derive, give it a unique UUID/GUID (<em>which your editor of choice can generate</em>) and register it with <code>register_components</code>. And if you want it to show up in the editor, you can just mark it with <code>#[reflect(editor)]</code>.</p>
 <pre data-lang="rust" style="background-color:#282828;color:#fdf4c1aa;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[</span><span style="color:#fdf4c1;">derive</span><span>(Debug, Component)]
@@ -278,7 +279,7 @@ Additionally you can access Rust <code>Components</code> from within Blueprint. 
 </span></code></pre>
 <p>At which point do we automatically add the new <code>gravity_strength</code> field to all actors in the editor? We could do it during hot reload. You add the field, compile the code and then inside the editor we will update all of the <code>MovementComponents</code>.
 But after a few minutes to decided that was a bad idea and revert the code again, and remove the <code>gravity_strength</code> field. But all of the <code>MovementComponents</code> in the editor will still have the <code>gravity_strength</code> field in them. We need a way to remove them, or you might store too much unnecessary data in your editor components.</p>
-<p>Also the components can be accessed within blueprint </p>
+<p>Also the components can be accessed within blueprint:</p>
 <p><img src="https://user-images.githubusercontent.com/1994306/188315246-0ada8989-4388-443c-9c9c-2027f91f459e.png" alt="" /></p>
 <p>What if we were to remove the <code>is_falling</code> field here? Do we remove the connection from <code>is_falling</code> to <code>is in air?</code>? If we do this might break all of your bluprints, and you might have to recreate the connection in the future. If we keep the connection, the blueprint will fail to compile.</p>
 <p>I could go on, but hopefully you get the gist. None of this is particularly difficult to solve, but it requires a bit of engineering. And before that is solved, I do not recommend to use <code>unreal-rust</code> in a real project.</p>
@@ -287,7 +288,7 @@ But after a few minutes to decided that was a bad idea and revert the code again
 <p>Currently serialization is not implemented at all.</p>
 <p>Usually the way to implement hot reloading is:</p>
 <ul>
-<li>compile the code, and create a new dll</li>
+<li>Compile the code, and create a new dll</li>
 <li>Detect the change and initiate hot reloading</li>
 <li>Serialize the current gamestate</li>
 <li>Load the newly compiled dll</li>
@@ -304,7 +305,7 @@ But after a few minutes to decided that was a bad idea and revert the code again
 <li>...</li>
 </ul>
 <h1 id="what-s-next">What's next?</h1>
-<p>While there are still a lot of problems, I do want to make <code>unreal-rust</code> into some thing real, it will just take a bit of time. There is an infinite todo list but the next big thing will be samples. I want to heavily drive this project through real world samples where I try to create some game mechanics like the inscrpytion card game, god of war axe throwing etc.</p>
+<p>While there are still a lot of problems, I do want to make <code>unreal-rust</code> into some thing real, it will just take a bit of time. There is an infinite todo list but the next big thing will be samples. I want to heavily drive this project through real world samples where I try to create some game mechanics like the Inscryption card game, God of War axe throwing etc.</p>
 <p>There are a couple of reason for that:</p>
 <ul>
 <li>This allows me to prioritize which APIs I need to expose next</li>

@@ -12,24 +12,24 @@ date        = 2022-09-04
 
 # Introduction
 
-"What if I could write a game in Rust, but use Unreal as a renderer?". After a bit of thinking I came to the conclusion that exposing the Unreal renderer to Rust via C ffi was way more work than I was willing to do. But what if I could just build on top of Unreal instead? I could just move actors (Unreal gameobjects) around with Rust. That seemed much more managable, so I sat down and hacked something up.
+A few months ago I asked myself "What if I could write a game in Rust, but use Unreal as a renderer?". After a bit of thinking I came to the conclusion that exposing the Unreal renderer to Rust via C ffi was way more work than I was willing to do. But what if I could just build on top of Unreal instead? I could just move actors (Unreal gameobjects) around with Rust. That seemed much more manageable, so I sat down and hacked something up.
 
-After a week I exposed a few functions that allowed me to get inputs, and set and get the position of an actor. With this I could finally move around a character inside Unreal 🥳.
+After a week I exposed a few functions that allowed me to get inputs, set and get the position of an actor. With this I could finally move a character around in Unreal 🥳.
 
 {{webmvideo(src="https://user-images.githubusercontent.com/1994306/187089570-557a4578-afc8-4063-b18d-3e2c2495354e.mp4")}}
 
-While exciting, it was quite boring to watch. What if I could play animations? I investigated how Unreal drives animations. And in this example the character here is already rigged with animations, and those animations are driven by an `AnimationBlueprint`. All I had to do is pipe in the velocity that the character is running at, and the `AnimationBlueprint` would to the rest. I just exposed an ffi function `GetRustVelocity` and my character  was running.
+While exciting, it was quite boring to watch. What if I could play animations?
+
+I investigated how Unreal drives animations. And in this example the character here is already rigged and has animations. Those animations are driven by an `AnimationBlueprint`. All I had to do is pipe in the velocity that the character is running at, and the `AnimationBlueprint` would to the rest. I just exposed an ffi function `GetRustVelocity` and my character was running.
 
 
 {{webmvideo(src="https://user-images.githubusercontent.com/1994306/187089573-3fa0583f-707b-4b1d-8842-ff8980a23297.mp4")}}
 
-For me that was quite magical. With almost no work, I could move a character around with Rust in Unreal. At that time I also had proper hot reloading, so I could easily make changes while playing in the editor. Another realization was that I could not crash the edtior from within Rust at all, that made experimenting much more fun. But more on that later.
+For me that was quite magical. With almost no work, I could move a character around with Rust in Unreal.
 
 But I wanted to do more than just moving around. I wanted to play sounds, do physics, have 3d pathfinding, spawn particles, create prefabs, do networking. This made me realize that I actually did not want to use Unreal just as a renderer, I wanted to use the whole engine. Why implement it myself if I can just expose a few functions?
 
 And `unreal-rust` was born.
-
-(I also recorded a bunch of videos during development and created a [playlist on youtube](https://www.youtube.com/playlist?list=PLps1NSMUeqzicmTej83z-n1J383u1UVq1))
 
 # What is `unreal-rust`?
 
@@ -38,10 +38,12 @@ TL;DR `unreal-rust` allows you to write games with Unreal Engine in Rust.
 `unreal-rust` is an opinionated Rust integration for Unreal. Rust cares about ownership, mutability and lifetimes. Mapping Unreal concepts to Rust 1 to 1 would only cause a headache.
 Instead `unreal-rust` will be written on top of the Unreal `AActor` and expose its API in a Rust friendly way.
 
-The first big change is that `unreal-rust` will use an Entity Component System (ECS). For `unreal-rust` I decided to use [bevy](https://bevyengine.org/) instead of rolling my own. I am just a single developer and I have to pick my battles. Writing and maintaining an ECS would distract me from doing actual work. The folks at [bevy](https://bevyengine.org/) have done a wonderful work making the ECS user friendly 🥰.
+The first big change is that `unreal-rust` will use an Entity Component System (ECS). For `unreal-rust` I decided to use [bevy](https://bevyengine.org/) instead of rolling my own. I am just a single developer and I have to pick my battles. Writing and maintaining an ECS would distract me from doing actual work. The folks at [bevy](https://bevyengine.org/) have done a wonderful job of making the ECS user friendly 🥰.
 
 I want to deeply integrate Rust into Unreal and everything should be accessible. You can add Rust `Components` to `AActor` in the editor. For example you can add a `CharacterConfigComponent` to the `PlayerActor`, which you can then access from within Rust. This allows to configure your character from Unreal without needing to touch any code.
 Additionally you can access Rust `Components` from within Blueprint. This allows you to drive Animation blueprints, or pass data into your UI.
+
+Rust communicates with Unreal through C FFI. Its a bit out of scope for this blog post but I did a small write up to explain how it works in the [unreal rust wiki](https://github.com/MaikKlein/unreal-rust/wiki/FFI).
 
 ## Editor components and reflection
 
@@ -145,7 +147,6 @@ pub struct MovementComponent {
 
 But now all the actors in your editor have the gravity as a `f32`, but they should become a `Vec3` instead. How do you convert those?
 
-
 Next someone in your project renames `gravity` to `gravity_dir`. How do you tell the editor that this field was renamed?
 
 Next you decide to split gravity into direction and strength
@@ -161,7 +162,7 @@ pub struct MovementComponent {
 At which point do we automatically add the new `gravity_strength` field to all actors in the editor? We could do it during hot reload. You add the field, compile the code and then inside the editor we will update all of the `MovementComponents`.
 But after a few minutes to decided that was a bad idea and revert the code again, and remove the `gravity_strength` field. But all of the `MovementComponents` in the editor will still have the `gravity_strength` field in them. We need a way to remove them, or you might store too much unnecessary data in your editor components.
 
-Also the components can be accessed within blueprint 
+Also the components can be accessed within blueprint:
 
 ![](https://user-images.githubusercontent.com/1994306/188315246-0ada8989-4388-443c-9c9c-2027f91f459e.png)
 
@@ -177,7 +178,7 @@ Currently serialization is not implemented at all.
 
 Usually the way to implement hot reloading is:
 
-* compile the code, and create a new dll
+* Compile the code, and create a new dll
 * Detect the change and initiate hot reloading
 * Serialize the current gamestate
 * Load the newly compiled dll
@@ -198,7 +199,7 @@ TL;DR: I just haven't made up my mind yet of how serialization should work in `u
 
 # What's next?
 
-While there are still a lot of problems, I do want to make `unreal-rust` into some thing real, it will just take a bit of time. There is an infinite todo list but the next big thing will be samples. I want to heavily drive this project through real world samples where I try to create some game mechanics like the inscrpytion card game, god of war axe throwing etc.
+While there are still a lot of problems, I do want to make `unreal-rust` into some thing real, it will just take a bit of time. There is an infinite todo list but the next big thing will be samples. I want to heavily drive this project through real world samples where I try to create some game mechanics like the Inscryption card game, God of War axe throwing etc.
 
 There are a couple of reason for that:
 
@@ -216,7 +217,6 @@ Quick thank you 🥰 to:
 * [kenney](https://kenney.nl/), [quaternius](https://www.patreon.com/quaternius) for providing amazing CC0 assets
 * [bevy](https://bevyengine.org/) for providing the ECS
 * [Dirk](https://twitter.com/noshbar) for improving Keith the C++ rat in the banner.
-
 
 # Future blog posts
 
