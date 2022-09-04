@@ -136,35 +136,34 @@
 <p>Right now rlsl is in a prototyping stage. It was important to me to implement all the necessary features to see if Rust would be viable as a shading language. And I can tell you right now that I didn't run into any major problems. Right now the code base is a bit messy, but there are a few things that I need to do before I can clean everything up.</p>
 <h1 id="testing">Testing</h1>
 <p>I can not refactor the compiler without any test cases. Without tests I wouldn't know when I would run into some regressions. Testing is relatively simple with a little bit of macro magic.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fabd2f;">rlsl_test!</span><span style="color:#fdf4c1aa;">{
-    </span><span style="color:#fa5c4b;">pub fn </span><span style="color:#8ec07c;">questionmark_option</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">_</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fa5c4b;">u32</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">val</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">) -&gt; </span><span style="color:#fa5c4b;">f32 </span><span style="color:#fdf4c1aa;">{
-        </span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">test</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">f</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">) -&gt; </span><span style="color:#fabd2f;">Option</span><span style="color:#fdf4c1aa;">&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt; {
-            </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> o </span><span style="color:#fe8019;">= </span><span style="color:#fa5c4b;">if</span><span style="color:#fdf4c1aa;"> f </span><span style="color:#fe8019;">&gt; </span><span style="color:#d3869b;">42.0 </span><span style="color:#fdf4c1aa;">{ </span><span style="color:#fabd2f;">Some</span><span style="color:#fdf4c1aa;">(f) } </span><span style="color:#fa5c4b;">else </span><span style="color:#fdf4c1aa;">{ </span><span style="color:#fabd2f;">None </span><span style="color:#fdf4c1aa;">};
-            </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> r </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> o</span><span style="color:#fe8019;">?</span><span style="color:#fdf4c1aa;">;
-            </span><span style="color:#fabd2f;">Some</span><span style="color:#fdf4c1aa;">(r </span><span style="color:#fe8019;">+ </span><span style="color:#d3869b;">10.0</span><span style="color:#fdf4c1aa;">)
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">rlsl_test!{
+    pub fn questionmark_option(_: u32, val: f32) -&gt; f32 {
+        fn test(f: f32) -&gt; Option&lt;f32&gt; {
+            let o = if f &gt; 42.0 { Some(f) } else { None };
+            let r = o?;
+            Some(r + 10.0)
         }
-        </span><span style="color:#fa5c4b;">if let </span><span style="color:#fabd2f;">Some</span><span style="color:#fdf4c1aa;">(val) </span><span style="color:#fe8019;">= </span><span style="color:#fabd2f;">test</span><span style="color:#fdf4c1aa;">(val) {
+        if let Some(val) = test(val) {
             val
-        } </span><span style="color:#fa5c4b;">else </span><span style="color:#fdf4c1aa;">{
-            </span><span style="color:#fe8019;">-</span><span style="color:#d3869b;">1.0
-        </span><span style="color:#fdf4c1aa;">}
+        } else {
+            -1.0
+        }
     }
-    </span><span style="color:#fa5c4b;">pub fn </span><span style="color:#8ec07c;">break_loop</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">_</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fa5c4b;">u32</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">val</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">) -&gt; </span><span style="color:#fa5c4b;">f32 </span><span style="color:#fdf4c1aa;">{
-        </span><span style="color:#fa5c4b;">let mut</span><span style="color:#fdf4c1aa;"> sum </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">0.0</span><span style="color:#fdf4c1aa;">;
-        </span><span style="color:#fa5c4b;">let mut</span><span style="color:#fdf4c1aa;"> i </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">0</span><span style="color:#fa5c4b;">u32</span><span style="color:#fdf4c1aa;">;
-        </span><span style="color:#fa5c4b;">while</span><span style="color:#fdf4c1aa;"> i </span><span style="color:#fe8019;">&gt; </span><span style="color:#d3869b;">100 </span><span style="color:#fdf4c1aa;">{
-            sum </span><span style="color:#fe8019;">+= </span><span style="color:#d3869b;">1.0</span><span style="color:#fdf4c1aa;">;
-            i </span><span style="color:#fe8019;">+= </span><span style="color:#d3869b;">1</span><span style="color:#fdf4c1aa;">;
-            </span><span style="color:#fa5c4b;">if</span><span style="color:#fdf4c1aa;"> i </span><span style="color:#fe8019;">&lt; </span><span style="color:#d3869b;">50 </span><span style="color:#fdf4c1aa;">{
-                </span><span style="color:#fa5c4b;">break</span><span style="color:#fdf4c1aa;">;
+    pub fn break_loop(_: u32, val: f32) -&gt; f32 {
+        let mut sum = 0.0;
+        let mut i = 0u32;
+        while i &gt; 100 {
+            sum += 1.0;
+            i += 1;
+            if i &lt; 50 {
+                break;
             }
         }
         sum
     }
 }
 
-</span></code></pre>
+</code></pre>
 <p>Essentially what happens is that rlsl creates a new tmp cargo project. Every test function compiles into its own spirv module. The function is then executed on the on the cpu with the help of <code>quickcheck</code>. Then we run a compute shader with the correct SPIR-V module and compare the results. If any of the results differ we assert.</p>
 <h1 id="debugging">Debugging</h1>
 <p>I usually run into one of 3 issues:</p>
@@ -213,8 +212,9 @@ This is one reason why I want to focus on many test cases right now. I just don'
 <p>I ended up generating SPIR-V directly as I felt this was the easiest way to get started. MIR can be accessed with <code>#![feature(rustc_private)]</code>, and <a href="https://github.com/google/rspirv">rspirv</a> already existed at the time.</p>
 <h1 id="playground">Playground</h1>
 <p>I am currently working on a shadertoy like framework for rlsl. Everything is still in flux but essentially you will be able to run a fragment shader on the cpu and gpu.</p>
-<p>For example the following image was rendered both on the CPU and GPU.</p>
+<p>For example the following image was rendered both on the CPU and GPU.
 <div id="tweet" tweetID="1071852847669612545"></div>
+</p>
 <p>It is quite useful to discover invalid SPIR-V code. For example I recently tried to port the raycaster to a raytracer, unfortunately I ran into some visual artifacts. It is quite hard to know if I made a logic error or if the SPIR-V is incorrect. Because I can run everything on the CPU, I can easily verify the results myself.</p>
 <p>This will also be an excellent place to learn and experiment with rlsl in the future.</p>
 <h1 id="integrating-rlsl-into-an-existing-project">Integrating rlsl into an existing project</h1>
@@ -222,8 +222,7 @@ This is one reason why I want to focus on many test cases right now. I just don'
 <p>rlsl should allow you to build more sophisticated tools on top of it at a later stage. Once rlsl has matured, you can start to replace each shader bit by bit.</p>
 <p>Right now the current workflow looks like this:</p>
 <p>You create a new crate <code>foo-shader</code>. You write all the shader code inside this crate. Every <code>bin</code> target will create a new spirv module. For example</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">
+<pre><code>
 foo-shader
   Cargo.toml
   src
@@ -231,33 +230,31 @@ foo-shader
     bin
       foo.rs
       bar.rs
-</span></code></pre>
+</code></pre>
 <p><code>RUSTC=rlsl cargo build</code> will create two new SPIR-V modules called <code>foo.spv</code> and <code>bar.spv</code>. You define all your entry points <em>(vertex, fragment, compute)</em> inside those <code>bin</code> targets.</p>
 <p>You can even include external libraries that contain code that can not be translated to SPIR-V. This works as long as you only use functions and types that can be translated to SPIR-V.</p>
 <p>For example consider:</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">#[</span><span style="color:#fdf4c1;">derive</span><span style="color:#fdf4c1aa;">(Debug)]
-</span><span style="color:#fa5c4b;">pub struct </span><span style="color:#8ec07c;">Ray</span><span style="color:#fdf4c1aa;">{..}
-</span></code></pre>
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">#[derive(Debug)]
+pub struct Ray{..}
+</code></pre>
 <p>SPIR-V does not have the concept of strings and debug just doesn't make any sense in SPIR-V. But it does make sense on the CPU, it would be unfortunate if you could not use <code>Ray</code> in rlsl.</p>
 <h1 id="interfacing-with-spir-v">Interfacing with SPIR-V</h1>
 <p>rlsl will not depend on a specific math library, although it will ship with an optional one called <code>rlsl_math</code>. For example it is possible to mark types with a custom attribute.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">#[</span><span style="color:#fdf4c1;">spirv</span><span style="color:#fdf4c1aa;">(Vec4)]
-</span><span style="color:#fa5c4b;">pub struct </span><span style="color:#8ec07c;">Vec4</span><span style="color:#fdf4c1aa;">&lt;T&gt; {..}
-</span></code></pre>
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">#[spirv(Vec4)]
+pub struct Vec4&lt;T&gt; {..}
+</code></pre>
 <p>This tells rlsl that this type should be an <code>OpTypeVector</code>. Porting existing math libraries like <code>cgmath</code> or <code>nalgebra</code> will be up the community. Up to date information can always be found in <code>rlsl_math</code>.</p>
 <p>I could also imagine some 'database' that you define inside your library </p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fabd2f;">spirv_types! </span><span style="color:#fdf4c1aa;">{
-    math::Vec4 </span><span style="color:#fe8019;">=&gt; </span><span style="color:#fdf4c1aa;">spirv::Vec4,
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">spirv_types! {
+    math::Vec4 =&gt; spirv::Vec4,
 };
 
-</span><span style="color:#fabd2f;">spirv_fns! </span><span style="color:#fdf4c1aa;">{
-    math::Vec4::dot </span><span style="color:#fe8019;">=&gt; </span><span style="color:#fdf4c1aa;">spirv::dot,
-    math::Vec4::cross </span><span style="color:#fe8019;">=&gt; </span><span style="color:#fdf4c1aa;">spirv::cross,
+spirv_fns! {
+    math::Vec4::dot =&gt; spirv::dot,
+    math::Vec4::cross =&gt; spirv::cross,
 };
-</span></code></pre><h1 id="when-will-it-be-ready">When will it be ready?</h1>
+</code></pre>
+<h1 id="when-will-it-be-ready">When will it be ready?</h1>
 <p>Everything is still in flux but my current goal is to remove all my custom compiler changes and focus on a specific nightly version. Installing should be as simple as <code>cargo install rlsl</code>. Using it is as simple as <code>RUSTC=rlsl cargo build</code>. rlsl will most likely require rustup.</p>
 <p>A lot of things are not implemented yet. For example you will probably run into a lot of panics, many operators are still not implemented. Additionally I haven't implemented any custom error messages, which means features like recursion won't trigger an error message.</p>
 <p>If you want to help out, the best thing you can do is to experiment with rlsl and report any issues on the <a href="https://github.com/MaikKlein/rlsl/issues">issue tracker</a>. Especially helpful would be additional test cases. I'll add all the necessary guides on how to do that once rlsl is installable.</p>

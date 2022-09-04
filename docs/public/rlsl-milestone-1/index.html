@@ -111,56 +111,53 @@
 <div style='position:relative; padding-bottom:56.25%'>
     <iframe src='https://gfycat.com/ifr/UnrulyNeglectedBedbug' frameborder='0' scrolling='no' width='100%' height='100%' style='position:absolute;top:0;left:0;' allowfullscreen></iframe>
 </div>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">#[</span><span style="color:#fdf4c1;">spirv</span><span style="color:#fdf4c1aa;">(fragment)]
-</span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">color_frag</span><span style="color:#fdf4c1aa;">(
-    </span><span style="color:#fdf4c1;">frag</span><span style="color:#fdf4c1aa;">: Fragment,
-    </span><span style="color:#fdf4c1;">uv</span><span style="color:#fdf4c1aa;">: Input&lt;N0, Vec2&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;&gt;,
-    </span><span style="color:#fdf4c1;">time</span><span style="color:#fdf4c1aa;">: Descriptor&lt;N2, N0, </span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;,
-) -&gt; Output&lt;N0, Vec4&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;&gt; {
-    </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> uv </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> uv.data;
-    </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> time </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> time.data;
-    </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> offset </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">Vec3::new(</span><span style="color:#d3869b;">0.0</span><span style="color:#fdf4c1aa;">, </span><span style="color:#d3869b;">2.0</span><span style="color:#fdf4c1aa;">, </span><span style="color:#d3869b;">4.0</span><span style="color:#fdf4c1aa;">);
-    </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> coord </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> uv.</span><span style="color:#fabd2f;">extend</span><span style="color:#fdf4c1aa;">(uv.y)
-        .</span><span style="color:#fabd2f;">add</span><span style="color:#fdf4c1aa;">(offset)
-        .</span><span style="color:#fabd2f;">map</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">move </span><span style="color:#fe8019;">|</span><span style="color:#fdf4c1aa;">f</span><span style="color:#fe8019;">| </span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">::cos(time </span><span style="color:#fe8019;">+</span><span style="color:#fdf4c1aa;"> f) </span><span style="color:#fe8019;">* </span><span style="color:#d3869b;">0.5</span><span style="color:#fdf4c1aa;">)
-        .</span><span style="color:#fabd2f;">add</span><span style="color:#fdf4c1aa;">(Vec3::single(</span><span style="color:#d3869b;">0.5</span><span style="color:#fdf4c1aa;">))
-        .</span><span style="color:#fabd2f;">extend</span><span style="color:#fdf4c1aa;">(</span><span style="color:#d3869b;">1.0</span><span style="color:#fdf4c1aa;">);
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">#[spirv(fragment)]
+fn color_frag(
+    frag: Fragment,
+    uv: Input&lt;N0, Vec2&lt;f32&gt;&gt;,
+    time: Descriptor&lt;N2, N0, f32&gt;,
+) -&gt; Output&lt;N0, Vec4&lt;f32&gt;&gt; {
+    let uv = uv.data;
+    let time = time.data;
+    let offset = Vec3::new(0.0, 2.0, 4.0);
+    let coord = uv.extend(uv.y)
+        .add(offset)
+        .map(move |f| f32::cos(time + f) * 0.5)
+        .add(Vec3::single(0.5))
+        .extend(1.0);
     Output::new(coord)
 }
 
-#[</span><span style="color:#fdf4c1;">spirv</span><span style="color:#fdf4c1aa;">(vertex)]
-</span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">vertex</span><span style="color:#fdf4c1aa;">(
-    </span><span style="color:#fdf4c1;">vertex</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">mut</span><span style="color:#fdf4c1aa;"> Vertex,
-    </span><span style="color:#fdf4c1;">pos</span><span style="color:#fdf4c1aa;">: Input&lt;N0, Vec4&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;&gt;,
-    </span><span style="color:#fdf4c1;">uv</span><span style="color:#fdf4c1aa;">: Input&lt;N1, Vec2&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;&gt;,
-) -&gt; Output&lt;N0, Vec2&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;&gt; {
-    vertex.position </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> pos.data;
+#[spirv(vertex)]
+fn vertex(
+    vertex: &amp;mut Vertex,
+    pos: Input&lt;N0, Vec4&lt;f32&gt;&gt;,
+    uv: Input&lt;N1, Vec2&lt;f32&gt;&gt;,
+) -&gt; Output&lt;N0, Vec2&lt;f32&gt;&gt; {
+    vertex.position = pos.data;
     Output::new(uv.data)
 }
-</span></code></pre>
+</code></pre>
 <p>Today I reached the first milestone: translating the default shader from Shadertoy to rlsl.</p>
 <h2 id="input-variables">Input variables</h2>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">uv: Input&lt;N0, Vec2&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;&gt;
-</span></code></pre>
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">uv: Input&lt;N0, Vec2&lt;f32&gt;&gt;
+</code></pre>
 <p>Every entry point now specifies input and uniform buffers explicitly. <code>Input&lt;N0, Vec2&lt;f32&gt;&gt;</code> tells rlsl that there is an input variable at location 0 of type <code>Vec2&lt;f32&gt;</code>. The <code>N0</code> here is a custom struct that maps to the number <code>0</code> inside rlsl. When Rust gets <code>const-generics</code>, you will be able to write <code>Input&lt;0, Vec2&lt;f32&gt;</code>.</p>
 <h2 id="uniform-buffers-and-descriptor-sets">Uniform buffers and descriptor sets</h2>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">time: Descriptor&lt;N2, N0, </span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;,
-</span></code></pre>
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">time: Descriptor&lt;N2, N0, f32&gt;,
+</code></pre>
 <p>Similarly to input variables, you specify descriptor sets with <code>Descriptor&lt;N2, N0, f32&gt;</code>, where currently the first type parameter is the binding and the second type parameter is the set. Also rlsl now supports the <code>std140</code> layout, and custom structs as the type parameter are also supported <code>Descriptor&lt;N0, N0, SomeStruct&gt;</code>. In the future I will also implement seamless interop of uniforms structs between rlsl and rust. Currently you have to make sure that the struct in rust is aligned properly according to the rules in std140.</p>
 <h2 id="closures-and-pointers">Closures and pointers</h2>
 <p>rlsl now supports closures, and closures that own the captured variables. In the future I will also allow closures to capture variables by reference. Additionally rlsl now allows pointers as variables and function parameters. While this is not allowed in SPIR-V, rlsl optimizes those pointers away.</p>
 <h2 id="build-times">Build times</h2>
 <p>Build times are still quick, although the examples are still very small in terms of loc.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">➜  shader git:(master) time env </span><span style="color:#fdf4c1;">RUST_BACKTRACE</span><span style="color:#fe8019;">=</span><span style="color:#d3869b;">1 </span><span style="color:#fdf4c1;">RUSTC</span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;">rlsl cargo build
-   Compiling shader v0.</span><span style="color:#d3869b;">1.0 </span><span style="color:#fdf4c1aa;">(file:</span><span style="font-style:italic;color:#928374;">///home/maik/projects/rlsl/quad/shader)
-</span><span style="color:#fdf4c1aa;">    Finished dev [unoptimized </span><span style="color:#fe8019;">+</span><span style="color:#fdf4c1aa;"> debuginfo] </span><span style="color:#fabd2f;">target</span><span style="color:#fdf4c1aa;">(s) </span><span style="color:#fe8019;">in </span><span style="color:#d3869b;">0.11</span><span style="color:#fdf4c1aa;"> secs
-</span><span style="color:#d3869b;">0.19</span><span style="color:#fdf4c1aa;">user </span><span style="color:#d3869b;">0.05</span><span style="color:#fdf4c1aa;">system </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1aa;">:</span><span style="color:#d3869b;">00.25</span><span style="color:#fdf4c1aa;">elapsed </span><span style="color:#d3869b;">94</span><span style="color:#fe8019;">%</span><span style="color:#fdf4c1;">CPU </span><span style="color:#fdf4c1aa;">(0avgtext</span><span style="color:#fe8019;">+</span><span style="color:#fdf4c1aa;">0avgdata 77456maxresident)k
-0inputs</span><span style="color:#fe8019;">+</span><span style="color:#fdf4c1aa;">96outputs (0major</span><span style="color:#fe8019;">+</span><span style="color:#fdf4c1aa;">14998minor)pagefaults 0swaps
-</span></code></pre>
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">➜  shader git:(master) time env RUST_BACKTRACE=1 RUSTC=rlsl cargo build
+   Compiling shader v0.1.0 (file:&#x2F;&#x2F;&#x2F;home&#x2F;maik&#x2F;projects&#x2F;rlsl&#x2F;quad&#x2F;shader)
+    Finished dev [unoptimized + debuginfo] target(s) in 0.11 secs
+0.19user 0.05system 0:00.25elapsed 94%CPU (0avgtext+0avgdata 77456maxresident)k
+0inputs+96outputs (0major+14998minor)pagefaults 0swaps
+</code></pre>
+
 </div>
 
             </div>

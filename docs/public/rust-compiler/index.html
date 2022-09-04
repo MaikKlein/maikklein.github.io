@@ -84,19 +84,17 @@
   </ul>
   <p>I recently started a SPIR-V compiler from scratch but I also wanted to see if I can actually build the compiler with the Rust compiler as a library. One possibility is to fork the Rust compiler and to add a binary crate like <a href="https://github.com/msiglreith/rust/tree/althaea">this</a>. In this case it just adds another binary module in the rustc crate. The problem that I had with this approach is that the turn around time not that great as a simple change results in rustc being rebuilt which takes at least 6min. Yesterday I tried to extend the Rust build system to produce another simple binary, but I failed. The build system is largely undocumented (I think). My first thought was to see how <code>rls</code> and <code>clippy</code> use the compiler.</p>
 <p>It turns out they just do </p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">#![</span><span style="color:#fdf4c1;">feature</span><span style="color:#fdf4c1aa;">(rustc_private)]
-</span><span style="color:#fa5c4b;">extern crate</span><span style="color:#fdf4c1aa;"> rustc;
-</span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">main</span><span style="color:#fdf4c1aa;">() {
-    </span><span style="color:#fe8019;">...
-</span><span style="color:#fdf4c1aa;">}
-</span></code></pre>
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">#![feature(rustc_private)]
+extern crate rustc;
+fn main() {
+    ...
+}
+</code></pre>
 <p>The problem is that you don't get any tooling support if you use rustc like this, but I came up with a simple workaround which you can find <a href="https://github.com/MaikKlein/rlsl/commit/54b84576a5ee9b0eafaba0612a50fd336011ab0c">here</a>.</p>
 <p>I just add the Rust compiler as a submodule, and I add the library that I am going to use </p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">[</span><span style="color:#8ec07c;">target.</span><span style="color:#b8bb26;">&#39;cfg(NOT_A_PLATFORM)&#39;</span><span style="color:#8ec07c;">.dependencies</span><span style="color:#fdf4c1aa;">]
-</span><span style="font-weight:bold;color:#8ec07c;">rustc </span><span style="color:#fdf4c1aa;">= {</span><span style="font-weight:bold;color:#8ec07c;">path </span><span style="color:#fdf4c1aa;">= </span><span style="color:#b8bb26;">&quot;compiler/rust/src/librustc&quot;</span><span style="color:#fdf4c1aa;">}
-</span></code></pre>
+<pre data-lang="Toml" class="language-Toml "><code class="language-Toml" data-lang="Toml">[target.&#x27;cfg(NOT_A_PLATFORM)&#x27;.dependencies]
+rustc = {path = &quot;compiler&#x2F;rust&#x2F;src&#x2F;librustc&quot;}
+</code></pre>
 <p>This way Rust will not try to compile <code>librustc</code> but tools like <code>intellij-rust</code> can still access the metadata.</p>
 <p><img src="https://i.imgur.com/EVk1xv7.gif" alt="" /></p>
 

@@ -85,204 +85,194 @@
   <p><a href="https://maikklein.github.io/post/shading-language-part1/">Previous blog post</a> </p>
 <p>In this blog post I will mainly talk about AST traversal and code generation and the problems that I am currently facing.</p>
 <p>What is AST traversal? </p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">#[</span><span style="color:#fdf4c1;">derive</span><span style="color:#fdf4c1aa;">(Debug)]
-</span><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">Expr</span><span style="color:#fdf4c1aa;">&lt;&#39;a&gt; {
-    Num(</span><span style="color:#fa5c4b;">i32</span><span style="color:#fdf4c1aa;">),
-    Add(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">&#39;a </span><span style="color:#fdf4c1aa;">Expr&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">&gt;, </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">&#39;a </span><span style="color:#fdf4c1aa;">Expr&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">&gt;),
-    Mul(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">&#39;a </span><span style="color:#fdf4c1aa;">Expr&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">&gt;, </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">&#39;a </span><span style="color:#fdf4c1aa;">Expr&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">&gt;),
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">#[derive(Debug)]
+enum Expr&lt;&#x27;a&gt; {
+    Num(i32),
+    Add(&amp;&#x27;a Expr&lt;&#x27;a&gt;, &amp;&#x27;a Expr&lt;&#x27;a&gt;),
+    Mul(&amp;&#x27;a Expr&lt;&#x27;a&gt;, &amp;&#x27;a Expr&lt;&#x27;a&gt;),
 }
 
-</span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">fold_expr</span><span style="color:#fdf4c1aa;">&lt;T, Unary: </span><span style="color:#fabd2f;">Fn</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">i32</span><span style="color:#fdf4c1aa;">) -&gt; T, Add: </span><span style="color:#fabd2f;">Fn</span><span style="color:#fdf4c1aa;">(T, T) -&gt; T, Mul: </span><span style="color:#fabd2f;">Fn</span><span style="color:#fdf4c1aa;">(T, T) -&gt; T&gt;(
-    </span><span style="color:#fdf4c1;">unary</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">Unary,
-    </span><span style="color:#fdf4c1;">add</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">Add,
-    </span><span style="color:#fdf4c1;">mul</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">Mul,
-    </span><span style="color:#fdf4c1;">e</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">Expr,
+fn fold_expr&lt;T, Unary: Fn(i32) -&gt; T, Add: Fn(T, T) -&gt; T, Mul: Fn(T, T) -&gt; T&gt;(
+    unary: &amp;Unary,
+    add: &amp;Add,
+    mul: &amp;Mul,
+    e: &amp;Expr,
 ) -&gt; T {
-    </span><span style="color:#fa5c4b;">let </span><span style="color:#8ec07c;">rec </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">|</span><span style="color:#fdf4c1;">e</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">Expr| </span><span style="color:#fabd2f;">fold_expr</span><span style="color:#fdf4c1aa;">(unary, add, mul, e);
-    </span><span style="color:#fa5c4b;">match</span><span style="color:#fdf4c1aa;"> e {
-        </span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">Expr::Num(i) </span><span style="color:#fe8019;">=&gt; </span><span style="color:#fabd2f;">unary</span><span style="color:#fdf4c1aa;">(i),
-        </span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">Expr::Add(l, r) </span><span style="color:#fe8019;">=&gt; </span><span style="color:#fabd2f;">add</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fabd2f;">rec</span><span style="color:#fdf4c1aa;">(l), </span><span style="color:#fabd2f;">rec</span><span style="color:#fdf4c1aa;">(r)),
-        </span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">Expr::Mul(l, r) </span><span style="color:#fe8019;">=&gt; </span><span style="color:#fabd2f;">mul</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fabd2f;">rec</span><span style="color:#fdf4c1aa;">(l), </span><span style="color:#fabd2f;">rec</span><span style="color:#fdf4c1aa;">(r)),
+    let rec = |e: &amp;Expr| fold_expr(unary, add, mul, e);
+    match e {
+        &amp;Expr::Num(i) =&gt; unary(i),
+        &amp;Expr::Add(l, r) =&gt; add(rec(l), rec(r)),
+        &amp;Expr::Mul(l, r) =&gt; mul(rec(l), rec(r)),
     }
 }
 
-</span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">main</span><span style="color:#fdf4c1aa;">() {
-    </span><span style="color:#fa5c4b;">let </span><span style="color:#8ec07c;">eval </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">|</span><span style="color:#fdf4c1;">e</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">Expr| </span><span style="color:#fabd2f;">fold_expr</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">&amp;|</span><span style="color:#fdf4c1aa;">a</span><span style="color:#fe8019;">|</span><span style="color:#fdf4c1aa;"> a, </span><span style="color:#fe8019;">&amp;|</span><span style="color:#fdf4c1aa;">a, b</span><span style="color:#fe8019;">|</span><span style="color:#fdf4c1aa;"> a </span><span style="color:#fe8019;">+</span><span style="color:#fdf4c1aa;"> b, </span><span style="color:#fe8019;">&amp;|</span><span style="color:#fdf4c1aa;">a, b</span><span style="color:#fe8019;">|</span><span style="color:#fdf4c1aa;"> a </span><span style="color:#fe8019;">*</span><span style="color:#fdf4c1aa;"> b, e);
-    </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> e </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">Expr::Add(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">Expr::Num(</span><span style="color:#d3869b;">5</span><span style="color:#fdf4c1aa;">), </span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">Expr::Mul(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">Expr::Num(</span><span style="color:#d3869b;">10</span><span style="color:#fdf4c1aa;">), </span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">Expr::Num(</span><span style="color:#d3869b;">5</span><span style="color:#fdf4c1aa;">)));
-    </span><span style="color:#fabd2f;">println!</span><span style="color:#fdf4c1aa;">(</span><span style="color:#b8bb26;">&quot;</span><span style="color:#fdf4c1;">{:?}</span><span style="color:#b8bb26;">&quot;</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fabd2f;">eval</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">e));
+fn main() {
+    let eval = |e: &amp;Expr| fold_expr(&amp;|a| a, &amp;|a, b| a + b, &amp;|a, b| a * b, e);
+    let e = Expr::Add(&amp;Expr::Num(5), &amp;Expr::Mul(&amp;Expr::Num(10), &amp;Expr::Num(5)));
+    println!(&quot;{:?}&quot;, eval(&amp;e));
 }
-</span></code></pre>
+</code></pre>
 <p><a href="https://play.rust-lang.org/?gist=5f24062414040aca65ae33a3e1dfbc06&amp;version=nightly">Playground</a></p>
 <p>Here we create a small AST, and then we <code>fold</code> it into a single value. I translated this directly from some Haskell code that I found a few days ago. While this is not completely idiomatic Rust, it didn't translate too badly. An alternative to this traversal is traversal with the visitor pattern. This is how the visitor pattern looks currently in Rust</p>
 <p><a href="https://github.com/rust-lang/rust/blob/master/src/libsyntax/visit.rs#L52">visit.rs</a></p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">pub trait </span><span style="color:#8ec07c;">Visitor</span><span style="color:#fdf4c1aa;">&lt;&#39;ast&gt;: Sized {
-    </span><span style="color:#fe8019;">...
-    </span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">visit_local</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">mut </span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">l</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">&#39;ast</span><span style="color:#fdf4c1aa;"> Local) { </span><span style="color:#fabd2f;">walk_local</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">, l) }
-    </span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">visit_mod</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">mut </span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">m</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">&#39;ast</span><span style="color:#fdf4c1aa;"> Mod, </span><span style="color:#fdf4c1;">_s</span><span style="color:#fdf4c1aa;">: Span, </span><span style="color:#fdf4c1;">_attrs</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">[Attribute], </span><span style="color:#fdf4c1;">_n</span><span style="color:#fdf4c1aa;">: NodeId) {
-        </span><span style="color:#fabd2f;">walk_mod</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">, m);
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">pub trait Visitor&lt;&#x27;ast&gt;: Sized {
+    ...
+    fn visit_local(&amp;mut self, l: &amp;&#x27;ast Local) { walk_local(self, l) }
+    fn visit_mod(&amp;mut self, m: &amp;&#x27;ast Mod, _s: Span, _attrs: &amp;[Attribute], _n: NodeId) {
+        walk_mod(self, m);
     }
-    </span><span style="color:#fe8019;">...
-</span><span style="color:#fdf4c1aa;">}
-</span><span style="color:#fa5c4b;">pub fn </span><span style="color:#8ec07c;">walk_mod</span><span style="color:#fdf4c1aa;">&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">, V: Visitor&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">&gt;&gt;(</span><span style="color:#fdf4c1;">visitor</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">mut</span><span style="color:#fdf4c1aa;"> V, </span><span style="color:#fdf4c1;">module</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;"> Mod) {
-    </span><span style="color:#fabd2f;">walk_list!</span><span style="color:#fdf4c1aa;">(visitor, visit_item, </span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">module.items);
+    ...
+}
+pub fn walk_mod&lt;&#x27;a, V: Visitor&lt;&#x27;a&gt;&gt;(visitor: &amp;mut V, module: &amp;&#x27;a Mod) {
+    walk_list!(visitor, visit_item, &amp;module.items);
 }
 
-</span><span style="color:#fa5c4b;">pub fn </span><span style="color:#8ec07c;">walk_local</span><span style="color:#fdf4c1aa;">&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">, V: Visitor&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">&gt;&gt;(</span><span style="color:#fdf4c1;">visitor</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">mut</span><span style="color:#fdf4c1aa;"> V, </span><span style="color:#fdf4c1;">local</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;"> Local) {
-    </span><span style="color:#fa5c4b;">for</span><span style="color:#fdf4c1aa;"> attr </span><span style="color:#fe8019;">in</span><span style="color:#fdf4c1aa;"> local.attrs.</span><span style="color:#fabd2f;">iter</span><span style="color:#fdf4c1aa;">() {
-        visitor.</span><span style="color:#fabd2f;">visit_attribute</span><span style="color:#fdf4c1aa;">(attr);
+pub fn walk_local&lt;&#x27;a, V: Visitor&lt;&#x27;a&gt;&gt;(visitor: &amp;mut V, local: &amp;&#x27;a Local) {
+    for attr in local.attrs.iter() {
+        visitor.visit_attribute(attr);
     }
-    visitor.</span><span style="color:#fabd2f;">visit_pat</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">local.pat);
-    </span><span style="color:#fabd2f;">walk_list!</span><span style="color:#fdf4c1aa;">(visitor, visit_ty, </span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">local.ty);
-    </span><span style="color:#fabd2f;">walk_list!</span><span style="color:#fdf4c1aa;">(visitor, visit_expr, </span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">local.init);
+    visitor.visit_pat(&amp;local.pat);
+    walk_list!(visitor, visit_ty, &amp;local.ty);
+    walk_list!(visitor, visit_expr, &amp;local.init);
 }
 
 
-</span></code></pre>
+</code></pre>
 <p>Every function inside the trait has a default implementation with a walk function. This means that if you want to implement your own <code>Visitor</code> you only have to overwrite the functions that you are interested in. And when you want to overwrite a function, you can reuse the walk functions. I think this is actually a really nice pattern but I had a few practical problems with it.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">visit_assign</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">mut </span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">stmt</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">&#39;a </span><span style="color:#fdf4c1aa;">Stmt&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">&gt;, </span><span style="color:#fdf4c1;">assign</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">&#39;a </span><span style="color:#fdf4c1aa;">Assign&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">&gt;, </span><span style="color:#fdf4c1;">data</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">Self::</span><span style="color:#fdf4c1aa;">Data) {
-    </span><span style="color:#fabd2f;">walk_assign</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">, stmt, assign, data);
-    </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> spirv_expr </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">.ctx.spirv_expr.</span><span style="color:#fabd2f;">get</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">assign.expr.node_id).</span><span style="color:#fabd2f;">expect</span><span style="color:#fdf4c1aa;">(</span><span style="color:#b8bb26;">&quot;expr&quot;</span><span style="color:#fdf4c1aa;">);
-    </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> var_def </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">.ctx
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">fn visit_assign(&amp;mut self, stmt: &amp;&#x27;a Stmt&lt;&#x27;a&gt;, assign: &amp;&#x27;a Assign&lt;&#x27;a&gt;, data: &amp;Self::Data) {
+    walk_assign(self, stmt, assign, data);
+    let spirv_expr = self.ctx.spirv_expr.get(&amp;assign.expr.node_id).expect(&quot;expr&quot;);
+    let var_def = self.ctx
         .scopes
-        .</span><span style="color:#fabd2f;">get_var_def</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">stmt.node_id, </span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">assign.ident)
-        .</span><span style="color:#fabd2f;">expect</span><span style="color:#fdf4c1aa;">(</span><span style="color:#b8bb26;">&quot;no var def&quot;</span><span style="color:#fdf4c1aa;">);
-    </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> spirv_var </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">.ctx.spirv_var.</span><span style="color:#fabd2f;">get</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">var_def.node_id).</span><span style="color:#fabd2f;">expect</span><span style="color:#fdf4c1aa;">(
-        </span><span style="color:#b8bb26;">&quot;no spirv var&quot;</span><span style="color:#fdf4c1aa;">,
+        .get_var_def(&amp;stmt.node_id, &amp;assign.ident)
+        .expect(&quot;no var def&quot;);
+    let spirv_var = self.ctx.spirv_var.get(&amp;var_def.node_id).expect(
+        &quot;no spirv var&quot;,
     );
-    </span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">.ctx.builder.</span><span style="color:#fabd2f;">store</span><span style="color:#fdf4c1aa;">(
+    self.ctx.builder.store(
         spirv_var.var_id,
-        </span><span style="color:#fe8019;">*</span><span style="color:#fdf4c1aa;">spirv_expr,
-        </span><span style="color:#fabd2f;">None</span><span style="color:#fdf4c1aa;">,
-        </span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">[],
+        *spirv_expr,
+        None,
+        &amp;[],
     );
 }
-</span><span style="color:#fa5c4b;">pub fn </span><span style="color:#8ec07c;">walk_assign</span><span style="color:#fdf4c1aa;">&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">, V: Visitor&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">&gt;&gt;(
-    </span><span style="color:#fdf4c1;">visitor</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">mut</span><span style="color:#fdf4c1aa;"> V,
-    </span><span style="color:#fdf4c1;">stmt</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">&#39;a </span><span style="color:#fdf4c1aa;">Stmt&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">&gt;,
-    </span><span style="color:#fdf4c1;">assign</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">&#39;a </span><span style="color:#fdf4c1aa;">Assign&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">&gt;,
-    </span><span style="color:#fdf4c1;">data</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">V::</span><span style="color:#fdf4c1aa;">Data,
+pub fn walk_assign&lt;&#x27;a, V: Visitor&lt;&#x27;a&gt;&gt;(
+    visitor: &amp;mut V,
+    stmt: &amp;&#x27;a Stmt&lt;&#x27;a&gt;,
+    assign: &amp;&#x27;a Assign&lt;&#x27;a&gt;,
+    data: &amp;V::Data,
 ) {
-    visitor.</span><span style="color:#fabd2f;">visit_expr</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">assign.expr, data);
+    visitor.visit_expr(&amp;assign.expr, data);
 }
-</span></code></pre>
+</code></pre>
 <p>This is code from from my spirv compiler. Essentially it generates spirv for assignments <code>a = 4;</code>. On the left side is a variable with a name, which we need to find. On the right side is an expression which need to evaluate before we can generate the code for the assignment. This is why I call <code>walk_assign</code> at the top. The problem is that this visitor can not return values directly. I currently put the results in a <code>VecMap</code> which is like a hash map, but more efficient for numbers that are close together.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fabd2f;">walk_assign</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">, stmt, assign, data);
-</span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> spirv_expr </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">.ctx.spirv_expr.</span><span style="color:#fabd2f;">get</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">assign.expr.node_id).</span><span style="color:#fabd2f;">expect</span><span style="color:#fdf4c1aa;">(</span><span style="color:#b8bb26;">&quot;expr&quot;</span><span style="color:#fdf4c1aa;">);
-</span></code></pre>
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">walk_assign(self, stmt, assign, data);
+let spirv_expr = self.ctx.spirv_expr.get(&amp;assign.expr.node_id).expect(&quot;expr&quot;);
+</code></pre>
 <p>There are a few problems, first we have to write the result into some container which means that the lookup could fail and it makes multi-threading more painful than it needs to be. </p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">extern crate</span><span style="color:#fdf4c1aa;"> rayon;
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">extern crate rayon;
 
-#[</span><span style="color:#fdf4c1;">derive</span><span style="color:#fdf4c1aa;">(Debug)]
-</span><span style="color:#fa5c4b;">pub enum </span><span style="color:#8ec07c;">Expr</span><span style="color:#fdf4c1aa;">&lt;&#39;a&gt; {
-    Num(</span><span style="color:#fa5c4b;">i32</span><span style="color:#fdf4c1aa;">),
-    Add(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">&#39;a </span><span style="color:#fdf4c1aa;">Expr&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">&gt;, </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">&#39;a </span><span style="color:#fdf4c1aa;">Expr&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">&gt;),
-    Mul(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">&#39;a </span><span style="color:#fdf4c1aa;">Expr&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">&gt;, </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">&#39;a </span><span style="color:#fdf4c1aa;">Expr&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">&gt;),
+#[derive(Debug)]
+pub enum Expr&lt;&#x27;a&gt; {
+    Num(i32),
+    Add(&amp;&#x27;a Expr&lt;&#x27;a&gt;, &amp;&#x27;a Expr&lt;&#x27;a&gt;),
+    Mul(&amp;&#x27;a Expr&lt;&#x27;a&gt;, &amp;&#x27;a Expr&lt;&#x27;a&gt;),
 }
 
-</span><span style="color:#fa5c4b;">pub trait </span><span style="color:#8ec07c;">Visitor</span><span style="color:#fdf4c1aa;">&lt;&#39;a&gt;: Sized + Sync {
-    </span><span style="color:#fa5c4b;">type </span><span style="color:#8ec07c;">R</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fabd2f;">Send</span><span style="color:#fdf4c1aa;">;
-    </span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">visit_expr</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">e</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">&#39;a </span><span style="color:#fdf4c1aa;">Expr&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">&gt;) -&gt; </span><span style="color:#fa5c4b;">Self::</span><span style="color:#fdf4c1aa;">R {
-        </span><span style="color:#fabd2f;">walk_expr</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">, e)
+pub trait Visitor&lt;&#x27;a&gt;: Sized + Sync {
+    type R: Send;
+    fn visit_expr(&amp;self, e: &amp;&#x27;a Expr&lt;&#x27;a&gt;) -&gt; Self::R {
+        walk_expr(self, e)
     }
-    </span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">visit_mul</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">l</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">&#39;a </span><span style="color:#fdf4c1aa;">Expr&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">&gt;, </span><span style="color:#fdf4c1;">r</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">&#39;a </span><span style="color:#fdf4c1aa;">Expr&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">&gt;) -&gt; </span><span style="color:#fa5c4b;">Self::</span><span style="color:#fdf4c1aa;">R;
-    </span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">visit_add</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">l</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">&#39;a </span><span style="color:#fdf4c1aa;">Expr&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">&gt;, </span><span style="color:#fdf4c1;">r</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">&#39;a </span><span style="color:#fdf4c1aa;">Expr&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">&gt;) -&gt; </span><span style="color:#fa5c4b;">Self::</span><span style="color:#fdf4c1aa;">R;
-    </span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">visit_num</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">i</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fa5c4b;">i32</span><span style="color:#fdf4c1aa;">) -&gt; </span><span style="color:#fa5c4b;">Self::</span><span style="color:#fdf4c1aa;">R;
+    fn visit_mul(&amp;self, l: &amp;&#x27;a Expr&lt;&#x27;a&gt;, r: &amp;&#x27;a Expr&lt;&#x27;a&gt;) -&gt; Self::R;
+    fn visit_add(&amp;self, l: &amp;&#x27;a Expr&lt;&#x27;a&gt;, r: &amp;&#x27;a Expr&lt;&#x27;a&gt;) -&gt; Self::R;
+    fn visit_num(&amp;self, i: i32) -&gt; Self::R;
 }
 
-</span><span style="color:#fa5c4b;">pub fn </span><span style="color:#8ec07c;">walk_expr</span><span style="color:#fdf4c1aa;">&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">, V: Visitor&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">&gt;&gt;(</span><span style="color:#fdf4c1;">v</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">V, </span><span style="color:#fdf4c1;">e</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">&#39;a </span><span style="color:#fdf4c1aa;">Expr&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">&gt;) -&gt; </span><span style="color:#fa5c4b;">V::</span><span style="color:#fdf4c1aa;">R {
-    </span><span style="font-style:italic;color:#928374;">// Maybe use join here?
-    </span><span style="color:#fa5c4b;">let mut</span><span style="color:#fdf4c1aa;"> r: </span><span style="color:#fabd2f;">Option</span><span style="color:#fdf4c1aa;">&lt;</span><span style="color:#fa5c4b;">V::</span><span style="color:#fdf4c1aa;">R&gt; </span><span style="color:#fe8019;">= </span><span style="color:#fabd2f;">None</span><span style="color:#fdf4c1aa;">;
-    rayon::scope(|</span><span style="color:#fdf4c1;">scope</span><span style="color:#fdf4c1aa;">| {
-        scope.</span><span style="color:#fabd2f;">spawn</span><span style="color:#fdf4c1aa;">(|_| {
-            r </span><span style="color:#fe8019;">= </span><span style="color:#fabd2f;">Some</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">match</span><span style="color:#fdf4c1aa;"> e {
-                </span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">Expr::Add(l, r) </span><span style="color:#fe8019;">=&gt;</span><span style="color:#fdf4c1aa;"> v.</span><span style="color:#fabd2f;">visit_add</span><span style="color:#fdf4c1aa;">(l, r),
-                </span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">Expr::Mul(l, r) </span><span style="color:#fe8019;">=&gt;</span><span style="color:#fdf4c1aa;"> v.</span><span style="color:#fabd2f;">visit_mul</span><span style="color:#fdf4c1aa;">(l, r),
-                </span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">Expr::Num(i) </span><span style="color:#fe8019;">=&gt;</span><span style="color:#fdf4c1aa;"> v.</span><span style="color:#fabd2f;">visit_num</span><span style="color:#fdf4c1aa;">(i),
+pub fn walk_expr&lt;&#x27;a, V: Visitor&lt;&#x27;a&gt;&gt;(v: &amp;V, e: &amp;&#x27;a Expr&lt;&#x27;a&gt;) -&gt; V::R {
+    &#x2F;&#x2F; Maybe use join here?
+    let mut r: Option&lt;V::R&gt; = None;
+    rayon::scope(|scope| {
+        scope.spawn(|_| {
+            r = Some(match e {
+                &amp;Expr::Add(l, r) =&gt; v.visit_add(l, r),
+                &amp;Expr::Mul(l, r) =&gt; v.visit_mul(l, r),
+                &amp;Expr::Num(i) =&gt; v.visit_num(i),
             })
         });
     });
-    r.</span><span style="color:#fabd2f;">unwrap</span><span style="color:#fdf4c1aa;">()
+    r.unwrap()
 }
 
-</span><span style="color:#fa5c4b;">pub fn </span><span style="color:#8ec07c;">walk_add</span><span style="color:#fdf4c1aa;">&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">, V: Visitor&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">&gt;&gt;(</span><span style="color:#fdf4c1;">v</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">V, </span><span style="color:#fdf4c1;">l</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">&#39;a </span><span style="color:#fdf4c1aa;">Expr&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">&gt;, </span><span style="color:#fdf4c1;">r</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">&#39;a </span><span style="color:#fdf4c1aa;">Expr&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">&gt;) -&gt; (</span><span style="color:#fa5c4b;">V::</span><span style="color:#fdf4c1aa;">R, </span><span style="color:#fa5c4b;">V::</span><span style="color:#fdf4c1aa;">R) {
-    rayon::join(|| v.</span><span style="color:#fabd2f;">visit_expr</span><span style="color:#fdf4c1aa;">(l), || v.</span><span style="color:#fabd2f;">visit_expr</span><span style="color:#fdf4c1aa;">(r))
+pub fn walk_add&lt;&#x27;a, V: Visitor&lt;&#x27;a&gt;&gt;(v: &amp;V, l: &amp;&#x27;a Expr&lt;&#x27;a&gt;, r: &amp;&#x27;a Expr&lt;&#x27;a&gt;) -&gt; (V::R, V::R) {
+    rayon::join(|| v.visit_expr(l), || v.visit_expr(r))
 }
 
-</span><span style="color:#fa5c4b;">pub fn </span><span style="color:#8ec07c;">walk_mul</span><span style="color:#fdf4c1aa;">&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">, V: Visitor&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">&gt;&gt;(</span><span style="color:#fdf4c1;">v</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">V, </span><span style="color:#fdf4c1;">l</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">&#39;a </span><span style="color:#fdf4c1aa;">Expr&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">&gt;, </span><span style="color:#fdf4c1;">r</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">&#39;a </span><span style="color:#fdf4c1aa;">Expr&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">&gt;) -&gt; (</span><span style="color:#fa5c4b;">V::</span><span style="color:#fdf4c1aa;">R, </span><span style="color:#fa5c4b;">V::</span><span style="color:#fdf4c1aa;">R) {
-    rayon::join(|| v.</span><span style="color:#fabd2f;">visit_expr</span><span style="color:#fdf4c1aa;">(l), || v.</span><span style="color:#fabd2f;">visit_expr</span><span style="color:#fdf4c1aa;">(r))
+pub fn walk_mul&lt;&#x27;a, V: Visitor&lt;&#x27;a&gt;&gt;(v: &amp;V, l: &amp;&#x27;a Expr&lt;&#x27;a&gt;, r: &amp;&#x27;a Expr&lt;&#x27;a&gt;) -&gt; (V::R, V::R) {
+    rayon::join(|| v.visit_expr(l), || v.visit_expr(r))
 }
 
-</span><span style="color:#fa5c4b;">pub struct </span><span style="color:#8ec07c;">FoldVisitor</span><span style="color:#fdf4c1aa;">;
+pub struct FoldVisitor;
 
-</span><span style="color:#fa5c4b;">pub fn </span><span style="color:#8ec07c;">fold_expr</span><span style="color:#fdf4c1aa;">&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fa5c4b;">&#39;b</span><span style="color:#fdf4c1aa;">&gt;(</span><span style="color:#fdf4c1;">e</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">&#39;a </span><span style="color:#fdf4c1aa;">Expr&lt;</span><span style="color:#fa5c4b;">&#39;b</span><span style="color:#fdf4c1aa;">&gt;) -&gt; </span><span style="color:#fa5c4b;">i32 </span><span style="color:#fdf4c1aa;">{
-    </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> f </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> FoldVisitor {};
-    FoldVisitor::visit_expr(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">f, e)
+pub fn fold_expr&lt;&#x27;a, &#x27;b&gt;(e: &amp;&#x27;a Expr&lt;&#x27;b&gt;) -&gt; i32 {
+    let f = FoldVisitor {};
+    FoldVisitor::visit_expr(&amp;f, e)
 }
 
-</span><span style="color:#fa5c4b;">impl</span><span style="color:#fdf4c1aa;">&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">&gt; Visitor&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">&gt; </span><span style="color:#fa5c4b;">for </span><span style="color:#8ec07c;">FoldVisitor </span><span style="color:#fdf4c1aa;">{
-    </span><span style="color:#fa5c4b;">type </span><span style="color:#8ec07c;">R </span><span style="color:#fe8019;">= </span><span style="color:#fa5c4b;">i32</span><span style="color:#fdf4c1aa;">;
-    </span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">visit_mul</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">l</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">&#39;a </span><span style="color:#fdf4c1aa;">Expr&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">&gt;, </span><span style="color:#fdf4c1;">r</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">&#39;a </span><span style="color:#fdf4c1aa;">Expr&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">&gt;) -&gt; </span><span style="color:#fa5c4b;">Self::</span><span style="color:#fdf4c1aa;">R {
-        </span><span style="color:#fa5c4b;">let </span><span style="color:#fdf4c1aa;">(l, r) </span><span style="color:#fe8019;">= </span><span style="color:#fabd2f;">walk_add</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">, l, r);
-        l </span><span style="color:#fe8019;">*</span><span style="color:#fdf4c1aa;"> r
+impl&lt;&#x27;a&gt; Visitor&lt;&#x27;a&gt; for FoldVisitor {
+    type R = i32;
+    fn visit_mul(&amp;self, l: &amp;&#x27;a Expr&lt;&#x27;a&gt;, r: &amp;&#x27;a Expr&lt;&#x27;a&gt;) -&gt; Self::R {
+        let (l, r) = walk_add(self, l, r);
+        l * r
     }
 
-    </span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">visit_add</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">l</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">&#39;a </span><span style="color:#fdf4c1aa;">Expr&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">&gt;, </span><span style="color:#fdf4c1;">r</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">&#39;a </span><span style="color:#fdf4c1aa;">Expr&lt;</span><span style="color:#fa5c4b;">&#39;a</span><span style="color:#fdf4c1aa;">&gt;) -&gt; </span><span style="color:#fa5c4b;">Self::</span><span style="color:#fdf4c1aa;">R {
-        </span><span style="color:#fa5c4b;">let </span><span style="color:#fdf4c1aa;">(l, r) </span><span style="color:#fe8019;">= </span><span style="color:#fabd2f;">walk_add</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">, l, r);
-        l </span><span style="color:#fe8019;">+</span><span style="color:#fdf4c1aa;"> r
+    fn visit_add(&amp;self, l: &amp;&#x27;a Expr&lt;&#x27;a&gt;, r: &amp;&#x27;a Expr&lt;&#x27;a&gt;) -&gt; Self::R {
+        let (l, r) = walk_add(self, l, r);
+        l + r
     }
 
-    </span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">visit_num</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">i</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fa5c4b;">i32</span><span style="color:#fdf4c1aa;">) -&gt; </span><span style="color:#fa5c4b;">Self::</span><span style="color:#fdf4c1aa;">R {
+    fn visit_num(&amp;self, i: i32) -&gt; Self::R {
         i
     }
 }
 
-</span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">main</span><span style="color:#fdf4c1aa;">() {
-    </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> e </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">Expr::Mul(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">Expr::Num(</span><span style="color:#d3869b;">5</span><span style="color:#fdf4c1aa;">), </span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">Expr::Add(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">Expr::Num(</span><span style="color:#d3869b;">10</span><span style="color:#fdf4c1aa;">), </span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">Expr::Num(</span><span style="color:#d3869b;">5</span><span style="color:#fdf4c1aa;">)));
-    </span><span style="color:#fabd2f;">println!</span><span style="color:#fdf4c1aa;">(</span><span style="color:#b8bb26;">&quot;</span><span style="color:#fdf4c1;">{:?}</span><span style="color:#b8bb26;">&quot;</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fabd2f;">fold_expr</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">e));
+fn main() {
+    let e = Expr::Mul(&amp;Expr::Num(5), &amp;Expr::Add(&amp;Expr::Num(10), &amp;Expr::Num(5)));
+    println!(&quot;{:?}&quot;, fold_expr(&amp;e));
 }
-</span></code></pre>
+</code></pre>
 <p>Essentially two things changed. The visitor is now borrowed immutably, every function now has an explicit return and most visit functions have no default implementation anymore. Also the walk functions can now be paralellized. I decided to use rayon because it easy to use and it almost does what I want.</p>
 <p>For me it is important that the compiler is designed from the ground up to support multi-threading, as it would most likely not be easy to add it later.</p>
 <p>The main problem with this example is that it is too simple. </p>
 <p>Consider this let statement.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> a: Bar </span><span style="color:#fe8019;">= </span><span style="color:#fabd2f;">foo</span><span style="color:#fdf4c1aa;">();
-</span></code></pre>
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">let a: Bar = foo();
+</code></pre>
 <p>Before we can typecheck this expression we need to find the correct function <code>foo</code> as there could be many more functions named <code>foo</code> in different scopes. Then we need to extract the return type, which is a user defined type. This means that we also have to find that type in the correct scope. Also <code>Bar</code> can be defined after <code>foo</code>.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">foo</span><span style="color:#fdf4c1aa;">() -&gt; Bar{
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">fn foo() -&gt; Bar{
     Bar{}
 }
-</span><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">Bar</span><span style="color:#fdf4c1aa;">; 
-</span></code></pre>
+struct Bar; 
+</code></pre>
 <p>Because of this, we need to collect information about the AST before we can do type checking. The same is true for code generation</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> a </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">4</span><span style="color:#fdf4c1aa;">;
-</span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> b </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> a;
-</span></code></pre>
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">let a = 4;
+let b = a;
+</code></pre>
 <p>We first create a new variable and store the value <code>4</code> in <code>a</code>, then we create variable <code>b</code> and load the value of <code>a</code> and store it in <code>b</code>. This is the equivalent SPIR-V code.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;"> </span><span style="color:#fe8019;">%</span><span style="color:#fdf4c1aa;">a </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> OpVariable </span><span style="color:#fe8019;">%</span><span style="color:#fdf4c1aa;">_ptr_Function_uint Function
-      OpStore </span><span style="color:#fe8019;">%</span><span style="color:#fdf4c1aa;">a </span><span style="color:#fe8019;">%</span><span style="color:#fdf4c1aa;">uint_4
- </span><span style="color:#fe8019;">%</span><span style="color:#fdf4c1aa;">b </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> OpVariable </span><span style="color:#fe8019;">%</span><span style="color:#fdf4c1aa;">_ptr_Function_uint Function
-</span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">20 </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> OpLoad </span><span style="color:#fe8019;">%</span><span style="color:#fdf4c1aa;">uint </span><span style="color:#fe8019;">%</span><span style="color:#fdf4c1aa;">a
-      OpStore </span><span style="color:#fe8019;">%</span><span style="color:#fdf4c1aa;">b </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">20
-</span></code></pre>
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust"> %a = OpVariable %_ptr_Function_uint Function
+      OpStore %a %uint_4
+ %b = OpVariable %_ptr_Function_uint Function
+%20 = OpLoad %uint %a
+      OpStore %b %20
+</code></pre>
 <p>This means that when we traverse the AST and generate code for <code>a</code>, we need to reuse the symbols that we generated previously. To me this seems like an inherently mutable problem (at least in Rust). I am not sure if and immutable solution would be a viable approach in Rust. I am thinking of using a <a href="https://docs.rs/chashmap/2.2.0/chashmap/">concurrent hashmap</a> unless I can think of a better solution.</p>
 <p>The other problem is the code generation itself. I currently have one mutable builder object that can record instructions.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">.ctx.builder.</span><span style="color:#fabd2f;">store</span><span style="color:#fdf4c1aa;">(
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">self.ctx.builder.store(
     spirv_var.var_id,
-    </span><span style="color:#fe8019;">*</span><span style="color:#fdf4c1aa;">spirv_expr,
-    </span><span style="color:#fabd2f;">None</span><span style="color:#fdf4c1aa;">,
-    </span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">[],
+    *spirv_expr,
+    None,
+    &amp;[],
 );
-</span></code></pre>
+</code></pre>
 <p>Of course I can not use this in multi-threaded code. I could wrap in a <code>Mutex</code> but that would completely kill the performance as this object is accessed in every node inside the AST. One solution that I am thinking of is to create a separate builder object in every traversal, record commands and return the object. Then I could stitch those objects together when I traverse the AST from the bottom to the top. The caveat is that this would introduce many small allocations and Rust currently doesn't really have good solution for memory management with user defined allocators.</p>
 <p>Traversing the AST turned out to be harder than I thought but I think the visitor pattern with explicit returns will result in cleaner and better code.</p>
 

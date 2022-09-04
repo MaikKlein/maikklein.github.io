@@ -128,81 +128,78 @@
 <p>This blog post expects that you are familiar with an Entity Component System, if you don't know what an Entity Component System is, then you should look at the <a href="https://kyren.github.io/2018/09/14/rustconf-talk.html">RustConf 2018 Closing Keynote</a>.</p>
 <h1 id="what-makes-pyro-special">What makes Pyro special?</h1>
 <p>In contrast to many other ECS, iteration in Pyro is fully linear. Different combinations of components always live in the same storage.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">// A Storage that contains `Pos`, `Vel`, `Health`.
+<pre><code>&#x2F;&#x2F; A Storage that contains `Pos`, `Vel`, `Health`.
 (
    [Pos1, Pos2, Pos3, .., PosN],
    [Vel1, Vel2, Vel3, .., VelN],
    [Health1, Health2, Health3, .., HealthN],
 )
 
-// A Storage that contains `Pos`, `Vel`.
+&#x2F;&#x2F; A Storage that contains `Pos`, `Vel`.
 (
    [Pos1, Pos2, Pos3, .., PosM]
    [Vel1, Vel2, Vel3, .., VelM]
 )
 
-</span></code></pre>
+</code></pre>
 <p>For the given query</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">type </span><span style="color:#8ec07c;">PosVelQuery </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">(Write&lt;Pos&gt;, Read&lt;Vel&gt;);
-</span><span style="font-style:italic;color:#928374;">//                  ^^^^^       ^^^^
-//                  Mutable     Immutable
-</span><span style="color:#fdf4c1aa;">world.matcher::&lt;All&lt;PosVelQuery&gt;&gt;().</span><span style="color:#fabd2f;">for_each</span><span style="color:#fdf4c1aa;">(|(</span><span style="color:#fdf4c1;">pos</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">vel</span><span style="color:#fdf4c1aa;">)|{
-    pos </span><span style="color:#fe8019;">+=</span><span style="color:#fdf4c1aa;"> vel;
+<pre data-lang="rust" class="language-rust "><code class="language-rust" data-lang="rust">type PosVelQuery = (Write&lt;Pos&gt;, Read&lt;Vel&gt;);
+&#x2F;&#x2F;                  ^^^^^       ^^^^
+&#x2F;&#x2F;                  Mutable     Immutable
+world.matcher::&lt;All&lt;PosVelQuery&gt;&gt;().for_each(|(pos, vel)|{
+    pos += vel;
 })
-</span></code></pre>
+</code></pre>
 <p>Pyro will find all the storages that contain a <code>Pos</code> and <code>Vel</code> component, create an position iterator from the position array of each storage and chain them together. The same is done for <code>Vel</code>. Under the hood it might look like this:</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">positions:  [Pos1, Pos2, Pos3, .., PosN], [Pos1, Pos2, Pos3, .., PosM]
+<pre><code>positions:  [Pos1, Pos2, Pos3, .., PosN], [Pos1, Pos2, Pos3, .., PosM]
 velocities: [Vel1, Vel2, Vel3, .., VelN], [Vel1, Vel2, Vel3, .., VelM]
                                         ^
                                         Jump occurs here
-</span></code></pre>
+</code></pre>
 <p>The advantage is that iteration is always fully linear and no cache is wasted. The storage behind the scene is a <a href="https://software.intel.com/en-us/articles/memory-layout-transformations">SoA</a> storage. This is very different from other <em>ECS</em> like specs where components live in the same storage that can be customized by the user.</p>
 <h1 id="api-overview">API Overview</h1>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">extern crate</span><span style="color:#fdf4c1aa;"> pyro;
-</span><span style="color:#fa5c4b;">use </span><span style="color:#fdf4c1aa;">pyro::{ World, Entity, Read, Write, All, SoaStorage };
-</span><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">Position</span><span style="color:#fdf4c1aa;">;
-</span><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">Velocity</span><span style="color:#fdf4c1aa;">;
+<pre data-lang="rust" class="language-rust "><code class="language-rust" data-lang="rust">extern crate pyro;
+use pyro::{ World, Entity, Read, Write, All, SoaStorage };
+struct Position;
+struct Velocity;
 
 
-</span><span style="font-style:italic;color:#928374;">// By default creates a world backed by a [`SoaStorage`]
-</span><span style="color:#fa5c4b;">let mut</span><span style="color:#fdf4c1aa;"> world: World&lt;SoaStorage&gt; </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">World::new();
-</span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> add_pos_vel </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">(</span><span style="color:#d3869b;">0</span><span style="color:#fe8019;">..</span><span style="color:#d3869b;">99</span><span style="color:#fdf4c1aa;">).</span><span style="color:#fabd2f;">map</span><span style="color:#fdf4c1aa;">(|_| (Position{}, Velocity{}));
-</span><span style="font-style:italic;color:#928374;">//                                 ^^^^^^^^^^^^^^^^^^^^^^^^
-//                                 A tuple of (Position, Velocity),
-//                                 Note: Order does *not* matter
+&#x2F;&#x2F; By default creates a world backed by a [`SoaStorage`]
+let mut world: World&lt;SoaStorage&gt; = World::new();
+let add_pos_vel = (0..99).map(|_| (Position{}, Velocity{}));
+&#x2F;&#x2F;                                 ^^^^^^^^^^^^^^^^^^^^^^^^
+&#x2F;&#x2F;                                 A tuple of (Position, Velocity),
+&#x2F;&#x2F;                                 Note: Order does *not* matter
 
-// Appends 99 entities with a Position and Velocity component.
-</span><span style="color:#fdf4c1aa;">world.</span><span style="color:#fabd2f;">append_components</span><span style="color:#fdf4c1aa;">(add_pos_vel);
+&#x2F;&#x2F; Appends 99 entities with a Position and Velocity component.
+world.append_components(add_pos_vel);
 
-</span><span style="font-style:italic;color:#928374;">// Appends a single entity
-</span><span style="color:#fdf4c1aa;">world.</span><span style="color:#fabd2f;">append_components</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fabd2f;">Some</span><span style="color:#fdf4c1aa;">((Position{}, Velocity{})));
+&#x2F;&#x2F; Appends a single entity
+world.append_components(Some((Position{}, Velocity{})));
 
-</span><span style="font-style:italic;color:#928374;">// Requests a mutable borrow to Position, and an immutable borrow to Velocity.
-// Common queries can be reused with a typedef like this but it is not necessary.
-</span><span style="color:#fa5c4b;">type </span><span style="color:#8ec07c;">PosVelQuery </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">(Write&lt;Position&gt;, Read&lt;Velocity&gt;);
+&#x2F;&#x2F; Requests a mutable borrow to Position, and an immutable borrow to Velocity.
+&#x2F;&#x2F; Common queries can be reused with a typedef like this but it is not necessary.
+type PosVelQuery = (Write&lt;Position&gt;, Read&lt;Velocity&gt;);
 
-</span><span style="font-style:italic;color:#928374;">// Retrieves all entities that have a Position and Velocity component as an iterator.
-</span><span style="color:#fdf4c1aa;">world.matcher::&lt;All&lt;PosVelQuery&gt;&gt;().</span><span style="color:#fabd2f;">for_each</span><span style="color:#fdf4c1aa;">(|(</span><span style="color:#fdf4c1;">pos</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">vel</span><span style="color:#fdf4c1aa;">)|{
-   </span><span style="font-style:italic;color:#928374;">// ...
-</span><span style="color:#fdf4c1aa;">});
+&#x2F;&#x2F; Retrieves all entities that have a Position and Velocity component as an iterator.
+world.matcher::&lt;All&lt;PosVelQuery&gt;&gt;().for_each(|(pos, vel)|{
+   &#x2F;&#x2F; ...
+});
 
-</span><span style="font-style:italic;color:#928374;">// The same query as above but also retrieves the entities and collects the entities into a
-// `Vec&lt;Entity&gt;`.
-</span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> entities: </span><span style="color:#fabd2f;">Vec</span><span style="color:#fdf4c1aa;">&lt;Entity&gt; </span><span style="color:#fe8019;">=
-</span><span style="color:#fdf4c1aa;">    world.matcher_with_entities::&lt;All&lt;PosVelQuery&gt;&gt;()
-    .</span><span style="color:#fabd2f;">filter_map</span><span style="color:#fdf4c1aa;">(|(</span><span style="color:#fdf4c1;">entity</span><span style="color:#fdf4c1aa;">, (</span><span style="color:#fdf4c1;">pos</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">vel</span><span style="color:#fdf4c1aa;">))</span><span style="color:#fe8019;">|</span><span style="color:#fdf4c1aa;">{
-        </span><span style="color:#fabd2f;">Some</span><span style="color:#fdf4c1aa;">(entity)
-    }).</span><span style="color:#fabd2f;">collect</span><span style="color:#fdf4c1aa;">();
+&#x2F;&#x2F; The same query as above but also retrieves the entities and collects the entities into a
+&#x2F;&#x2F; `Vec&lt;Entity&gt;`.
+let entities: Vec&lt;Entity&gt; =
+    world.matcher_with_entities::&lt;All&lt;PosVelQuery&gt;&gt;()
+    .filter_map(|(entity, (pos, vel))|{
+        Some(entity)
+    }).collect();
 
-</span><span style="font-style:italic;color:#928374;">// Removes all the entities
-</span><span style="color:#fdf4c1aa;">world.</span><span style="color:#fabd2f;">remove_entities</span><span style="color:#fdf4c1aa;">(entities);
-</span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> count </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> world.matcher::&lt;All&lt;PosVelQuery&gt;&gt;().</span><span style="color:#fabd2f;">count</span><span style="color:#fdf4c1aa;">();
-</span><span style="color:#fabd2f;">assert_eq!</span><span style="color:#fdf4c1aa;">(count, </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1aa;">);
-</span></code></pre><h1 id="performance">Performance</h1>
+&#x2F;&#x2F; Removes all the entities
+world.remove_entities(entities);
+let count = world.matcher::&lt;All&lt;PosVelQuery&gt;&gt;().count();
+assert_eq!(count, 0);
+</code></pre>
+<h1 id="performance">Performance</h1>
 <p><img src="https://raw.githubusercontent.com/MaikKlein/ecs_bench/master/graph/all.png" alt="" />
 <a href="https://github.com/MaikKlein/pyro">Source</a></p>
 <p>This is only the <strong>single threaded</strong> benchmark because I haven't implemented multi-threading yet for Pyro. It is not a fundamental problem, I just haven't found the time yet to implement <code>multizip</code> for rayon. The benchmark is also too simplistic to be useful, so take it with a grain of salt.</p>
@@ -213,91 +210,86 @@ velocities: [Vel1, Vel2, Vel3, .., VelN], [Vel1, Vel2, Vel3, .., VelM]
 <h1 id="first-impression-of-using-an-ecs">First impression of using an ECS</h1>
 <p>Overall my impression is pretty good, but there are also a few downsides to an ECS. </p>
 <h2 id="loose-coupling">Loose coupling:</h2>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">pub fn </span><span style="color:#8ec07c;">kill_enemies</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">world</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">mut</span><span style="color:#fdf4c1aa;"> World) {
-    </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> dead_enemies: </span><span style="color:#fabd2f;">Vec</span><span style="color:#fdf4c1aa;">&lt;</span><span style="color:#fe8019;">_</span><span style="color:#fdf4c1aa;">&gt; </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> world
+<pre data-lang="rust" class="language-rust "><code class="language-rust" data-lang="rust">pub fn kill_enemies(world: &amp;mut World) {
+    let dead_enemies: Vec&lt;_&gt; = world
         .matcher_with_entities::&lt;All&lt;(Read&lt;Enemy&gt;,)&gt;&gt;()
-        .</span><span style="color:#fabd2f;">filter_map</span><span style="color:#fdf4c1aa;">(|(</span><span style="color:#fdf4c1;">entity</span><span style="color:#fdf4c1aa;">, (</span><span style="color:#fdf4c1;">enemy</span><span style="color:#fdf4c1aa;">,))</span><span style="color:#fe8019;">| </span><span style="color:#fdf4c1aa;">{
-            </span><span style="color:#fa5c4b;">if</span><span style="color:#fdf4c1aa;"> enemy.health </span><span style="color:#fe8019;">&lt;= </span><span style="color:#d3869b;">0.0 </span><span style="color:#fdf4c1aa;">{
-                </span><span style="color:#fabd2f;">Some</span><span style="color:#fdf4c1aa;">(entity)
-            } </span><span style="color:#fa5c4b;">else </span><span style="color:#fdf4c1aa;">{
-                </span><span style="color:#fabd2f;">None
-            </span><span style="color:#fdf4c1aa;">}
-        }).</span><span style="color:#fabd2f;">collect</span><span style="color:#fdf4c1aa;">();
-    world.</span><span style="color:#fabd2f;">remove_entities</span><span style="color:#fdf4c1aa;">(dead_enemies);
+        .filter_map(|(entity, (enemy,))| {
+            if enemy.health &lt;= 0.0 {
+                Some(entity)
+            } else {
+                None
+            }
+        }).collect();
+    world.remove_entities(dead_enemies);
 }
-</span></code></pre>
+</code></pre>
 <p>I think understanding local concerns is generally much simpler in an ECS because you only use what you need. For example in the example above we iterate over all enemies and filter out the enemies that have a negative health and then we delete those entities. There could be thousands of different enemy types, but that complexity is completely irrelevant for this function.</p>
 <p>Seeing the big picture in an ECS might be much harder because we don't necessarily know which components a given entity has at run time. Compare this to something from<code>OOD</code></p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">Player </span><span style="color:#fdf4c1aa;">{
-    </span><span style="color:#fdf4c1;">input</span><span style="color:#fdf4c1aa;">: Input,
-    </span><span style="color:#fdf4c1;">health</span><span style="color:#fdf4c1aa;">: Health,
-    </span><span style="color:#fdf4c1;">spells</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fabd2f;">Vec</span><span style="color:#fdf4c1aa;">&lt;Spell&gt;
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">struct Player {
+    input: Input,
+    health: Health,
+    spells: Vec&lt;Spell&gt;
     ...
 }
-</span></code></pre>
+</code></pre>
 <p>It is much easier to fully understand what a <code>Player</code> can actually do. Additionally it is easy to have incompatible components on an entity. An entity can have a position and velocity component, and then a function updates the position based on the velocity for every frame. Now there is also an <code>Pathfinding</code> component, which is used to navigate AI through the map. Having <code>Position</code>, <code>Velocity</code> and <code>Pathfinding</code> probably doesn't make much sense on the same entity.</p>
 <h2 id="performance-by-default">Performance by default</h2>
 <p>While an ECS might not give you the best theoretical performance, it is still pretty efficient. All you need to worry about is &quot;What data do I need, and how do I access it?&quot;. Also it makes certain runtime branches obsolete. For example imagine that you want to shoot a projectile. It should move along a line and explode when it collides with an enemy and apply damage.
 Now there can be many different projectiles. For example you might want a missile that spawns other missiles when it explodes. You could create an new enum</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">Missile </span><span style="color:#fdf4c1aa;">{
+<pre data-lang="rust" class="language-rust "><code class="language-rust" data-lang="rust">enum Missile {
     Standard,
     Spaw,
 }
-</span></code></pre>
+</code></pre>
 <p>and then check at runtime which rocket you need to spawn.</p>
 <p>You could also make your missile generic.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">pub fn </span><span style="color:#8ec07c;">create_missile</span><span style="color:#fdf4c1aa;">&lt;Projectile: Component&gt;(
-    </span><span style="color:#fdf4c1;">asset</span><span style="color:#fdf4c1aa;">: AssetId,
-    </span><span style="color:#fdf4c1;">location</span><span style="color:#fdf4c1aa;">: Position,
-    </span><span style="color:#fdf4c1;">dir</span><span style="color:#fdf4c1aa;">: na::Vector2&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;,
-    </span><span style="color:#fdf4c1;">speed</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">,
-    </span><span style="color:#fdf4c1;">projectile</span><span style="color:#fdf4c1aa;">: Projectile,
+<pre data-lang="rust" class="language-rust "><code class="language-rust" data-lang="rust">pub fn create_missile&lt;Projectile: Component&gt;(
+    asset: AssetId,
+    location: Position,
+    dir: na::Vector2&lt;f32&gt;,
+    speed: f32,
+    projectile: Projectile,
 ) -&gt; Missile&lt;Projectile&gt; {
     (
         location,
-        Velocity(dir </span><span style="color:#fe8019;">*</span><span style="color:#fdf4c1aa;"> speed),
+        Velocity(dir * speed),
         Render {
             asset,
-            scale: </span><span style="color:#d3869b;">1.0</span><span style="color:#fdf4c1aa;">,
-            inital_rotation: </span><span style="color:#fdf4c1;">PI </span><span style="color:#fe8019;">/ </span><span style="color:#d3869b;">2.0</span><span style="color:#fdf4c1aa;">,
+            scale: 1.0,
+            inital_rotation: PI &#x2F; 2.0,
         },
-        Orientation(</span><span style="color:#d3869b;">0.0</span><span style="color:#fdf4c1aa;">),
+        Orientation(0.0),
         TimeToLive {
             created: SystemTime::now(),
-            time_until_death: Duration::from_secs(</span><span style="color:#d3869b;">3</span><span style="color:#fdf4c1aa;">),
+            time_until_death: Duration::from_secs(3),
         },
         Flip::Right,
-        Damage(</span><span style="color:#d3869b;">1.0</span><span style="color:#fdf4c1aa;">),
+        Damage(1.0),
         projectile,
     )
 }
-</span></code></pre><pre style="background-color:#282828;">
-<code><span style="color:#fabd2f;">create_missile</span><span style="color:#fdf4c1aa;">(AssetId::Missile, new_pos, dir, </span><span style="color:#d3869b;">700.0</span><span style="color:#fdf4c1aa;">, SpawnMissile {})
-</span><span style="color:#fabd2f;">create_missile</span><span style="color:#fdf4c1aa;">(AssetId::Missile, new_pos, dir, </span><span style="color:#d3869b;">700.0</span><span style="color:#fdf4c1aa;">, StandardMissile {})
-</span></code></pre>
+</code></pre>
+<pre data-lang="rust" class="language-rust "><code class="language-rust" data-lang="rust">create_missile(AssetId::Missile, new_pos, dir, 700.0, SpawnMissile {})
+create_missile(AssetId::Missile, new_pos, dir, 700.0, StandardMissile {})
+</code></pre>
 <p>So we can create two different missiles, and because they have one different component type, they will end up in two separate storages. Now we can abstract over those missiles at compile time, and we can skip the runtime branch.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">#[</span><span style="color:#fdf4c1;">derive</span><span style="color:#fdf4c1aa;">(Copy, Clone)]
-</span><span style="color:#fa5c4b;">pub struct </span><span style="color:#8ec07c;">SpawnMissile</span><span style="color:#fdf4c1aa;">;
-</span><span style="color:#fa5c4b;">pub struct </span><span style="color:#8ec07c;">SpawnMissileSystem </span><span style="color:#fdf4c1aa;">{
-    </span><span style="color:#fdf4c1;">spawn</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fabd2f;">Vec</span><span style="color:#fdf4c1aa;">&lt;Missile&lt;StandardMissile&gt;&gt;,
+<pre data-lang="rust" class="language-rust "><code class="language-rust" data-lang="rust">#[derive(Copy, Clone)]
+pub struct SpawnMissile;
+pub struct SpawnMissileSystem {
+    spawn: Vec&lt;Missile&lt;StandardMissile&gt;&gt;,
 }
-</span><span style="color:#fa5c4b;">impl </span><span style="color:#fdf4c1aa;">OnProjectileHit </span><span style="color:#fa5c4b;">for </span><span style="color:#8ec07c;">SpawnMissileSystem </span><span style="color:#fdf4c1aa;">{
-    </span><span style="color:#fa5c4b;">type </span><span style="color:#8ec07c;">Projectile </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> SpawnMissile;
-    </span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">on_projectile_hit</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">mut </span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">pos</span><span style="color:#fdf4c1aa;">: Position, </span><span style="color:#fdf4c1;">_projectile</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">Self::</span><span style="color:#fdf4c1aa;">Projectile) {
-        </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> missiles </span><span style="color:#fe8019;">= </span><span style="color:#fabd2f;">create_radial_missiles</span><span style="color:#fdf4c1aa;">(pos, </span><span style="color:#d3869b;">150.0</span><span style="color:#fdf4c1aa;">, </span><span style="color:#d3869b;">15.0</span><span style="color:#fdf4c1aa;">, </span><span style="color:#d3869b;">12</span><span style="color:#fdf4c1aa;">, StandardMissile {});
-        </span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">.spawn.</span><span style="color:#fabd2f;">extend</span><span style="color:#fdf4c1aa;">(missiles);
+impl OnProjectileHit for SpawnMissileSystem {
+    type Projectile = SpawnMissile;
+    fn on_projectile_hit(&amp;mut self, pos: Position, _projectile: &amp;Self::Projectile) {
+        let missiles = create_radial_missiles(pos, 150.0, 15.0, 12, StandardMissile {});
+        self.spawn.extend(missiles);
     }
-    </span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">finish</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">mut </span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">world</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">mut</span><span style="color:#fdf4c1aa;"> World) {
-        </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> spawn </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">.spawn.</span><span style="color:#fabd2f;">drain</span><span style="color:#fdf4c1aa;">(</span><span style="color:#d3869b;">0</span><span style="color:#fe8019;">..</span><span style="color:#fdf4c1aa;">);
-        world.</span><span style="color:#fabd2f;">append_components</span><span style="color:#fdf4c1aa;">(spawn);
+    fn finish(&amp;mut self, world: &amp;mut World) {
+        let spawn = self.spawn.drain(0..);
+        world.append_components(spawn);
     }
 }
-</span></code></pre>
+</code></pre>
 <p>Of course you can do that without an ECS too but this is very natural in Pyro. Also Pyro follows the mantra 'If there is one, there are many.'. Everything that you do, you do in bulk. You don't spawn a single rocket, iterate to the next explosion and then spawn another rocket. You collect all the rockets that you want to spawn and then you spawn them in bulk. Right now this requires an allocation but the allocation can be avoided in the future with custom allocators.</p>
 <h1 id="closing-thoughts">Closing thoughts</h1>
 <p>I can't recommend it for any serious projects just yet. I only worked on it for under a week and there are some API deficiencies that I haven't addressed yet. I also haven't done much optimization and some parts of Pyro are implemented fairly slowly. If you want an ECS right now, you should use something like <a href="https://github.com/slide-rs/specs">specs</a>. </p>

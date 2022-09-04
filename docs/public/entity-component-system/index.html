@@ -108,128 +108,119 @@
 <p>This post will be about the general design of my entity component system.</p>
 <h2 id="features">Features</h2>
 <p>The core features of my entity component system are:</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">Contiguous memory </span><span style="color:#8ec07c;">layout
+<pre data-lang="cpp" class="language-cpp "><code class="language-cpp" data-lang="cpp">Contiguous memory layout
 Components are grouped at compile time
 Compile time filtering of components
 Components are always added in the correct group automatically
-</span></code></pre><h2 id="overview">Overview</h2>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">world</span><span style="color:#fdf4c1aa;">{
-  </span><span style="font-style:italic;color:#928374;">//component_group &#39;moveable_object&#39;
-</span><span style="color:#fdf4c1aa;">  std::vector&lt;position&gt; moveable_object_position;
+</code></pre>
+<h2 id="overview">Overview</h2>
+<pre data-lang="cpp" class="language-cpp "><code class="language-cpp" data-lang="cpp">struct world{
+  &#x2F;&#x2F;component_group &#x27;moveable_object&#x27;
+  std::vector&lt;position&gt; moveable_object_position;
   std::vector&lt;velocity&gt; moveable_object_velocity;
 
-  </span><span style="font-style:italic;color:#928374;">//component_group &#39;entity&#39;
-</span><span style="color:#fdf4c1aa;">  std::vector&lt;position&gt; entity_position;
+  &#x2F;&#x2F;component_group &#x27;entity&#x27;
+  std::vector&lt;position&gt; entity_position;
   std::vector&lt;velocity&gt; entity_velocity;
   std::vector&lt;name&gt; entity_name;
-  </span><span style="color:#fe8019;">...
-</span><span style="color:#fdf4c1aa;">};
-</span></code></pre>
+  ...
+};
+</code></pre>
 <p>This is the core of the entity component system, we group components together at compile time. The layout is called <code>SoA</code> (structures of arrays) and a specific object is referred to by id.</p>
 <p>For example instead of having </p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">moveable_object</span><span style="color:#fdf4c1aa;">{
+<pre data-lang="cpp" class="language-cpp "><code class="language-cpp" data-lang="cpp">struct moveable_object{
   velocity vel;
   position pos;
 };
 std::vector&lt;moveable_object&gt; mv_objects;
-</span></code></pre>
+</code></pre>
 <p>we have</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">std::vector&lt;position&gt; moveable_object_position;
+<pre data-lang="cpp" class="language-cpp "><code class="language-cpp" data-lang="cpp">std::vector&lt;position&gt; moveable_object_position;
 std::vector&lt;velocity&gt; moveable_object_velocity;
-</span></code></pre>
+</code></pre>
 <p>And I refer to <code>moveable_object_position[index], moveable_object_velocity[index]</code> as an object in this post.</p>
 <p>Each <code>component_group</code> has a list of constrains, for example an <code>entity</code> needs to have a <code>position</code>, <code>velocity</code> and <code>name</code> component. The advantage of this approach is that filtering is essentially free, because we can just iterate over <code>entity_position</code>,<code>entity_velocity</code> and<code>entity_name</code> at the same time. Another advantage is that we don't have to worry about the memory layout as much, because we group everything at compile time.</p>
 <p>It is also possible to filter <code>component_groups</code> based on the components they own. For example if we want to iterate over every <code>object</code> that has a <code>position</code> and <code>velocity</code> component, we would have to iterate over <code>entity_position</code>, <code>entity_velocity</code> and <code>moveable_object_position</code>, <code>moveable_object_velocity</code>.</p>
 <p>Obviously maintaining something like this by hand is extremely tedious. This is where metaprogramming will help us to convey our meaning. The following code snippet is a small example from my experimental entity component system.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">position </span><span style="color:#fdf4c1aa;">{
-  </span><span style="color:#fa5c4b;">float</span><span style="color:#fdf4c1aa;"> x, y;
+<pre data-lang="cpp" class="language-cpp "><code class="language-cpp" data-lang="cpp">struct position {
+  float x, y;
 };
-</span><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">velocity </span><span style="color:#fdf4c1aa;">{
-  </span><span style="color:#fa5c4b;">float</span><span style="color:#fdf4c1aa;"> x, y;
+struct velocity {
+  float x, y;
 };
-</span><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">name </span><span style="color:#fdf4c1aa;">{
+struct name {
   std::string name;
 };
 
-</span><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">print_name </span><span style="color:#fdf4c1aa;">{
-  </span><span style="color:#fa5c4b;">template </span><span style="color:#fdf4c1aa;">&lt;</span><span style="color:#fa5c4b;">class</span><span style="color:#fdf4c1aa;"> World&gt; </span><span style="color:#fa5c4b;">void </span><span style="color:#8ec07c;">update</span><span style="color:#fdf4c1aa;">(World</span><span style="color:#fe8019;">&amp; </span><span style="color:#fdf4c1;">w</span><span style="color:#fdf4c1aa;">) {
-    w.</span><span style="color:#fa5c4b;">template </span><span style="color:#fdf4c1;">update</span><span style="color:#fdf4c1aa;">&lt;name&gt;([](</span><span style="color:#fa5c4b;">auto</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;"> name) { </span><span style="color:#fdf4c1;">print(name.name)</span><span style="color:#fdf4c1aa;">; });
+struct print_name {
+  template &lt;class World&gt; void update(World&amp; w) {
+    w.template update&lt;name&gt;([](auto&amp; name) { print(name.name); });
   }
 };
-</span><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">print_pos_vel </span><span style="color:#fdf4c1aa;">{
-  </span><span style="color:#fa5c4b;">template </span><span style="color:#fdf4c1aa;">&lt;</span><span style="color:#fa5c4b;">class</span><span style="color:#fdf4c1aa;"> World&gt; </span><span style="color:#fa5c4b;">void </span><span style="color:#8ec07c;">update</span><span style="color:#fdf4c1aa;">(World</span><span style="color:#fe8019;">&amp; </span><span style="color:#fdf4c1;">w</span><span style="color:#fdf4c1aa;">) {
-    w.</span><span style="color:#fa5c4b;">template </span><span style="color:#fdf4c1;">update</span><span style="color:#fdf4c1aa;">&lt;position, velocity&gt;([](</span><span style="color:#fa5c4b;">auto</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;"> pos, </span><span style="color:#fa5c4b;">auto</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;"> vel) {
-      </span><span style="color:#fdf4c1;">print(pos.x, pos.y)</span><span style="color:#fdf4c1aa;">;
-      </span><span style="color:#fdf4c1;">print(vel.x, vel.y)</span><span style="color:#fdf4c1aa;">;
+struct print_pos_vel {
+  template &lt;class World&gt; void update(World&amp; w) {
+    w.template update&lt;position, velocity&gt;([](auto&amp; pos, auto&amp; vel) {
+      print(pos.x, pos.y);
+      print(vel.x, vel.y);
     });
   }
 };
-</span><span style="color:#fa5c4b;">auto </span><span style="color:#8ec07c;">make_monster</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">float </span><span style="color:#fdf4c1;">x</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fa5c4b;">float </span><span style="color:#fdf4c1;">y</span><span style="color:#fdf4c1aa;">, std::string </span><span style="color:#fdf4c1;">n</span><span style="color:#fdf4c1aa;">) {
-  </span><span style="color:#fa5c4b;">return </span><span style="color:#fdf4c1;">hana::make_tuple(position{ x, y }, velocity{ </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1;">, </span><span style="color:#d3869b;">0 </span><span style="color:#fdf4c1;">}, name{ n })</span><span style="color:#fdf4c1aa;">;
+auto make_monster(float x, float y, std::string n) {
+  return hana::make_tuple(position{ x, y }, velocity{ 0, 0 }, name{ n });
 }
 
-</span><span style="color:#fa5c4b;">template </span><span style="color:#fdf4c1aa;">&lt;</span><span style="color:#fa5c4b;">class</span><span style="color:#fe8019;">...</span><span style="color:#fdf4c1aa;"> Ts&gt;
-</span><span style="color:#fa5c4b;">using </span><span style="color:#8ec07c;">component_group_handle </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> ecs::core::component_group&lt;
-    breeze::util::container::handle_container, Ts</span><span style="color:#fe8019;">...</span><span style="color:#fdf4c1aa;">&gt;;
+template &lt;class... Ts&gt;
+using component_group_handle = ecs::core::component_group&lt;
+    breeze::util::container::handle_container, Ts...&gt;;
 
-</span><span style="color:#fa5c4b;">int </span><span style="color:#8ec07c;">main</span><span style="color:#fdf4c1aa;">() {
-  </span><span style="color:#fa5c4b;">using </span><span style="color:#8ec07c;">moveable_object </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> component_group_handle&lt;position, velocity&gt;;
-  </span><span style="color:#fa5c4b;">using </span><span style="color:#8ec07c;">entity </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> component_group_handle&lt;position, velocity, name&gt;;
-  </span><span style="color:#fa5c4b;">using </span><span style="color:#8ec07c;">cg </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> ecs::core::component_groups&lt;moveable_object, entity&gt;;
-  </span><span style="color:#fa5c4b;">auto</span><span style="color:#fdf4c1aa;"> w </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">ecs::core::world&lt;cg&gt;{}</span><span style="color:#fdf4c1aa;">;
-  </span><span style="color:#fa5c4b;">auto</span><span style="color:#fdf4c1aa;"> sg </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">ecs::core::make_systems_group(w, print_name{}, print_pos_vel{})</span><span style="color:#fdf4c1aa;">;
-  w.</span><span style="color:#fdf4c1;">add</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">make_monster(</span><span style="color:#d3869b;">10</span><span style="color:#fdf4c1;">, </span><span style="color:#d3869b;">5</span><span style="color:#fdf4c1;">, </span><span style="color:#b8bb26;">&quot;Monster3&quot;</span><span style="color:#fdf4c1;">)</span><span style="color:#fdf4c1aa;">);
-  w.</span><span style="color:#fdf4c1;">add</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">make_monster(</span><span style="color:#d3869b;">11</span><span style="color:#fdf4c1;">, </span><span style="color:#d3869b;">5</span><span style="color:#fdf4c1;">, </span><span style="color:#b8bb26;">&quot;Monster2&quot;</span><span style="color:#fdf4c1;">)</span><span style="color:#fdf4c1aa;">);
-  w.</span><span style="color:#fdf4c1;">add</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">position{ </span><span style="color:#d3869b;">42</span><span style="color:#fdf4c1;">, </span><span style="color:#d3869b;">24 </span><span style="color:#fdf4c1;">}</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">velocity{ </span><span style="color:#d3869b;">5</span><span style="color:#fdf4c1;">, </span><span style="color:#d3869b;">5 </span><span style="color:#fdf4c1;">}</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">name{ </span><span style="color:#b8bb26;">&quot;Monster1&quot; </span><span style="color:#fdf4c1;">}</span><span style="color:#fdf4c1aa;">);
+int main() {
+  using moveable_object = component_group_handle&lt;position, velocity&gt;;
+  using entity = component_group_handle&lt;position, velocity, name&gt;;
+  using cg = ecs::core::component_groups&lt;moveable_object, entity&gt;;
+  auto w = ecs::core::world&lt;cg&gt;{};
+  auto sg = ecs::core::make_systems_group(w, print_name{}, print_pos_vel{});
+  w.add(make_monster(10, 5, &quot;Monster3&quot;));
+  w.add(make_monster(11, 5, &quot;Monster2&quot;));
+  w.add(position{ 42, 24 }, velocity{ 5, 5 }, name{ &quot;Monster1&quot; });
 
-  </span><span style="font-style:italic;color:#928374;">// moveable_object
-</span><span style="color:#fdf4c1aa;">  w.</span><span style="color:#fdf4c1;">add</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">position{ </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1;">, </span><span style="color:#d3869b;">0 </span><span style="color:#fdf4c1;">}</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">velocity{ </span><span style="color:#d3869b;">10</span><span style="color:#fdf4c1;">, </span><span style="color:#d3869b;">5 </span><span style="color:#fdf4c1;">}</span><span style="color:#fdf4c1aa;">);
-  sg.</span><span style="color:#fdf4c1;">update</span><span style="color:#fdf4c1aa;">();
+  &#x2F;&#x2F; moveable_object
+  w.add(position{ 0, 0 }, velocity{ 10, 5 });
+  sg.update();
 }
-</span></code></pre>
+</code></pre>
 <p>Don't worry if you don't understand what is going on, I'll try to explain everything you need to know in the following section.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">print_pos_vel </span><span style="color:#fdf4c1aa;">{
-  </span><span style="color:#fa5c4b;">template </span><span style="color:#fdf4c1aa;">&lt;</span><span style="color:#fa5c4b;">class</span><span style="color:#fdf4c1aa;"> World&gt; </span><span style="color:#fa5c4b;">void </span><span style="color:#8ec07c;">update</span><span style="color:#fdf4c1aa;">(World</span><span style="color:#fe8019;">&amp; </span><span style="color:#fdf4c1;">w</span><span style="color:#fdf4c1aa;">) {
-    w.</span><span style="color:#fa5c4b;">template </span><span style="color:#fdf4c1;">update</span><span style="color:#fdf4c1aa;">&lt;position, velocity&gt;([](</span><span style="color:#fa5c4b;">auto</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;"> pos, </span><span style="color:#fa5c4b;">auto</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;"> vel) {
-      </span><span style="color:#fdf4c1;">print(pos.x, pos.y)</span><span style="color:#fdf4c1aa;">;
-      </span><span style="color:#fdf4c1;">print(vel.x, vel.y)</span><span style="color:#fdf4c1aa;">;
+<pre data-lang="cpp" class="language-cpp "><code class="language-cpp" data-lang="cpp">struct print_pos_vel {
+  template &lt;class World&gt; void update(World&amp; w) {
+    w.template update&lt;position, velocity&gt;([](auto&amp; pos, auto&amp; vel) {
+      print(pos.x, pos.y);
+      print(vel.x, vel.y);
     });
   }
 };
-</span></code></pre>
+</code></pre>
 <p>This is a simple system, which filters out every <code>component_group</code>that does not have a <code>position</code> and <code>velocity</code> component, it then extracts the correct components for every <code>component_group</code> that we are interested in. We then zip the iterators for <code>position</code> and <code>velocity</code> together and we repeat this for every <code>component_group</code> that satisfies the <code>position</code> and <code>velocity</code> constrain. We are then left with a tuple of zipped iterators which we
 concatenate into one big iterator. After that we can iterate over every <code>position</code> and <code>velocity</code> component and print it to the console.</p>
 <p>The only thing that is done at runtime is accessing the iterator for every component and concatenate them.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">using </span><span style="color:#8ec07c;">moveable_object </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> component_group_handle&lt;position, velocity&gt;;
-</span><span style="color:#fa5c4b;">using </span><span style="color:#8ec07c;">entity </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> component_group_handle&lt;position, velocity, name&gt;;
-</span></code></pre>
+<pre data-lang="cpp" class="language-cpp "><code class="language-cpp" data-lang="cpp">using moveable_object = component_group_handle&lt;position, velocity&gt;;
+using entity = component_group_handle&lt;position, velocity, name&gt;;
+</code></pre>
 <p>These are our <code>component_groups</code> which we have to declare once. Technically those could be inferred but I decided that it would serve as a good way to document all the different <code>component_groups</code> that are used by the entity component system.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">using </span><span style="color:#8ec07c;">cg </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> ecs::core::component_groups&lt;moveable_object, entity&gt;;
-</span><span style="color:#fa5c4b;">auto</span><span style="color:#fdf4c1aa;"> w </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> ecs::core::world&lt;cg&gt;{};
-</span></code></pre>
+<pre data-lang="cpp" class="language-cpp "><code class="language-cpp" data-lang="cpp">using cg = ecs::core::component_groups&lt;moveable_object, entity&gt;;
+auto w = ecs::core::world&lt;cg&gt;{};
+</code></pre>
 <p>After declaring all the <code>component_group</code>'s that we want to use, we can finally create our <code>world</code> object.</p>
 <p>The world object itself doesn't do much and its purpose is to store our data. </p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">auto</span><span style="color:#fdf4c1aa;"> sg </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">ecs::core::make_systems_group(w, print_name{}, print_pos_vel{})</span><span style="color:#fdf4c1aa;">;
-</span><span style="color:#fe8019;">...
-</span><span style="color:#fdf4c1aa;">sg.</span><span style="color:#fdf4c1;">update</span><span style="color:#fdf4c1aa;">();
-</span></code></pre>
+<pre data-lang="cpp" class="language-cpp "><code class="language-cpp" data-lang="cpp">auto sg = ecs::core::make_systems_group(w, print_name{}, print_pos_vel{});
+...
+sg.update();
+</code></pre>
 <p>A <code>system_group</code> just groups different systems together and allows to call <code>update</code> on every system that has been registered at compile-time.</p>
-<pre style="background-color:#282828;">
-<code><span style="font-style:italic;color:#928374;">// entity
-</span><span style="color:#fdf4c1aa;">w.</span><span style="color:#fdf4c1;">add</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">position{ </span><span style="color:#d3869b;">42</span><span style="color:#fdf4c1;">, </span><span style="color:#d3869b;">24 </span><span style="color:#fdf4c1;">}</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">velocity{ </span><span style="color:#d3869b;">5</span><span style="color:#fdf4c1;">, </span><span style="color:#d3869b;">5 </span><span style="color:#fdf4c1;">}</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">name{ </span><span style="color:#b8bb26;">&quot;Monster1&quot; </span><span style="color:#fdf4c1;">}</span><span style="color:#fdf4c1aa;">);
+<pre data-lang="cpp" class="language-cpp "><code class="language-cpp" data-lang="cpp">&#x2F;&#x2F; entity
+w.add(position{ 42, 24 }, velocity{ 5, 5 }, name{ &quot;Monster1&quot; });
 
-</span><span style="font-style:italic;color:#928374;">// moveable_object
-</span><span style="color:#fdf4c1aa;">w.</span><span style="color:#fdf4c1;">add</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">position{ </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1;">, </span><span style="color:#d3869b;">0 </span><span style="color:#fdf4c1;">}</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">velocity{ </span><span style="color:#d3869b;">10</span><span style="color:#fdf4c1;">, </span><span style="color:#d3869b;">5 </span><span style="color:#fdf4c1;">}</span><span style="color:#fdf4c1aa;">);
-</span></code></pre>
+&#x2F;&#x2F; moveable_object
+w.add(position{ 0, 0 }, velocity{ 10, 5 });
+</code></pre>
 <p>Every <code>object</code> is added into the correct <code>component_group</code>. If you call add with <code>&lt;position, velocity&gt;</code> it will look at all the <code>component_group</code>'s and that were declared before and insert it into the correct one.
 Because we have declared <code>using moveable_object = component_group_handle&lt;position, velocity&gt;;</code>  the components <code>w.add(position{ 0, 0 }, velocity{ 10, 5 });</code> will be inserted into the <code>component_group</code> <code>moveable_object</code>.</p>
 <p>Deleting <code>objects</code> is also very simple. Because we have grouped everything at compile-time, we just have to look at the <code>component_group</code> that the object belongs to and delete it. To preserve contiguous elements we swap the last element with the element that we want to delete and then we simply remove the last element.</p>
