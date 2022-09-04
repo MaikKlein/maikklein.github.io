@@ -186,34 +186,34 @@ Instead <code>unreal-rust</code> will be written on top of the Unreal <code>AAct
 Additionally you can access Rust <code>Components</code> from within Blueprint. This allows you to drive Animation blueprints, or pass data into your UI.</p>
 <h2 id="editor-components-and-reflection">Editor components and reflection</h2>
 <p>To make your <code>Components</code> visible in the editor/blueprint all you have to do is to add the <code>Component</code> derive, give it a unique UUID/GUID (<em>which your editor of choice can generate</em>) and register it with <code>register_components</code>. And if you want it to show up in the editor, you can just mark it with <code>#[reflect(editor)]</code>.</p>
-<pre data-lang="rust" class="language-rust "><code class="language-rust" data-lang="rust">#[derive(Debug, Component)]
-#[uuid = &quot;16ca6de6-7a30-412d-8bef-4ee96e18a101&quot;]
-#[reflect(editor)]
-pub struct CharacterConfigComponent {
-    pub max_movement_speed: f32,
-    pub gravity_dir: Vec3,
-    pub gravity_strength: f32,
-    pub max_walkable_slope: f32,
-    pub step_size: f32,
-    pub walk_offset: f32,
-    pub jump_velocity: f32,
-    pub max_gliding_downwards_speed: f32,
-    pub gliding_gravity_scale: f32,
-    pub ground_offset: f32,
-}
-
-...
-
-impl Plugin for MovementPlugin {
-    fn build(&amp;self, module: &amp;mut Module) {
-        register_components! {
-            CharacterConfigComponent,
-            =&gt; module
-        };
-    }
-}
-
-</code></pre>
+<pre data-lang="rust" style="background-color:#282828;color:#fdf4c1aa;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[</span><span style="color:#fdf4c1;">derive</span><span>(Debug, Component)]
+</span><span>#[</span><span style="color:#fdf4c1;">uuid </span><span style="color:#fe8019;">= </span><span style="color:#b8bb26;">&quot;16ca6de6-7a30-412d-8bef-4ee96e18a101&quot;</span><span>]
+</span><span>#[</span><span style="color:#fdf4c1;">reflect</span><span>(editor)]
+</span><span style="color:#fa5c4b;">pub struct </span><span style="color:#8ec07c;">CharacterConfigComponent </span><span>{
+</span><span>    </span><span style="color:#fa5c4b;">pub </span><span style="color:#fdf4c1;">max_movement_speed</span><span>: </span><span style="color:#fa5c4b;">f32</span><span>,
+</span><span>    </span><span style="color:#fa5c4b;">pub </span><span style="color:#fdf4c1;">gravity_dir</span><span>: Vec3,
+</span><span>    </span><span style="color:#fa5c4b;">pub </span><span style="color:#fdf4c1;">gravity_strength</span><span>: </span><span style="color:#fa5c4b;">f32</span><span>,
+</span><span>    </span><span style="color:#fa5c4b;">pub </span><span style="color:#fdf4c1;">max_walkable_slope</span><span>: </span><span style="color:#fa5c4b;">f32</span><span>,
+</span><span>    </span><span style="color:#fa5c4b;">pub </span><span style="color:#fdf4c1;">step_size</span><span>: </span><span style="color:#fa5c4b;">f32</span><span>,
+</span><span>    </span><span style="color:#fa5c4b;">pub </span><span style="color:#fdf4c1;">walk_offset</span><span>: </span><span style="color:#fa5c4b;">f32</span><span>,
+</span><span>    </span><span style="color:#fa5c4b;">pub </span><span style="color:#fdf4c1;">jump_velocity</span><span>: </span><span style="color:#fa5c4b;">f32</span><span>,
+</span><span>    </span><span style="color:#fa5c4b;">pub </span><span style="color:#fdf4c1;">max_gliding_downwards_speed</span><span>: </span><span style="color:#fa5c4b;">f32</span><span>,
+</span><span>    </span><span style="color:#fa5c4b;">pub </span><span style="color:#fdf4c1;">gliding_gravity_scale</span><span>: </span><span style="color:#fa5c4b;">f32</span><span>,
+</span><span>    </span><span style="color:#fa5c4b;">pub </span><span style="color:#fdf4c1;">ground_offset</span><span>: </span><span style="color:#fa5c4b;">f32</span><span>,
+</span><span>}
+</span><span>
+</span><span style="color:#fe8019;">...
+</span><span>
+</span><span style="color:#fa5c4b;">impl </span><span>Plugin </span><span style="color:#fa5c4b;">for </span><span style="color:#8ec07c;">MovementPlugin </span><span>{
+</span><span>    </span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">build</span><span>(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1;">self</span><span>, </span><span style="color:#fdf4c1;">module</span><span>: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">mut</span><span> Module) {
+</span><span>        </span><span style="color:#fabd2f;">register_components! </span><span>{
+</span><span>            CharacterConfigComponent,
+</span><span>            </span><span style="color:#fe8019;">=&gt;</span><span> module
+</span><span>        };
+</span><span>    }
+</span><span>}
+</span><span>
+</span></code></pre>
 <p>The component should be immediately visible in the editor and you can add it to any actor you want. Right now sadly it only supports a few primitive types like <code>Vec3</code>, <code>Quat</code>, <code>f32</code>, <code>bool</code>, and some assets like <code>UClass</code> and <code>USound</code>. I have plans to extend it to user defined structs, hashmaps, arrays etc and also add custom drawers like having a slider for an <code>f32</code> instead of a input box.</p>
 <div>
     <video width="100%" controls loop mute autoplay>
@@ -230,15 +230,15 @@ impl Plugin for MovementPlugin {
     </video>
 </div>
 <p>In the video above I expose a <code>MovementComponent</code> which just contains a few fields like <code>velocity</code>, <code>is_falling</code> etc and is written to by the movement system.</p>
-<pre data-lang="rust" class="language-rust "><code class="language-rust" data-lang="rust">#[derive(Default, Debug, Component)]
-#[uuid = &quot;fc8bd668-fc0a-4ab7-8b3d-f0f22bb539e2&quot;]
-pub struct MovementComponent {
-    pub velocity: Vec3,
-    pub is_falling: bool,
-    pub is_flying: bool,
-    pub view: Quat,
-}
-</code></pre>
+<pre data-lang="rust" style="background-color:#282828;color:#fdf4c1aa;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[</span><span style="color:#fdf4c1;">derive</span><span>(Default, Debug, Component)]
+</span><span>#[</span><span style="color:#fdf4c1;">uuid </span><span style="color:#fe8019;">= </span><span style="color:#b8bb26;">&quot;fc8bd668-fc0a-4ab7-8b3d-f0f22bb539e2&quot;</span><span>]
+</span><span style="color:#fa5c4b;">pub struct </span><span style="color:#8ec07c;">MovementComponent </span><span>{
+</span><span>    </span><span style="color:#fa5c4b;">pub </span><span style="color:#fdf4c1;">velocity</span><span>: Vec3,
+</span><span>    </span><span style="color:#fa5c4b;">pub </span><span style="color:#fdf4c1;">is_falling</span><span>: </span><span style="color:#fa5c4b;">bool</span><span>,
+</span><span>    </span><span style="color:#fa5c4b;">pub </span><span style="color:#fdf4c1;">is_flying</span><span>: </span><span style="color:#fa5c4b;">bool</span><span>,
+</span><span>    </span><span style="color:#fa5c4b;">pub </span><span style="color:#fdf4c1;">view</span><span>: Quat,
+</span><span>}
+</span></code></pre>
 <p>We can now access the <code>MovementComponent</code> inside the animation blueprint and drive all of the animations. This is everything that is required to make the player character run, jump, and glide. The rest is handled inside the animation blueprint itself.</p>
 <h2 id="hot-reloading">Hot reloading</h2>
 <p>This allows you to see your code changes in real time without needing to restart the editor.</p>
@@ -253,29 +253,29 @@ pub struct MovementComponent {
 <p>The current state is <code>jank</code>. Almost nothing is implemented properly and you should not use <code>unreal-rust</code> in a real project yet. I will list some of the issues here.</p>
 <h2 id="no-stable-versioning-persitence">No stable versioning / persitence</h2>
 <p>Lets say you wrote the following component:</p>
-<pre data-lang="rust" class="language-rust "><code class="language-rust" data-lang="rust">#[derive(Default, Component)]
-#[uuid = &quot;fc8bd668-fc0a-4ab7-8b3d-f0f22bb539e2&quot;]
-pub struct MovementComponent {
-    pub gravity: f32,
-}
-</code></pre>
+<pre data-lang="rust" style="background-color:#282828;color:#fdf4c1aa;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[</span><span style="color:#fdf4c1;">derive</span><span>(Default, Component)]
+</span><span>#[</span><span style="color:#fdf4c1;">uuid </span><span style="color:#fe8019;">= </span><span style="color:#b8bb26;">&quot;fc8bd668-fc0a-4ab7-8b3d-f0f22bb539e2&quot;</span><span>]
+</span><span style="color:#fa5c4b;">pub struct </span><span style="color:#8ec07c;">MovementComponent </span><span>{
+</span><span>    </span><span style="color:#fa5c4b;">pub </span><span style="color:#fdf4c1;">gravity</span><span>: </span><span style="color:#fa5c4b;">f32</span><span>,
+</span><span>}
+</span></code></pre>
 <p>Now you add this component to an actor in the editor and save it. But a few months later you realize that a simple float for the gravity is not enough and you want a direction as well. So you change the type.</p>
-<pre data-lang="rust" class="language-rust "><code class="language-rust" data-lang="rust">#[derive(Default, Component)]
-#[uuid = &quot;fc8bd668-fc0a-4ab7-8b3d-f0f22bb539e2&quot;]
-pub struct MovementComponent {
-    pub gravity: Vec3,
-}
-</code></pre>
+<pre data-lang="rust" style="background-color:#282828;color:#fdf4c1aa;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[</span><span style="color:#fdf4c1;">derive</span><span>(Default, Component)]
+</span><span>#[</span><span style="color:#fdf4c1;">uuid </span><span style="color:#fe8019;">= </span><span style="color:#b8bb26;">&quot;fc8bd668-fc0a-4ab7-8b3d-f0f22bb539e2&quot;</span><span>]
+</span><span style="color:#fa5c4b;">pub struct </span><span style="color:#8ec07c;">MovementComponent </span><span>{
+</span><span>    </span><span style="color:#fa5c4b;">pub </span><span style="color:#fdf4c1;">gravity</span><span>: Vec3,
+</span><span>}
+</span></code></pre>
 <p>But now all the actors in your editor have the gravity as a <code>f32</code>, but they should become a <code>Vec3</code> instead. How do you convert those?</p>
 <p>Next someone in your project renames <code>gravity</code> to <code>gravity_dir</code>. How do you tell the editor that this field was renamed?</p>
 <p>Next you decide to split gravity into direction and strength</p>
-<pre data-lang="rust" class="language-rust "><code class="language-rust" data-lang="rust">#[derive(Default, Component)]
-#[uuid = &quot;fc8bd668-fc0a-4ab7-8b3d-f0f22bb539e2&quot;]
-pub struct MovementComponent {
-    pub gravity_strength: f32,
-    pub gravity_dir: Vec3,
-}
-</code></pre>
+<pre data-lang="rust" style="background-color:#282828;color:#fdf4c1aa;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[</span><span style="color:#fdf4c1;">derive</span><span>(Default, Component)]
+</span><span>#[</span><span style="color:#fdf4c1;">uuid </span><span style="color:#fe8019;">= </span><span style="color:#b8bb26;">&quot;fc8bd668-fc0a-4ab7-8b3d-f0f22bb539e2&quot;</span><span>]
+</span><span style="color:#fa5c4b;">pub struct </span><span style="color:#8ec07c;">MovementComponent </span><span>{
+</span><span>    </span><span style="color:#fa5c4b;">pub </span><span style="color:#fdf4c1;">gravity_strength</span><span>: </span><span style="color:#fa5c4b;">f32</span><span>,
+</span><span>    </span><span style="color:#fa5c4b;">pub </span><span style="color:#fdf4c1;">gravity_dir</span><span>: Vec3,
+</span><span>}
+</span></code></pre>
 <p>At which point do we automatically add the new <code>gravity_strength</code> field to all actors in the editor? We could do it during hot reload. You add the field, compile the code and then inside the editor we will update all of the <code>MovementComponents</code>.
 But after a few minutes to decided that was a bad idea and revert the code again, and remove the <code>gravity_strength</code> field. But all of the <code>MovementComponents</code> in the editor will still have the <code>gravity_strength</code> field in them. We need a way to remove them, or you might store too much unnecessary data in your editor components.</p>
 <p>Also the components can be accessed within blueprint </p>

@@ -127,28 +127,26 @@
 <h2 id="why-a-new-language">Why a new language?</h2>
 <p>I think GLSL is actually a pretty decent language but it has a few problems. Code sharing might be the biggest problem in GLSL. It is not easy to share code between different shaders.</p>
 <p>Imagine you have the following shader: (from <a href="https://learnopengl.com/#!Advanced-OpenGL/Instancing">learnopengl.com</a>)</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">#version </span><span style="color:#d3869b;">330</span><span style="color:#fdf4c1aa;"> core
-</span><span style="color:#fdf4c1;">layout (location </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1;">)</span><span style="color:#fdf4c1aa;"> in vec3 aPos;
-</span><span style="color:#fdf4c1;">layout (location </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">2</span><span style="color:#fdf4c1;">)</span><span style="color:#fdf4c1aa;"> in vec2 aTexCoords;
-
-out vec2 TexCoords;
-
-uniform mat4 projection;
-uniform mat4 view;
-uniform mat4 model;
+<pre data-lang="C" style="background-color:#282828;color:#fdf4c1aa;" class="language-C "><code class="language-C" data-lang="C"><span>#version </span><span style="color:#d3869b;">330</span><span> core
+</span><span style="color:#fdf4c1;">layout (location </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1;">)</span><span> in vec3 aPos;
+</span><span style="color:#fdf4c1;">layout (location </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">2</span><span style="color:#fdf4c1;">)</span><span> in vec2 aTexCoords;
+</span><span>
+</span><span>out vec2 TexCoords;
+</span><span>
+</span><span>uniform mat4 projection;
+</span><span>uniform mat4 view;
+</span><span>uniform mat4 model;
 </span></code></pre>
 <p>But you realize that you want to use instancing. This means that you have to change the interface.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">#version </span><span style="color:#d3869b;">330</span><span style="color:#fdf4c1aa;"> core
-</span><span style="color:#fdf4c1;">layout (location </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1;">)</span><span style="color:#fdf4c1aa;"> in vec3 aPos;
-</span><span style="color:#fdf4c1;">layout (location </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">2</span><span style="color:#fdf4c1;">)</span><span style="color:#fdf4c1aa;"> in vec2 aTexCoords;
-</span><span style="color:#fdf4c1;">layout (location </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">3</span><span style="color:#fdf4c1;">)</span><span style="color:#fdf4c1aa;"> in mat4 instanceMatrix;
-
-out vec2 TexCoords;
-
-uniform mat4 projection;
-uniform mat4 view;
+<pre data-lang="C" style="background-color:#282828;color:#fdf4c1aa;" class="language-C "><code class="language-C" data-lang="C"><span>#version </span><span style="color:#d3869b;">330</span><span> core
+</span><span style="color:#fdf4c1;">layout (location </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1;">)</span><span> in vec3 aPos;
+</span><span style="color:#fdf4c1;">layout (location </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">2</span><span style="color:#fdf4c1;">)</span><span> in vec2 aTexCoords;
+</span><span style="color:#fdf4c1;">layout (location </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">3</span><span style="color:#fdf4c1;">)</span><span> in mat4 instanceMatrix;
+</span><span>
+</span><span>out vec2 TexCoords;
+</span><span>
+</span><span>uniform mat4 projection;
+</span><span>uniform mat4 view;
 </span></code></pre>
 <p>But what if you want to use both versions? Vulkan also introduces <a href="https://github.com/SaschaWillems/Vulkan/blob/master/data/shaders/subpasses/composition.frag#L6">subpasses</a> which also adds another keyword. Then you might also want to support many different backends such as Metal, OpenGL 2/3/4/ES2/ES3, DX9/11/12, Vulkan all with similar but different shading languages, which means that you end up with even more duplicated shader code. Many major game engines and frameworks also have their own tooling to automate this process, but nothing is really usable outside those engine/frameworks. There are currently a few tools that are able to compile SPIR-V to languages like MSL, GLSL, HLSL. I intend to target each language individually but I currently focus in SPIR-V.</p>
 <p>GLSL comes with a very tiny but useful &quot;standard library&quot;. Because GLSL doesn't really allow code sharing, we often end up reimplementing the same code over and over again. Wouldn't it be nice to write and share libraries? I imagine a place like https://crates.io/ where you can share libraries like physically based shading, common BRDFs, Quaternions etc.</p>
@@ -179,132 +177,125 @@ There are a few reason why I chose to write a compiler from scratch:</p>
 </ul>
 <p>Currently the compiler is my personal playground that I use for experimentation. In the end I might still create a pure Rust backend.</p>
 <h2 id="how-does-it-look">How does it look?</h2>
-<pre style="background-color:#282828;">
-<code><span style="font-style:italic;color:#928374;">// GLSL
-</span><span style="color:#fdf4c1;">layout (location </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1;">)</span><span style="color:#fdf4c1aa;"> in vec4 pos;
-</span><span style="color:#fdf4c1;">layout (location </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">1</span><span style="color:#fdf4c1;">)</span><span style="color:#fdf4c1aa;"> in vec4 color;
-
-
-</span><span style="color:#fdf4c1;">layout (location </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1;">)</span><span style="color:#fdf4c1aa;"> out vec4 o_color;
-</span><span style="color:#fa5c4b;">void </span><span style="color:#8ec07c;">main</span><span style="color:#fdf4c1aa;">() {
-    o_color </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> color;
-    gl_Position </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> pos;
-}
-</span></code></pre><pre style="background-color:#282828;">
-<code><span style="font-style:italic;color:#928374;">// GLSL
-</span><span style="color:#fdf4c1;">layout (location </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1;">)</span><span style="color:#fdf4c1aa;"> in vec4 o_color;
-</span><span style="color:#fdf4c1;">layout (location </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1;">)</span><span style="color:#fdf4c1aa;"> out vec4 uFragColor;
-
-</span><span style="color:#fa5c4b;">void </span><span style="color:#8ec07c;">main</span><span style="color:#fdf4c1aa;">() {
-    uFragColor </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> o_color;
-}
+<pre data-lang="C" style="background-color:#282828;color:#fdf4c1aa;" class="language-C "><code class="language-C" data-lang="C"><span style="font-style:italic;color:#928374;">// GLSL
+</span><span style="color:#fdf4c1;">layout (location </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1;">)</span><span> in vec4 pos;
+</span><span style="color:#fdf4c1;">layout (location </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">1</span><span style="color:#fdf4c1;">)</span><span> in vec4 color;
+</span><span>
+</span><span>
+</span><span style="color:#fdf4c1;">layout (location </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1;">)</span><span> out vec4 o_color;
+</span><span style="color:#fa5c4b;">void </span><span style="color:#8ec07c;">main</span><span>() {
+</span><span>    o_color </span><span style="color:#fe8019;">=</span><span> color;
+</span><span>    gl_Position </span><span style="color:#fe8019;">=</span><span> pos;
+</span><span>}
+</span></code></pre>
+<pre data-lang="C" style="background-color:#282828;color:#fdf4c1aa;" class="language-C "><code class="language-C" data-lang="C"><span style="font-style:italic;color:#928374;">// GLSL
+</span><span style="color:#fdf4c1;">layout (location </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1;">)</span><span> in vec4 o_color;
+</span><span style="color:#fdf4c1;">layout (location </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1;">)</span><span> out vec4 uFragColor;
+</span><span>
+</span><span style="color:#fa5c4b;">void </span><span style="color:#8ec07c;">main</span><span>() {
+</span><span>    uFragColor </span><span style="color:#fe8019;">=</span><span> o_color;
+</span><span>}
 </span></code></pre>
 <p>And the equalivalent RLSL code. <strong>R</strong>ust <strong>L</strong>ike <strong>S</strong>hading <strong>L</strong>anguage, I know I am terrible at naming.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">#[</span><span style="color:#fdf4c1;">spirv</span><span style="color:#fdf4c1aa;">(Vec&lt;f32, 4&gt;)]
-</span><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">Vec4 </span><span style="color:#fdf4c1aa;">{
-    </span><span style="color:#fdf4c1;">x</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">,
-    </span><span style="color:#fdf4c1;">y</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">,
-    </span><span style="color:#fdf4c1;">z</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">,
-    </span><span style="color:#fdf4c1;">w</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fa5c4b;">f32
-</span><span style="color:#fdf4c1aa;">}
-
-#[</span><span style="color:#fdf4c1;">builtin</span><span style="color:#fdf4c1aa;">(position)]
-builtin position: Vec4;
-
-vertex </span><span style="color:#fabd2f;">triangle_vs</span><span style="color:#fdf4c1aa;">(pos: Input&lt;Vec4&gt;, color: Input&lt;Vec4&gt;) -&gt; Vec4 {
-    position </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> pos;
-    color
-}
-
-fragment </span><span style="color:#fabd2f;">triangle_fs</span><span style="color:#fdf4c1aa;">(color: Input&lt;Vec4&gt;) -&gt; Vec4{
-    color
-}
+<pre data-lang="Rust" style="background-color:#282828;color:#fdf4c1aa;" class="language-Rust "><code class="language-Rust" data-lang="Rust"><span>#[</span><span style="color:#fdf4c1;">spirv</span><span>(Vec&lt;f32, 4&gt;)]
+</span><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">Vec4 </span><span>{
+</span><span>    </span><span style="color:#fdf4c1;">x</span><span>: </span><span style="color:#fa5c4b;">f32</span><span>,
+</span><span>    </span><span style="color:#fdf4c1;">y</span><span>: </span><span style="color:#fa5c4b;">f32</span><span>,
+</span><span>    </span><span style="color:#fdf4c1;">z</span><span>: </span><span style="color:#fa5c4b;">f32</span><span>,
+</span><span>    </span><span style="color:#fdf4c1;">w</span><span>: </span><span style="color:#fa5c4b;">f32
+</span><span>}
+</span><span>
+</span><span>#[</span><span style="color:#fdf4c1;">builtin</span><span>(position)]
+</span><span>builtin position: Vec4;
+</span><span>
+</span><span>vertex </span><span style="color:#fabd2f;">triangle_vs</span><span>(pos: Input&lt;Vec4&gt;, color: Input&lt;Vec4&gt;) -&gt; Vec4 {
+</span><span>    position </span><span style="color:#fe8019;">=</span><span> pos;
+</span><span>    color
+</span><span>}
+</span><span>
+</span><span>fragment </span><span style="color:#fabd2f;">triangle_fs</span><span>(color: Input&lt;Vec4&gt;) -&gt; Vec4{
+</span><span>    color
+</span><span>}
 </span></code></pre>
 <p>You might ask your self why I chose a Rust like syntax. The reason is that it is the syntax that I am most familar with and I actually like it, but it not set in stone. Actually everything that you see here is very likely to change.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">#[</span><span style="color:#fdf4c1;">spirv</span><span style="color:#fdf4c1aa;">(Vec&lt;f32, 4&gt;)]
-</span><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">Vec4 </span><span style="color:#fdf4c1aa;">{
-    </span><span style="color:#fdf4c1;">x</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">,
-    </span><span style="color:#fdf4c1;">y</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">,
-    </span><span style="color:#fdf4c1;">z</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">,
-    </span><span style="color:#fdf4c1;">w</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fa5c4b;">f32
-</span><span style="color:#fdf4c1aa;">}
+<pre data-lang="Rust" style="background-color:#282828;color:#fdf4c1aa;" class="language-Rust "><code class="language-Rust" data-lang="Rust"><span>#[</span><span style="color:#fdf4c1;">spirv</span><span>(Vec&lt;f32, 4&gt;)]
+</span><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">Vec4 </span><span>{
+</span><span>    </span><span style="color:#fdf4c1;">x</span><span>: </span><span style="color:#fa5c4b;">f32</span><span>,
+</span><span>    </span><span style="color:#fdf4c1;">y</span><span>: </span><span style="color:#fa5c4b;">f32</span><span>,
+</span><span>    </span><span style="color:#fdf4c1;">z</span><span>: </span><span style="color:#fa5c4b;">f32</span><span>,
+</span><span>    </span><span style="color:#fdf4c1;">w</span><span>: </span><span style="color:#fa5c4b;">f32
+</span><span>}
 </span></code></pre>
 <p>This is just how I currently map custom types to a specific SPIR-V type. In the future this will be part of the standard library.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">#[</span><span style="color:#fdf4c1;">builtin</span><span style="color:#fdf4c1aa;">(position)]
-builtin position: Vec4;
+<pre data-lang="Rust" style="background-color:#282828;color:#fdf4c1aa;" class="language-Rust "><code class="language-Rust" data-lang="Rust"><span>#[</span><span style="color:#fdf4c1;">builtin</span><span>(position)]
+</span><span>builtin position: Vec4;
 </span></code></pre>
 <p>SPIR-V is still very similar to GLSL and this is equivalent to <code>gl_Position</code>. This will also be part of the standard library.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">vertex </span><span style="color:#fabd2f;">triangle_vs</span><span style="color:#fdf4c1aa;">(pos: Input&lt;Vec4&gt;, color: Input&lt;Vec4&gt;) -&gt; Vec4 {
-    position </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> pos;
-    color
-}
+<pre data-lang="Rust" style="background-color:#282828;color:#fdf4c1aa;" class="language-Rust "><code class="language-Rust" data-lang="Rust"><span>vertex </span><span style="color:#fabd2f;">triangle_vs</span><span>(pos: Input&lt;Vec4&gt;, color: Input&lt;Vec4&gt;) -&gt; Vec4 {
+</span><span>    position </span><span style="color:#fe8019;">=</span><span> pos;
+</span><span>    color
+</span><span>}
 </span></code></pre>
 <p>This is where it gets interesting. <code>vertex</code> indicates that it is an entry point for a vertex shader. <code>pos: Input&lt;Vec4&gt;</code> is equivalent to <code>in vec4 pos</code>. <code>-&gt; Vec4</code> indicates the output of the 
 entry point. The last statement inside an entry point (without <code>;</code>) is the output. I also auto generate explicit layout indices for inputs and outputs. </p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">fragment </span><span style="color:#fabd2f;">triangle_fs</span><span style="color:#fdf4c1aa;">(color: Input&lt;Vec4&gt;) -&gt; Vec4{
-    color
-}
+<pre data-lang="Rust" style="background-color:#282828;color:#fdf4c1aa;" class="language-Rust "><code class="language-Rust" data-lang="Rust"><span>fragment </span><span style="color:#fabd2f;">triangle_fs</span><span>(color: Input&lt;Vec4&gt;) -&gt; Vec4{
+</span><span>    color
+</span><span>}
 </span></code></pre>
 <p>Similar to the vertex shader, this defines the fragment shader. Interestingly, SPIR-V allows multiple entry points per shader module.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">}
-
-; SPIR-V
-; Version: 1.1
-; Generator: Google rspirv; 0
-; Bound: 22
-; Schema: 0
-               OpCapability Shader
-          %1 = OpExtInstImport &quot;GLSL.std.450&quot;
-               OpMemoryModel Logical GLSL450
-               OpEntryPoint Vertex %triangle_vs &quot;triangle_vs&quot; %pos %color %output
-               OpEntryPoint Fragment %triangle_fs &quot;triangle_fs&quot; %color_0 %output_0
-               OpName %position &quot;position&quot;
-               OpName %pos &quot;pos&quot;
-               OpName %color &quot;color&quot;
-               OpName %output &quot;output&quot;
-               OpName %triangle_vs &quot;triangle_vs&quot;
-               OpName %color_0 &quot;color&quot;
-               OpName %output_0 &quot;output&quot;
-               OpName %triangle_fs &quot;triangle_fs&quot;
-               OpDecorate %position BuiltIn Position
-               OpDecorate %pos Location 0
-               OpDecorate %color Location 1
-               OpDecorate %output Location 0
-               OpDecorate %color_0 Location 0
-               OpDecorate %output_0 Location 0
-      %float = OpTypeFloat 32
-    %v2float = OpTypeVector %float 2
-    %v4float = OpTypeVector %float 4
-%_ptr_Output_v4float = OpTypePointer Output %v4float
-   %position = OpVariable %_ptr_Output_v4float Output
-%_ptr_Input_v4float = OpTypePointer Input %v4float
-        %pos = OpVariable %_ptr_Input_v4float Input
-      %color = OpVariable %_ptr_Input_v4float Input
-     %output = OpVariable %_ptr_Output_v4float Output
-       %void = OpTypeVoid
-         %12 = OpTypeFunction %void
-    %color_0 = OpVariable %_ptr_Input_v4float Input
-   %output_0 = OpVariable %_ptr_Output_v4float Output
-%triangle_vs = OpFunction %void None %12
-         %14 = OpLabel
-         %15 = OpLoad %v4float %pos
-               OpStore %position %15
-         %16 = OpLoad %v4float %color
-               OpStore %output %16
-               OpReturn
-               OpFunctionEnd
-%triangle_fs = OpFunction %void None %12
-         %20 = OpLabel
-         %21 = OpLoad %v4float %color_0
-               OpStore %output_0 %21
-               OpReturn
-               OpFunctionEnd
+<pre style="background-color:#282828;color:#fdf4c1aa;"><code><span>}
+</span><span>
+</span><span>; SPIR-V
+</span><span>; Version: 1.1
+</span><span>; Generator: Google rspirv; 0
+</span><span>; Bound: 22
+</span><span>; Schema: 0
+</span><span>               OpCapability Shader
+</span><span>          %1 = OpExtInstImport &quot;GLSL.std.450&quot;
+</span><span>               OpMemoryModel Logical GLSL450
+</span><span>               OpEntryPoint Vertex %triangle_vs &quot;triangle_vs&quot; %pos %color %output
+</span><span>               OpEntryPoint Fragment %triangle_fs &quot;triangle_fs&quot; %color_0 %output_0
+</span><span>               OpName %position &quot;position&quot;
+</span><span>               OpName %pos &quot;pos&quot;
+</span><span>               OpName %color &quot;color&quot;
+</span><span>               OpName %output &quot;output&quot;
+</span><span>               OpName %triangle_vs &quot;triangle_vs&quot;
+</span><span>               OpName %color_0 &quot;color&quot;
+</span><span>               OpName %output_0 &quot;output&quot;
+</span><span>               OpName %triangle_fs &quot;triangle_fs&quot;
+</span><span>               OpDecorate %position BuiltIn Position
+</span><span>               OpDecorate %pos Location 0
+</span><span>               OpDecorate %color Location 1
+</span><span>               OpDecorate %output Location 0
+</span><span>               OpDecorate %color_0 Location 0
+</span><span>               OpDecorate %output_0 Location 0
+</span><span>      %float = OpTypeFloat 32
+</span><span>    %v2float = OpTypeVector %float 2
+</span><span>    %v4float = OpTypeVector %float 4
+</span><span>%_ptr_Output_v4float = OpTypePointer Output %v4float
+</span><span>   %position = OpVariable %_ptr_Output_v4float Output
+</span><span>%_ptr_Input_v4float = OpTypePointer Input %v4float
+</span><span>        %pos = OpVariable %_ptr_Input_v4float Input
+</span><span>      %color = OpVariable %_ptr_Input_v4float Input
+</span><span>     %output = OpVariable %_ptr_Output_v4float Output
+</span><span>       %void = OpTypeVoid
+</span><span>         %12 = OpTypeFunction %void
+</span><span>    %color_0 = OpVariable %_ptr_Input_v4float Input
+</span><span>   %output_0 = OpVariable %_ptr_Output_v4float Output
+</span><span>%triangle_vs = OpFunction %void None %12
+</span><span>         %14 = OpLabel
+</span><span>         %15 = OpLoad %v4float %pos
+</span><span>               OpStore %position %15
+</span><span>         %16 = OpLoad %v4float %color
+</span><span>               OpStore %output %16
+</span><span>               OpReturn
+</span><span>               OpFunctionEnd
+</span><span>%triangle_fs = OpFunction %void None %12
+</span><span>         %20 = OpLabel
+</span><span>         %21 = OpLoad %v4float %color_0
+</span><span>               OpStore %output_0 %21
+</span><span>               OpReturn
+</span><span>               OpFunctionEnd
 </span></code></pre>
 <p><img src="https://camo.githubusercontent.com/fcf8368d94842046bcb1856ecd69386109ce672f/687474703a2f2f692e696d6775722e636f6d2f50515a634c36772e6a7067" alt="img" /></p>
 <p>And it even runs on RADV, although it throws a few warnings.</p>

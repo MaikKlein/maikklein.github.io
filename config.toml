@@ -7,6 +7,8 @@ compile_sass = true
 generate_rss = true
 # Whether to do syntax highlighting
 # Theme can be customised by setting the `highlight_theme` variable to a theme supported by Gutenberg
+
+[markdown]
 highlight_code = true
 highlight_theme = "gruvbox-dark"
 

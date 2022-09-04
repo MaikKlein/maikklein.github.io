@@ -102,231 +102,221 @@
   </ul>
   <p><em>Disclaimer</em>: This is just a proof of concept.</p>
 <h2 id="soa">SoA</h2>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">#![</span><span style="color:#fdf4c1;">feature</span><span style="color:#fdf4c1aa;">(proc_macro)]
-#[</span><span style="color:#fdf4c1;">macro_use</span><span style="color:#fdf4c1aa;">]
-</span><span style="color:#fa5c4b;">extern crate</span><span style="color:#fdf4c1aa;"> soa_derive;
-
-#[</span><span style="color:#fdf4c1;">derive</span><span style="color:#fdf4c1aa;">(Debug)]
-</span><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">Vec2</span><span style="color:#fdf4c1aa;">{
-    </span><span style="color:#fdf4c1;">x</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">,
-    </span><span style="color:#fdf4c1;">y</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fa5c4b;">f32
-</span><span style="color:#fdf4c1aa;">}
-
-</span><span style="color:#fa5c4b;">impl </span><span style="color:#8ec07c;">Vec2</span><span style="color:#fdf4c1aa;">{
-    </span><span style="color:#fa5c4b;">pub fn </span><span style="color:#8ec07c;">new</span><span style="color:#fdf4c1aa;">() -&gt; </span><span style="color:#fa5c4b;">Self</span><span style="color:#fdf4c1aa;">{
-        Vec2{
-            x: </span><span style="color:#d3869b;">0.0</span><span style="color:#fdf4c1aa;">,
-            y: </span><span style="color:#d3869b;">0.0
-        </span><span style="color:#fdf4c1aa;">}
-    }
-}
-
-#[</span><span style="color:#fdf4c1;">derive</span><span style="color:#fdf4c1aa;">(SoA)]
-</span><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">GameObject </span><span style="color:#fdf4c1aa;">{
-    </span><span style="color:#fdf4c1;">pos</span><span style="color:#fdf4c1aa;">: Vec2,
-    </span><span style="color:#fdf4c1;">vel</span><span style="color:#fdf4c1aa;">: Vec2,
-    </span><span style="color:#fdf4c1;">health</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">,
-    </span><span style="font-style:italic;color:#928374;">// Other fields . . .
-</span><span style="color:#fdf4c1aa;">}
-
-</span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">main</span><span style="color:#fdf4c1aa;">() {
-    </span><span style="color:#fa5c4b;">let mut</span><span style="color:#fdf4c1aa;"> soa </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">GameObjectSoA::new();
-    </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> game_object </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> GameObject {
-        pos: Vec2::new(),
-        vel: Vec2::new(),
-        health: </span><span style="color:#d3869b;">42.0</span><span style="color:#fdf4c1aa;">,
-    };
-    soa.</span><span style="color:#fabd2f;">push</span><span style="color:#fdf4c1aa;">(game_object);
-    </span><span style="color:#fabd2f;">println!</span><span style="color:#fdf4c1aa;">(</span><span style="color:#b8bb26;">&quot;</span><span style="color:#fdf4c1;">{:?}</span><span style="color:#b8bb26;">&quot;</span><span style="color:#fdf4c1aa;">, soa);
-}
+<pre data-lang="Rust" style="background-color:#282828;color:#fdf4c1aa;" class="language-Rust "><code class="language-Rust" data-lang="Rust"><span>#![</span><span style="color:#fdf4c1;">feature</span><span>(proc_macro)]
+</span><span>#[</span><span style="color:#fdf4c1;">macro_use</span><span>]
+</span><span style="color:#fa5c4b;">extern crate</span><span> soa_derive;
+</span><span>
+</span><span>#[</span><span style="color:#fdf4c1;">derive</span><span>(Debug)]
+</span><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">Vec2</span><span>{
+</span><span>    </span><span style="color:#fdf4c1;">x</span><span>: </span><span style="color:#fa5c4b;">f32</span><span>,
+</span><span>    </span><span style="color:#fdf4c1;">y</span><span>: </span><span style="color:#fa5c4b;">f32
+</span><span>}
+</span><span>
+</span><span style="color:#fa5c4b;">impl </span><span style="color:#8ec07c;">Vec2</span><span>{
+</span><span>    </span><span style="color:#fa5c4b;">pub fn </span><span style="color:#8ec07c;">new</span><span>() -&gt; </span><span style="color:#fa5c4b;">Self</span><span>{
+</span><span>        Vec2{
+</span><span>            x: </span><span style="color:#d3869b;">0.0</span><span>,
+</span><span>            y: </span><span style="color:#d3869b;">0.0
+</span><span>        }
+</span><span>    }
+</span><span>}
+</span><span>
+</span><span>#[</span><span style="color:#fdf4c1;">derive</span><span>(SoA)]
+</span><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">GameObject </span><span>{
+</span><span>    </span><span style="color:#fdf4c1;">pos</span><span>: Vec2,
+</span><span>    </span><span style="color:#fdf4c1;">vel</span><span>: Vec2,
+</span><span>    </span><span style="color:#fdf4c1;">health</span><span>: </span><span style="color:#fa5c4b;">f32</span><span>,
+</span><span>    </span><span style="font-style:italic;color:#928374;">// Other fields . . .
+</span><span>}
+</span><span>
+</span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">main</span><span>() {
+</span><span>    </span><span style="color:#fa5c4b;">let mut</span><span> soa </span><span style="color:#fe8019;">= </span><span>GameObjectSoA::new();
+</span><span>    </span><span style="color:#fa5c4b;">let</span><span> game_object </span><span style="color:#fe8019;">=</span><span> GameObject {
+</span><span>        pos: Vec2::new(),
+</span><span>        vel: Vec2::new(),
+</span><span>        health: </span><span style="color:#d3869b;">42.0</span><span>,
+</span><span>    };
+</span><span>    soa.</span><span style="color:#fabd2f;">push</span><span>(game_object);
+</span><span>    </span><span style="color:#fabd2f;">println!</span><span>(</span><span style="color:#b8bb26;">&quot;</span><span style="color:#fdf4c1;">{:?}</span><span style="color:#b8bb26;">&quot;</span><span>, soa);
+</span><span>}
 </span></code></pre>
 <p>Let us have a look at the generated code.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">#[</span><span style="color:#fdf4c1;">derive</span><span style="color:#fdf4c1aa;">(Debug)]
-</span><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">GameObjectSoA </span><span style="color:#fdf4c1aa;">{
-    </span><span style="color:#fa5c4b;">pub </span><span style="color:#fdf4c1;">pos</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fabd2f;">Vec</span><span style="color:#fdf4c1aa;">&lt;Vec2&gt;,
-    </span><span style="color:#fa5c4b;">pub </span><span style="color:#fdf4c1;">vel</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fabd2f;">Vec</span><span style="color:#fdf4c1aa;">&lt;Vec2&gt;,
-    </span><span style="color:#fa5c4b;">pub </span><span style="color:#fdf4c1;">health</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fabd2f;">Vec</span><span style="color:#fdf4c1aa;">&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;,
-}
-</span><span style="color:#fa5c4b;">impl </span><span style="color:#8ec07c;">GameObjectSoA </span><span style="color:#fdf4c1aa;">{
-    </span><span style="color:#fa5c4b;">pub fn </span><span style="color:#8ec07c;">new</span><span style="color:#fdf4c1aa;">() -&gt; </span><span style="color:#fa5c4b;">Self </span><span style="color:#fdf4c1aa;">{
-        GameObjectSoA {
-            pos: </span><span style="color:#fabd2f;">Vec</span><span style="color:#fdf4c1aa;">::new(),
-            vel: </span><span style="color:#fabd2f;">Vec</span><span style="color:#fdf4c1aa;">::new(),
-            health: </span><span style="color:#fabd2f;">Vec</span><span style="color:#fdf4c1aa;">::new(),
-        }
-    }
-    </span><span style="color:#fa5c4b;">pub fn </span><span style="color:#8ec07c;">push</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">mut </span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">value</span><span style="color:#fdf4c1aa;">: GameObject) {
-        </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> GameObject { pos: pos, vel: vel, health: health } </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> value;
-        </span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">.pos.</span><span style="color:#fabd2f;">push</span><span style="color:#fdf4c1aa;">(pos);
-        </span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">.vel.</span><span style="color:#fabd2f;">push</span><span style="color:#fdf4c1aa;">(vel);
-        </span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">.health.</span><span style="color:#fabd2f;">push</span><span style="color:#fdf4c1aa;">(health);
-    }
-}
+<pre data-lang="Rust" style="background-color:#282828;color:#fdf4c1aa;" class="language-Rust "><code class="language-Rust" data-lang="Rust"><span>#[</span><span style="color:#fdf4c1;">derive</span><span>(Debug)]
+</span><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">GameObjectSoA </span><span>{
+</span><span>    </span><span style="color:#fa5c4b;">pub </span><span style="color:#fdf4c1;">pos</span><span>: </span><span style="color:#fabd2f;">Vec</span><span>&lt;Vec2&gt;,
+</span><span>    </span><span style="color:#fa5c4b;">pub </span><span style="color:#fdf4c1;">vel</span><span>: </span><span style="color:#fabd2f;">Vec</span><span>&lt;Vec2&gt;,
+</span><span>    </span><span style="color:#fa5c4b;">pub </span><span style="color:#fdf4c1;">health</span><span>: </span><span style="color:#fabd2f;">Vec</span><span>&lt;</span><span style="color:#fa5c4b;">f32</span><span>&gt;,
+</span><span>}
+</span><span style="color:#fa5c4b;">impl </span><span style="color:#8ec07c;">GameObjectSoA </span><span>{
+</span><span>    </span><span style="color:#fa5c4b;">pub fn </span><span style="color:#8ec07c;">new</span><span>() -&gt; </span><span style="color:#fa5c4b;">Self </span><span>{
+</span><span>        GameObjectSoA {
+</span><span>            pos: </span><span style="color:#fabd2f;">Vec</span><span>::new(),
+</span><span>            vel: </span><span style="color:#fabd2f;">Vec</span><span>::new(),
+</span><span>            health: </span><span style="color:#fabd2f;">Vec</span><span>::new(),
+</span><span>        }
+</span><span>    }
+</span><span>    </span><span style="color:#fa5c4b;">pub fn </span><span style="color:#8ec07c;">push</span><span>(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">mut </span><span style="color:#fdf4c1;">self</span><span>, </span><span style="color:#fdf4c1;">value</span><span>: GameObject) {
+</span><span>        </span><span style="color:#fa5c4b;">let</span><span> GameObject { pos: pos, vel: vel, health: health } </span><span style="color:#fe8019;">=</span><span> value;
+</span><span>        </span><span style="color:#fdf4c1;">self</span><span>.pos.</span><span style="color:#fabd2f;">push</span><span>(pos);
+</span><span>        </span><span style="color:#fdf4c1;">self</span><span>.vel.</span><span style="color:#fabd2f;">push</span><span>(vel);
+</span><span>        </span><span style="color:#fdf4c1;">self</span><span>.health.</span><span style="color:#fabd2f;">push</span><span>(health);
+</span><span>    }
+</span><span>}
 </span></code></pre>
 <p><code>soa_derive</code> essentially turns a struct of fields into a struct of arrays.</p>
-<pre style="background-color:#282828;">
-<code><span style="font-style:italic;color:#928374;">// aos = array of structures
-</span><span style="color:#fa5c4b;">let mut</span><span style="color:#fdf4c1aa;"> aos </span><span style="color:#fe8019;">= </span><span style="color:#fabd2f;">Vec</span><span style="color:#fdf4c1aa;">::&lt;GameObject&gt;::new();
+<pre data-lang="Rust" style="background-color:#282828;color:#fdf4c1aa;" class="language-Rust "><code class="language-Rust" data-lang="Rust"><span style="font-style:italic;color:#928374;">// aos = array of structures
+</span><span style="color:#fa5c4b;">let mut</span><span> aos </span><span style="color:#fe8019;">= </span><span style="color:#fabd2f;">Vec</span><span>::&lt;GameObject&gt;::new();
 </span><span style="font-style:italic;color:#928374;">// soa = structure of arrays
-</span><span style="color:#fa5c4b;">let mut</span><span style="color:#fdf4c1aa;"> soa </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">GameObjectSoA::new();
+</span><span style="color:#fa5c4b;">let mut</span><span> soa </span><span style="color:#fe8019;">= </span><span>GameObjectSoA::new();
 </span></code></pre>
 <p>You might ask yourself, &quot;Why is this useful?&quot;. The answer is mainly for performance. Often when you want to iterate over a <code>Vec&lt;GameObject&gt;</code>, you don't actually care about every field. For example you might just want to adjust the <code>health</code> of every <code>GameObject</code>. For AoS that means that you will needlessly load a lot of data into your cache that you actually never use. Of course AoS is still useful for data that you want to access together for example <code>Vec&lt;Vec2&gt;</code>.</p>
 <p>The nice thing about <code>soa_derive</code> is that the usage is very similar to AoS.</p>
-<pre style="background-color:#282828;">
-<code><span style="font-style:italic;color:#928374;">// SoA
-</span><span style="color:#fa5c4b;">let mut</span><span style="color:#fdf4c1aa;"> soa </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">GameObjectSoA::new();
-</span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> game_object </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> GameObject {
-    pos: Vec2::new(),
-    vel: Vec2::new(),
-    health: </span><span style="color:#d3869b;">42.0</span><span style="color:#fdf4c1aa;">,
-};
-soa.</span><span style="color:#fabd2f;">push</span><span style="color:#fdf4c1aa;">(game_object);
-</span></code></pre><pre style="background-color:#282828;">
-<code><span style="font-style:italic;color:#928374;">// AoS
-</span><span style="color:#fa5c4b;">let mut</span><span style="color:#fdf4c1aa;"> aos </span><span style="color:#fe8019;">= </span><span style="color:#fabd2f;">Vec</span><span style="color:#fdf4c1aa;">::&lt;GameObject&gt;::new();
-</span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> game_object </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> GameObject {
-    pos: Vec2::new(),
-    vel: Vec2::new(),
-    health: </span><span style="color:#d3869b;">42.0</span><span style="color:#fdf4c1aa;">,
-};
-aos.</span><span style="color:#fabd2f;">push</span><span style="color:#fdf4c1aa;">(game_object);
+<pre data-lang="Rust" style="background-color:#282828;color:#fdf4c1aa;" class="language-Rust "><code class="language-Rust" data-lang="Rust"><span style="font-style:italic;color:#928374;">// SoA
+</span><span style="color:#fa5c4b;">let mut</span><span> soa </span><span style="color:#fe8019;">= </span><span>GameObjectSoA::new();
+</span><span style="color:#fa5c4b;">let</span><span> game_object </span><span style="color:#fe8019;">=</span><span> GameObject {
+</span><span>    pos: Vec2::new(),
+</span><span>    vel: Vec2::new(),
+</span><span>    health: </span><span style="color:#d3869b;">42.0</span><span>,
+</span><span>};
+</span><span>soa.</span><span style="color:#fabd2f;">push</span><span>(game_object);
+</span></code></pre>
+<pre data-lang="Rust" style="background-color:#282828;color:#fdf4c1aa;" class="language-Rust "><code class="language-Rust" data-lang="Rust"><span style="font-style:italic;color:#928374;">// AoS
+</span><span style="color:#fa5c4b;">let mut</span><span> aos </span><span style="color:#fe8019;">= </span><span style="color:#fabd2f;">Vec</span><span>::&lt;GameObject&gt;::new();
+</span><span style="color:#fa5c4b;">let</span><span> game_object </span><span style="color:#fe8019;">=</span><span> GameObject {
+</span><span>    pos: Vec2::new(),
+</span><span>    vel: Vec2::new(),
+</span><span>    health: </span><span style="color:#d3869b;">42.0</span><span>,
+</span><span>};
+</span><span>aos.</span><span style="color:#fabd2f;">push</span><span>(game_object);
 </span></code></pre>
 <p>You can find the code <a href="https://github.com/MaikKlein/soa_derive">here</a>. It is nothing more than a proof of concept.</p>
 <h2 id="macros-1-1">Macros 1.1</h2>
 <p>Overall I really like Macros 1.1 but there are a few things that are a bit awkward. For example generating the push method:</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">pub fn </span><span style="color:#8ec07c;">push</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">mut </span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">value</span><span style="color:#fdf4c1aa;">: GameObject) {
-    </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> GameObject { pos: pos, vel: vel, health: health } </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> value;
-    </span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">.pos.</span><span style="color:#fabd2f;">push</span><span style="color:#fdf4c1aa;">(pos);
-    </span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">.vel.</span><span style="color:#fabd2f;">push</span><span style="color:#fdf4c1aa;">(vel);
-    </span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">.health.</span><span style="color:#fabd2f;">push</span><span style="color:#fdf4c1aa;">(health);
-}
+<pre data-lang="Rust" style="background-color:#282828;color:#fdf4c1aa;" class="language-Rust "><code class="language-Rust" data-lang="Rust"><span style="color:#fa5c4b;">pub fn </span><span style="color:#8ec07c;">push</span><span>(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">mut </span><span style="color:#fdf4c1;">self</span><span>, </span><span style="color:#fdf4c1;">value</span><span>: GameObject) {
+</span><span>    </span><span style="color:#fa5c4b;">let</span><span> GameObject { pos: pos, vel: vel, health: health } </span><span style="color:#fe8019;">=</span><span> value;
+</span><span>    </span><span style="color:#fdf4c1;">self</span><span>.pos.</span><span style="color:#fabd2f;">push</span><span>(pos);
+</span><span>    </span><span style="color:#fdf4c1;">self</span><span>.vel.</span><span style="color:#fabd2f;">push</span><span>(vel);
+</span><span>    </span><span style="color:#fdf4c1;">self</span><span>.health.</span><span style="color:#fabd2f;">push</span><span>(health);
+</span><span>}
 </span></code></pre>
 <p>And specifically this line</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> GameObject { pos: pos, vel: vel, health: health } </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> value;
+<pre data-lang="Rust" style="background-color:#282828;color:#fdf4c1aa;" class="language-Rust "><code class="language-Rust" data-lang="Rust"><span style="color:#fa5c4b;">let</span><span> GameObject { pos: pos, vel: vel, health: health } </span><span style="color:#fe8019;">=</span><span> value;
 </span></code></pre>
 <p>I think the limitations of <code>quote!</code> are that you can only interpolate something that implements <code>ToTokens</code> and you can only use it one time.</p>
 <p>The following code does not compile</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> fields: </span><span style="color:#fabd2f;">Vec</span><span style="color:#fdf4c1aa;">&lt;Field&gt; </span><span style="color:#fe8019;">= ...</span><span style="color:#fdf4c1aa;">;
-</span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> field_idents: </span><span style="color:#fabd2f;">Vec</span><span style="color:#fdf4c1aa;">&lt;Ident&gt; </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> fields.</span><span style="color:#fabd2f;">iter</span><span style="color:#fdf4c1aa;">().</span><span style="color:#fabd2f;">map</span><span style="color:#fdf4c1aa;">(|</span><span style="color:#fdf4c1;">f</span><span style="color:#fdf4c1aa;">| f.ident.</span><span style="color:#fabd2f;">clone</span><span style="color:#fdf4c1aa;">().</span><span style="color:#fabd2f;">unwrap</span><span style="color:#fdf4c1aa;">()).</span><span style="color:#fabd2f;">collect</span><span style="color:#fdf4c1aa;">();
-</span><span style="color:#fabd2f;">quote!</span><span style="color:#fdf4c1aa;">{
-    </span><span style="color:#fa5c4b;">impl </span><span style="color:#fdf4c1aa;">#</span><span style="color:#8ec07c;">soa_ident </span><span style="color:#fdf4c1aa;">{
-        </span><span style="color:#fa5c4b;">pub fn </span><span style="color:#8ec07c;">push</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">mut </span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">value</span><span style="color:#fdf4c1aa;">: #ident){
-            </span><span style="color:#fa5c4b;">let </span><span style="color:#fe8019;">#</span><span style="color:#fdf4c1aa;">ident{</span><span style="color:#fe8019;">#</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">#</span><span style="color:#fdf4c1aa;">field_idents: </span><span style="color:#fe8019;">#</span><span style="color:#fdf4c1aa;">field_idents, )</span><span style="color:#fe8019;">*</span><span style="color:#fdf4c1aa;">} </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> value;
-            </span><span style="color:#fe8019;">#</span><span style="color:#fdf4c1aa;">(
-               </span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fe8019;">#</span><span style="color:#fdf4c1aa;">field_idents.</span><span style="color:#fabd2f;">push</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">#</span><span style="color:#fdf4c1aa;">field_idents);
-            )</span><span style="color:#fe8019;">*
-        </span><span style="color:#fdf4c1aa;">}
-    }
-}
+<pre data-lang="Rust" style="background-color:#282828;color:#fdf4c1aa;" class="language-Rust "><code class="language-Rust" data-lang="Rust"><span style="color:#fa5c4b;">let</span><span> fields: </span><span style="color:#fabd2f;">Vec</span><span>&lt;Field&gt; </span><span style="color:#fe8019;">= ...</span><span>;
+</span><span style="color:#fa5c4b;">let</span><span> field_idents: </span><span style="color:#fabd2f;">Vec</span><span>&lt;Ident&gt; </span><span style="color:#fe8019;">=</span><span> fields.</span><span style="color:#fabd2f;">iter</span><span>().</span><span style="color:#fabd2f;">map</span><span>(|</span><span style="color:#fdf4c1;">f</span><span>| f.ident.</span><span style="color:#fabd2f;">clone</span><span>().</span><span style="color:#fabd2f;">unwrap</span><span>()).</span><span style="color:#fabd2f;">collect</span><span>();
+</span><span style="color:#fabd2f;">quote!</span><span>{
+</span><span>    </span><span style="color:#fa5c4b;">impl </span><span>#</span><span style="color:#8ec07c;">soa_ident </span><span>{
+</span><span>        </span><span style="color:#fa5c4b;">pub fn </span><span style="color:#8ec07c;">push</span><span>(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">mut </span><span style="color:#fdf4c1;">self</span><span>, </span><span style="color:#fdf4c1;">value</span><span>: #ident){
+</span><span>            </span><span style="color:#fa5c4b;">let </span><span style="color:#fe8019;">#</span><span>ident{</span><span style="color:#fe8019;">#</span><span>(</span><span style="color:#fe8019;">#</span><span>field_idents: </span><span style="color:#fe8019;">#</span><span>field_idents, )</span><span style="color:#fe8019;">*</span><span>} </span><span style="color:#fe8019;">=</span><span> value;
+</span><span>            </span><span style="color:#fe8019;">#</span><span>(
+</span><span>               </span><span style="color:#fdf4c1;">self</span><span>.</span><span style="color:#fe8019;">#</span><span>field_idents.</span><span style="color:#fabd2f;">push</span><span>(</span><span style="color:#fe8019;">#</span><span>field_idents);
+</span><span>            )</span><span style="color:#fe8019;">*
+</span><span>        }
+</span><span>    }
+</span><span>}
 </span></code></pre>
 <p>I had to write it like this</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> field_idents: </span><span style="color:#fabd2f;">Vec</span><span style="color:#fdf4c1aa;">&lt;Ident&gt; </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> fields.</span><span style="color:#fabd2f;">iter</span><span style="color:#fdf4c1aa;">().</span><span style="color:#fabd2f;">map</span><span style="color:#fdf4c1aa;">(|</span><span style="color:#fdf4c1;">f</span><span style="color:#fdf4c1aa;">| f.ident.</span><span style="color:#fabd2f;">clone</span><span style="color:#fdf4c1aa;">().</span><span style="color:#fabd2f;">unwrap</span><span style="color:#fdf4c1aa;">()).</span><span style="color:#fabd2f;">collect</span><span style="color:#fdf4c1aa;">();
-</span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> push_self: </span><span style="color:#fabd2f;">Vec</span><span style="color:#fdf4c1aa;">&lt;quote::Tokens&gt; </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> fields.</span><span style="color:#fabd2f;">iter</span><span style="color:#fdf4c1aa;">()
-    .</span><span style="color:#fabd2f;">map</span><span style="color:#fdf4c1aa;">(|</span><span style="color:#fdf4c1;">f</span><span style="color:#fdf4c1aa;">| {
-        </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> field </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> f.ident.</span><span style="color:#fabd2f;">clone</span><span style="color:#fdf4c1aa;">().</span><span style="color:#fabd2f;">unwrap</span><span style="color:#fdf4c1aa;">();
-        </span><span style="color:#fabd2f;">quote!</span><span style="color:#fdf4c1aa;">{
-            </span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fe8019;">#</span><span style="color:#fdf4c1aa;">field.</span><span style="color:#fabd2f;">push</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">#</span><span style="color:#fdf4c1aa;">field);
-        }
-    })
-    .</span><span style="color:#fabd2f;">collect</span><span style="color:#fdf4c1aa;">();
-</span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> deconstruct_list: </span><span style="color:#fabd2f;">Vec</span><span style="color:#fdf4c1aa;">&lt;quote::Tokens&gt; </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> fields.</span><span style="color:#fabd2f;">iter</span><span style="color:#fdf4c1aa;">()
-    .</span><span style="color:#fabd2f;">map</span><span style="color:#fdf4c1aa;">(|</span><span style="color:#fdf4c1;">f</span><span style="color:#fdf4c1aa;">| {
-        </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> field </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> f.ident.</span><span style="color:#fabd2f;">clone</span><span style="color:#fdf4c1aa;">().</span><span style="color:#fabd2f;">unwrap</span><span style="color:#fdf4c1aa;">();
-        </span><span style="color:#fabd2f;">quote!</span><span style="color:#fdf4c1aa;">{
-            </span><span style="color:#fe8019;">#</span><span style="color:#fdf4c1aa;">field: </span><span style="color:#fe8019;">#</span><span style="color:#fdf4c1aa;">field
-        }
-    })
-    .</span><span style="color:#fabd2f;">collect</span><span style="color:#fdf4c1aa;">();
-
-</span><span style="color:#fabd2f;">quote!</span><span style="color:#fdf4c1aa;">{
-    </span><span style="color:#fa5c4b;">impl </span><span style="color:#fdf4c1aa;">#</span><span style="color:#8ec07c;">soa_ident </span><span style="color:#fdf4c1aa;">{
-        </span><span style="color:#fa5c4b;">pub fn </span><span style="color:#8ec07c;">push</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">mut </span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">value</span><span style="color:#fdf4c1aa;">: #ident){
-            </span><span style="color:#fa5c4b;">let </span><span style="color:#fe8019;">#</span><span style="color:#fdf4c1aa;">ident{</span><span style="color:#fe8019;">#</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">#</span><span style="color:#fdf4c1aa;">deconstruct_list, )</span><span style="color:#fe8019;">*</span><span style="color:#fdf4c1aa;">} </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> value;
-            </span><span style="color:#fe8019;">#</span><span style="color:#fdf4c1aa;">(
-                </span><span style="color:#fe8019;">#</span><span style="color:#fdf4c1aa;">push_self
-            )</span><span style="color:#fe8019;">*
-        </span><span style="color:#fdf4c1aa;">}
-    }
-}
+<pre data-lang="Rust" style="background-color:#282828;color:#fdf4c1aa;" class="language-Rust "><code class="language-Rust" data-lang="Rust"><span style="color:#fa5c4b;">let</span><span> field_idents: </span><span style="color:#fabd2f;">Vec</span><span>&lt;Ident&gt; </span><span style="color:#fe8019;">=</span><span> fields.</span><span style="color:#fabd2f;">iter</span><span>().</span><span style="color:#fabd2f;">map</span><span>(|</span><span style="color:#fdf4c1;">f</span><span>| f.ident.</span><span style="color:#fabd2f;">clone</span><span>().</span><span style="color:#fabd2f;">unwrap</span><span>()).</span><span style="color:#fabd2f;">collect</span><span>();
+</span><span style="color:#fa5c4b;">let</span><span> push_self: </span><span style="color:#fabd2f;">Vec</span><span>&lt;quote::Tokens&gt; </span><span style="color:#fe8019;">=</span><span> fields.</span><span style="color:#fabd2f;">iter</span><span>()
+</span><span>    .</span><span style="color:#fabd2f;">map</span><span>(|</span><span style="color:#fdf4c1;">f</span><span>| {
+</span><span>        </span><span style="color:#fa5c4b;">let</span><span> field </span><span style="color:#fe8019;">=</span><span> f.ident.</span><span style="color:#fabd2f;">clone</span><span>().</span><span style="color:#fabd2f;">unwrap</span><span>();
+</span><span>        </span><span style="color:#fabd2f;">quote!</span><span>{
+</span><span>            </span><span style="color:#fdf4c1;">self</span><span>.</span><span style="color:#fe8019;">#</span><span>field.</span><span style="color:#fabd2f;">push</span><span>(</span><span style="color:#fe8019;">#</span><span>field);
+</span><span>        }
+</span><span>    })
+</span><span>    .</span><span style="color:#fabd2f;">collect</span><span>();
+</span><span style="color:#fa5c4b;">let</span><span> deconstruct_list: </span><span style="color:#fabd2f;">Vec</span><span>&lt;quote::Tokens&gt; </span><span style="color:#fe8019;">=</span><span> fields.</span><span style="color:#fabd2f;">iter</span><span>()
+</span><span>    .</span><span style="color:#fabd2f;">map</span><span>(|</span><span style="color:#fdf4c1;">f</span><span>| {
+</span><span>        </span><span style="color:#fa5c4b;">let</span><span> field </span><span style="color:#fe8019;">=</span><span> f.ident.</span><span style="color:#fabd2f;">clone</span><span>().</span><span style="color:#fabd2f;">unwrap</span><span>();
+</span><span>        </span><span style="color:#fabd2f;">quote!</span><span>{
+</span><span>            </span><span style="color:#fe8019;">#</span><span>field: </span><span style="color:#fe8019;">#</span><span>field
+</span><span>        }
+</span><span>    })
+</span><span>    .</span><span style="color:#fabd2f;">collect</span><span>();
+</span><span>
+</span><span style="color:#fabd2f;">quote!</span><span>{
+</span><span>    </span><span style="color:#fa5c4b;">impl </span><span>#</span><span style="color:#8ec07c;">soa_ident </span><span>{
+</span><span>        </span><span style="color:#fa5c4b;">pub fn </span><span style="color:#8ec07c;">push</span><span>(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">mut </span><span style="color:#fdf4c1;">self</span><span>, </span><span style="color:#fdf4c1;">value</span><span>: #ident){
+</span><span>            </span><span style="color:#fa5c4b;">let </span><span style="color:#fe8019;">#</span><span>ident{</span><span style="color:#fe8019;">#</span><span>(</span><span style="color:#fe8019;">#</span><span>deconstruct_list, )</span><span style="color:#fe8019;">*</span><span>} </span><span style="color:#fe8019;">=</span><span> value;
+</span><span>            </span><span style="color:#fe8019;">#</span><span>(
+</span><span>                </span><span style="color:#fe8019;">#</span><span>push_self
+</span><span>            )</span><span style="color:#fe8019;">*
+</span><span>        }
+</span><span>    }
+</span><span>}
 </span></code></pre>
 <p>Essentially I had to create a new loop that would exactly output the thing that I wanted.</p>
 <p>What I really wanted to write would be something like this</p>
-<pre style="background-color:#282828;">
-<code><span style="font-style:italic;color:#928374;">// Pseudo code
-// For readability I didn&#39;t handle the option case.
-</span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> fields: </span><span style="color:#fabd2f;">Vec</span><span style="color:#fdf4c1aa;">&lt;Field&gt; </span><span style="color:#fe8019;">= ...</span><span style="color:#fdf4c1aa;">;
-</span><span style="color:#fabd2f;">quote!</span><span style="color:#fdf4c1aa;">{
-    </span><span style="color:#fa5c4b;">impl </span><span style="color:#fdf4c1aa;">#</span><span style="color:#8ec07c;">soa_ident </span><span style="color:#fdf4c1aa;">{
-        </span><span style="color:#fa5c4b;">pub fn </span><span style="color:#8ec07c;">push</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">mut </span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">value</span><span style="color:#fdf4c1aa;">: #ident){
-            </span><span style="color:#fa5c4b;">let </span><span style="color:#fe8019;">#</span><span style="color:#fdf4c1aa;">ident{</span><span style="color:#fe8019;">#</span><span style="color:#fdf4c1aa;">(#[</span><span style="color:#fdf4c1;">fields</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">ident</span><span style="color:#fdf4c1aa;">]: #[</span><span style="color:#fdf4c1;">fields</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">ident</span><span style="color:#fdf4c1aa;">], )</span><span style="color:#fe8019;">*</span><span style="color:#fdf4c1aa;">} </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> value;
-            </span><span style="color:#fe8019;">#</span><span style="color:#fdf4c1aa;">(
-               </span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">.#[</span><span style="color:#fdf4c1;">fields</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">ident</span><span style="color:#fdf4c1aa;">].</span><span style="color:#fabd2f;">push</span><span style="color:#fdf4c1aa;">(#[</span><span style="color:#fdf4c1;">fields</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">ident</span><span style="color:#fdf4c1aa;">]);
-            )</span><span style="color:#fe8019;">*
-        </span><span style="color:#fdf4c1aa;">}
-    }
-}
+<pre data-lang="Rust" style="background-color:#282828;color:#fdf4c1aa;" class="language-Rust "><code class="language-Rust" data-lang="Rust"><span style="font-style:italic;color:#928374;">// Pseudo code
+</span><span style="font-style:italic;color:#928374;">// For readability I didn&#39;t handle the option case.
+</span><span style="color:#fa5c4b;">let</span><span> fields: </span><span style="color:#fabd2f;">Vec</span><span>&lt;Field&gt; </span><span style="color:#fe8019;">= ...</span><span>;
+</span><span style="color:#fabd2f;">quote!</span><span>{
+</span><span>    </span><span style="color:#fa5c4b;">impl </span><span>#</span><span style="color:#8ec07c;">soa_ident </span><span>{
+</span><span>        </span><span style="color:#fa5c4b;">pub fn </span><span style="color:#8ec07c;">push</span><span>(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">mut </span><span style="color:#fdf4c1;">self</span><span>, </span><span style="color:#fdf4c1;">value</span><span>: #ident){
+</span><span>            </span><span style="color:#fa5c4b;">let </span><span style="color:#fe8019;">#</span><span>ident{</span><span style="color:#fe8019;">#</span><span>(#[</span><span style="color:#fdf4c1;">fields</span><span>.</span><span style="color:#fdf4c1;">ident</span><span>]: #[</span><span style="color:#fdf4c1;">fields</span><span>.</span><span style="color:#fdf4c1;">ident</span><span>], )</span><span style="color:#fe8019;">*</span><span>} </span><span style="color:#fe8019;">=</span><span> value;
+</span><span>            </span><span style="color:#fe8019;">#</span><span>(
+</span><span>               </span><span style="color:#fdf4c1;">self</span><span>.#[</span><span style="color:#fdf4c1;">fields</span><span>.</span><span style="color:#fdf4c1;">ident</span><span>].</span><span style="color:#fabd2f;">push</span><span>(#[</span><span style="color:#fdf4c1;">fields</span><span>.</span><span style="color:#fdf4c1;">ident</span><span>]);
+</span><span>            )</span><span style="color:#fe8019;">*
+</span><span>        }
+</span><span>    }
+</span><span>}
 </span></code></pre>
 <p>Instead of directly interpolating on values that implement <code>ToTokens</code>, only the &quot;expressions&quot; would have to require <code>ToTokens</code>. Here the expression would be #[field.ident]. I am not sure if that could be implemented but it would essentially get rid of all the temporary <code>Vec</code>'s that you have to create to get the correct output.</p>
 <p>What I really like this that the generated code is just a string which you can just print to the console. Of course it is barely readable because everything will be on the same line but you can just format the string with <code>rustfmt</code>.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">#[</span><span style="color:#fdf4c1;">proc_macro_derive</span><span style="color:#fdf4c1aa;">(SoA)]
-</span><span style="color:#fa5c4b;">pub fn </span><span style="color:#8ec07c;">soa_derive</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">input</span><span style="color:#fdf4c1aa;">: TokenStream) -&gt; TokenStream {
-    </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> s </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> input.</span><span style="color:#fabd2f;">to_string</span><span style="color:#fdf4c1aa;">();
-    </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> ast </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">syn::parse_macro_input(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">s).</span><span style="color:#fabd2f;">unwrap</span><span style="color:#fdf4c1aa;">();
-    </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> gen </span><span style="color:#fe8019;">= </span><span style="color:#fabd2f;">gen_soa_derive</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">ast);
-    </span><span style="font-style:italic;color:#928374;">// Displays the generated code
-    </span><span style="color:#fabd2f;">println!</span><span style="color:#fdf4c1aa;">(</span><span style="color:#b8bb26;">&quot;</span><span style="color:#fdf4c1;">{}</span><span style="color:#b8bb26;">&quot;</span><span style="color:#fdf4c1aa;">, gen);
-    gen.</span><span style="color:#fabd2f;">parse</span><span style="color:#fdf4c1aa;">().</span><span style="color:#fabd2f;">unwrap</span><span style="color:#fdf4c1aa;">()
-}
+<pre data-lang="Rust" style="background-color:#282828;color:#fdf4c1aa;" class="language-Rust "><code class="language-Rust" data-lang="Rust"><span>#[</span><span style="color:#fdf4c1;">proc_macro_derive</span><span>(SoA)]
+</span><span style="color:#fa5c4b;">pub fn </span><span style="color:#8ec07c;">soa_derive</span><span>(</span><span style="color:#fdf4c1;">input</span><span>: TokenStream) -&gt; TokenStream {
+</span><span>    </span><span style="color:#fa5c4b;">let</span><span> s </span><span style="color:#fe8019;">=</span><span> input.</span><span style="color:#fabd2f;">to_string</span><span>();
+</span><span>    </span><span style="color:#fa5c4b;">let</span><span> ast </span><span style="color:#fe8019;">= </span><span>syn::parse_macro_input(</span><span style="color:#fe8019;">&amp;</span><span>s).</span><span style="color:#fabd2f;">unwrap</span><span>();
+</span><span>    </span><span style="color:#fa5c4b;">let</span><span> gen </span><span style="color:#fe8019;">= </span><span style="color:#fabd2f;">gen_soa_derive</span><span>(</span><span style="color:#fe8019;">&amp;</span><span>ast);
+</span><span>    </span><span style="font-style:italic;color:#928374;">// Displays the generated code
+</span><span>    </span><span style="color:#fabd2f;">println!</span><span>(</span><span style="color:#b8bb26;">&quot;</span><span style="color:#fdf4c1;">{}</span><span style="color:#b8bb26;">&quot;</span><span>, gen);
+</span><span>    gen.</span><span style="color:#fabd2f;">parse</span><span>().</span><span style="color:#fabd2f;">unwrap</span><span>()
+</span><span>}
 </span></code></pre>
 <p>And if you are curious this is how the push method would look in <code>D</code>.
 <a href="https://maikklein.github.io/post/soa-d/">Blog post</a></p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">void </span><span style="color:#8ec07c;">insertBack</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">T </span><span style="color:#fdf4c1;">t</span><span style="color:#fdf4c1aa;">){
-    </span><span style="color:#fa5c4b;">if</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">length </span><span style="color:#fe8019;">== </span><span style="color:#fdf4c1;">size</span><span style="color:#fdf4c1aa;">) </span><span style="color:#fdf4c1;">grow</span><span style="color:#fdf4c1aa;">;
-    </span><span style="color:#fa5c4b;">foreach</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">index</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">_</span><span style="color:#fdf4c1aa;">; </span><span style="color:#fdf4c1;">Types</span><span style="color:#fdf4c1aa;">){
-        </span><span style="color:#fdf4c1;">containers</span><span style="color:#fdf4c1aa;">[</span><span style="color:#fdf4c1;">index</span><span style="color:#fdf4c1aa;">][</span><span style="color:#fdf4c1;">length</span><span style="color:#fdf4c1aa;">] </span><span style="color:#fe8019;">= </span><span style="color:#fa5c4b;">__traits</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">getMember</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">t</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">MemberNames</span><span style="color:#fdf4c1aa;">[</span><span style="color:#fdf4c1;">index</span><span style="color:#fdf4c1aa;">]);
-    }
-    </span><span style="color:#fdf4c1;">length </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">length </span><span style="color:#fe8019;">+ </span><span style="color:#d3869b;">1</span><span style="color:#fdf4c1aa;">;
-}
-</span></code></pre><h3 id="update1">Update1:</h3>
-<p>There is actually a workaround for accessing the same iterator multiple times in a <code>quote!</code>.<a href="https://www.reddit.com/r/rust/comments/5lrb9y/soa_in_rust_with_macros_11/dbxwfy7/">Source</a></p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> field_idents_: </span><span style="color:#fabd2f;">Vec</span><span style="color:#fdf4c1aa;">&lt;Ident&gt; </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> fields.</span><span style="color:#fabd2f;">iter</span><span style="color:#fdf4c1aa;">().</span><span style="color:#fabd2f;">map</span><span style="color:#fdf4c1aa;">(|</span><span style="color:#fdf4c1;">f</span><span style="color:#fdf4c1aa;">| f.ident.</span><span style="color:#fabd2f;">clone</span><span style="color:#fdf4c1aa;">().</span><span style="color:#fabd2f;">unwrap</span><span style="color:#fdf4c1aa;">()).</span><span style="color:#fabd2f;">collect</span><span style="color:#fdf4c1aa;">();
-</span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> field_idents </span><span style="color:#fe8019;">= &amp;</span><span style="color:#fdf4c1aa;">field_idents_;
-</span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> field_idents1</span><span style="color:#fe8019;">= &amp;</span><span style="color:#fdf4c1aa;">field_idents_;
-
-</span><span style="color:#fabd2f;">quote!</span><span style="color:#fdf4c1aa;">{
-    #[</span><span style="color:#fdf4c1;">derive</span><span style="color:#fdf4c1aa;">(Debug)]
-    </span><span style="color:#fa5c4b;">struct </span><span style="color:#fdf4c1aa;">#</span><span style="color:#8ec07c;">soa_ident </span><span style="color:#fdf4c1aa;">{
-        #(
-            #vec_fields,
-        )*
-    }
-    </span><span style="color:#fa5c4b;">impl </span><span style="color:#fdf4c1aa;">#</span><span style="color:#8ec07c;">soa_ident </span><span style="color:#fdf4c1aa;">{
-        </span><span style="color:#fa5c4b;">pub fn </span><span style="color:#8ec07c;">new</span><span style="color:#fdf4c1aa;">() -&gt; </span><span style="color:#fa5c4b;">Self </span><span style="color:#fdf4c1aa;">{
-            </span><span style="color:#fe8019;">#</span><span style="color:#fdf4c1aa;">soa_ident {
-                </span><span style="color:#fe8019;">#</span><span style="color:#fdf4c1aa;">(
-                    </span><span style="color:#fe8019;">#</span><span style="color:#fdf4c1aa;">field_idents : </span><span style="color:#fabd2f;">Vec</span><span style="color:#fdf4c1aa;">::new(),
-                )</span><span style="color:#fe8019;">*
-            </span><span style="color:#fdf4c1aa;">}
-        }
-
-        </span><span style="color:#fa5c4b;">pub fn </span><span style="color:#8ec07c;">push</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">mut </span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">value</span><span style="color:#fdf4c1aa;">: #ident){
-            </span><span style="color:#fa5c4b;">let </span><span style="color:#fe8019;">#</span><span style="color:#fdf4c1aa;">ident{</span><span style="color:#fe8019;">#</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">#</span><span style="color:#fdf4c1aa;">field_idents: </span><span style="color:#fe8019;">#</span><span style="color:#fdf4c1aa;">field_idents1, )</span><span style="color:#fe8019;">*</span><span style="color:#fdf4c1aa;">} </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> value;
-            </span><span style="color:#fe8019;">#</span><span style="color:#fdf4c1aa;">(
-                </span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fe8019;">#</span><span style="color:#fdf4c1aa;">field_idents.</span><span style="color:#fabd2f;">push</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fe8019;">#</span><span style="color:#fdf4c1aa;">field_idents1);
-            )</span><span style="color:#fe8019;">*
-        </span><span style="color:#fdf4c1aa;">}
-    }
-}
+<pre data-lang="D" style="background-color:#282828;color:#fdf4c1aa;" class="language-D "><code class="language-D" data-lang="D"><span style="color:#fa5c4b;">void </span><span style="color:#8ec07c;">insertBack</span><span>(</span><span style="color:#fa5c4b;">T </span><span style="color:#fdf4c1;">t</span><span>){
+</span><span>    </span><span style="color:#fa5c4b;">if</span><span>(</span><span style="color:#fdf4c1;">length </span><span style="color:#fe8019;">== </span><span style="color:#fdf4c1;">size</span><span>) </span><span style="color:#fdf4c1;">grow</span><span>;
+</span><span>    </span><span style="color:#fa5c4b;">foreach</span><span>(</span><span style="color:#fdf4c1;">index</span><span>, </span><span style="color:#fdf4c1;">_</span><span>; </span><span style="color:#fdf4c1;">Types</span><span>){
+</span><span>        </span><span style="color:#fdf4c1;">containers</span><span>[</span><span style="color:#fdf4c1;">index</span><span>][</span><span style="color:#fdf4c1;">length</span><span>] </span><span style="color:#fe8019;">= </span><span style="color:#fa5c4b;">__traits</span><span>(</span><span style="color:#fdf4c1;">getMember</span><span>, </span><span style="color:#fdf4c1;">t</span><span>, </span><span style="color:#fdf4c1;">MemberNames</span><span>[</span><span style="color:#fdf4c1;">index</span><span>]);
+</span><span>    }
+</span><span>    </span><span style="color:#fdf4c1;">length </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">length </span><span style="color:#fe8019;">+ </span><span style="color:#d3869b;">1</span><span>;
+</span><span>}
 </span></code></pre>
+<h3 id="update1">Update1:</h3>
+<p>There is actually a workaround for accessing the same iterator multiple times in a <code>quote!</code>.<a href="https://www.reddit.com/r/rust/comments/5lrb9y/soa_in_rust_with_macros_11/dbxwfy7/">Source</a></p>
+<pre data-lang="Rust" style="background-color:#282828;color:#fdf4c1aa;" class="language-Rust "><code class="language-Rust" data-lang="Rust"><span style="color:#fa5c4b;">let</span><span> field_idents_: </span><span style="color:#fabd2f;">Vec</span><span>&lt;Ident&gt; </span><span style="color:#fe8019;">=</span><span> fields.</span><span style="color:#fabd2f;">iter</span><span>().</span><span style="color:#fabd2f;">map</span><span>(|</span><span style="color:#fdf4c1;">f</span><span>| f.ident.</span><span style="color:#fabd2f;">clone</span><span>().</span><span style="color:#fabd2f;">unwrap</span><span>()).</span><span style="color:#fabd2f;">collect</span><span>();
+</span><span style="color:#fa5c4b;">let</span><span> field_idents </span><span style="color:#fe8019;">= &amp;</span><span>field_idents_;
+</span><span style="color:#fa5c4b;">let</span><span> field_idents1</span><span style="color:#fe8019;">= &amp;</span><span>field_idents_;
+</span><span>
+</span><span style="color:#fabd2f;">quote!</span><span>{
+</span><span>    #[</span><span style="color:#fdf4c1;">derive</span><span>(Debug)]
+</span><span>    </span><span style="color:#fa5c4b;">struct </span><span>#</span><span style="color:#8ec07c;">soa_ident </span><span>{
+</span><span>        #(
+</span><span>            #vec_fields,
+</span><span>        )*
+</span><span>    }
+</span><span>    </span><span style="color:#fa5c4b;">impl </span><span>#</span><span style="color:#8ec07c;">soa_ident </span><span>{
+</span><span>        </span><span style="color:#fa5c4b;">pub fn </span><span style="color:#8ec07c;">new</span><span>() -&gt; </span><span style="color:#fa5c4b;">Self </span><span>{
+</span><span>            </span><span style="color:#fe8019;">#</span><span>soa_ident {
+</span><span>                </span><span style="color:#fe8019;">#</span><span>(
+</span><span>                    </span><span style="color:#fe8019;">#</span><span>field_idents : </span><span style="color:#fabd2f;">Vec</span><span>::new(),
+</span><span>                )</span><span style="color:#fe8019;">*
+</span><span>            }
+</span><span>        }
+</span><span>
+</span><span>        </span><span style="color:#fa5c4b;">pub fn </span><span style="color:#8ec07c;">push</span><span>(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">mut </span><span style="color:#fdf4c1;">self</span><span>, </span><span style="color:#fdf4c1;">value</span><span>: #ident){
+</span><span>            </span><span style="color:#fa5c4b;">let </span><span style="color:#fe8019;">#</span><span>ident{</span><span style="color:#fe8019;">#</span><span>(</span><span style="color:#fe8019;">#</span><span>field_idents: </span><span style="color:#fe8019;">#</span><span>field_idents1, )</span><span style="color:#fe8019;">*</span><span>} </span><span style="color:#fe8019;">=</span><span> value;
+</span><span>            </span><span style="color:#fe8019;">#</span><span>(
+</span><span>                </span><span style="color:#fdf4c1;">self</span><span>.</span><span style="color:#fe8019;">#</span><span>field_idents.</span><span style="color:#fabd2f;">push</span><span>(</span><span style="color:#fe8019;">#</span><span>field_idents1);
+</span><span>            )</span><span style="color:#fe8019;">*
+</span><span>        }
+</span><span>    }
+</span><span>}
+</span></code></pre>
+
 </div>
 
             </div>

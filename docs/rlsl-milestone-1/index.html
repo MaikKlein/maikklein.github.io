@@ -111,56 +111,53 @@
 <div style='position:relative; padding-bottom:56.25%'>
     <iframe src='https://gfycat.com/ifr/UnrulyNeglectedBedbug' frameborder='0' scrolling='no' width='100%' height='100%' style='position:absolute;top:0;left:0;' allowfullscreen></iframe>
 </div>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">#[</span><span style="color:#fdf4c1;">spirv</span><span style="color:#fdf4c1aa;">(fragment)]
-</span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">color_frag</span><span style="color:#fdf4c1aa;">(
-    </span><span style="color:#fdf4c1;">frag</span><span style="color:#fdf4c1aa;">: Fragment,
-    </span><span style="color:#fdf4c1;">uv</span><span style="color:#fdf4c1aa;">: Input&lt;N0, Vec2&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;&gt;,
-    </span><span style="color:#fdf4c1;">time</span><span style="color:#fdf4c1aa;">: Descriptor&lt;N2, N0, </span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;,
-) -&gt; Output&lt;N0, Vec4&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;&gt; {
-    </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> uv </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> uv.data;
-    </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> time </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> time.data;
-    </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> offset </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">Vec3::new(</span><span style="color:#d3869b;">0.0</span><span style="color:#fdf4c1aa;">, </span><span style="color:#d3869b;">2.0</span><span style="color:#fdf4c1aa;">, </span><span style="color:#d3869b;">4.0</span><span style="color:#fdf4c1aa;">);
-    </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> coord </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> uv.</span><span style="color:#fabd2f;">extend</span><span style="color:#fdf4c1aa;">(uv.y)
-        .</span><span style="color:#fabd2f;">add</span><span style="color:#fdf4c1aa;">(offset)
-        .</span><span style="color:#fabd2f;">map</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">move </span><span style="color:#fe8019;">|</span><span style="color:#fdf4c1aa;">f</span><span style="color:#fe8019;">| </span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">::cos(time </span><span style="color:#fe8019;">+</span><span style="color:#fdf4c1aa;"> f) </span><span style="color:#fe8019;">* </span><span style="color:#d3869b;">0.5</span><span style="color:#fdf4c1aa;">)
-        .</span><span style="color:#fabd2f;">add</span><span style="color:#fdf4c1aa;">(Vec3::single(</span><span style="color:#d3869b;">0.5</span><span style="color:#fdf4c1aa;">))
-        .</span><span style="color:#fabd2f;">extend</span><span style="color:#fdf4c1aa;">(</span><span style="color:#d3869b;">1.0</span><span style="color:#fdf4c1aa;">);
-    Output::new(coord)
-}
-
-#[</span><span style="color:#fdf4c1;">spirv</span><span style="color:#fdf4c1aa;">(vertex)]
-</span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">vertex</span><span style="color:#fdf4c1aa;">(
-    </span><span style="color:#fdf4c1;">vertex</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">mut</span><span style="color:#fdf4c1aa;"> Vertex,
-    </span><span style="color:#fdf4c1;">pos</span><span style="color:#fdf4c1aa;">: Input&lt;N0, Vec4&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;&gt;,
-    </span><span style="color:#fdf4c1;">uv</span><span style="color:#fdf4c1aa;">: Input&lt;N1, Vec2&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;&gt;,
-) -&gt; Output&lt;N0, Vec2&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;&gt; {
-    vertex.position </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> pos.data;
-    Output::new(uv.data)
-}
+<pre data-lang="Rust" style="background-color:#282828;color:#fdf4c1aa;" class="language-Rust "><code class="language-Rust" data-lang="Rust"><span>#[</span><span style="color:#fdf4c1;">spirv</span><span>(fragment)]
+</span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">color_frag</span><span>(
+</span><span>    </span><span style="color:#fdf4c1;">frag</span><span>: Fragment,
+</span><span>    </span><span style="color:#fdf4c1;">uv</span><span>: Input&lt;N0, Vec2&lt;</span><span style="color:#fa5c4b;">f32</span><span>&gt;&gt;,
+</span><span>    </span><span style="color:#fdf4c1;">time</span><span>: Descriptor&lt;N2, N0, </span><span style="color:#fa5c4b;">f32</span><span>&gt;,
+</span><span>) -&gt; Output&lt;N0, Vec4&lt;</span><span style="color:#fa5c4b;">f32</span><span>&gt;&gt; {
+</span><span>    </span><span style="color:#fa5c4b;">let</span><span> uv </span><span style="color:#fe8019;">=</span><span> uv.data;
+</span><span>    </span><span style="color:#fa5c4b;">let</span><span> time </span><span style="color:#fe8019;">=</span><span> time.data;
+</span><span>    </span><span style="color:#fa5c4b;">let</span><span> offset </span><span style="color:#fe8019;">= </span><span>Vec3::new(</span><span style="color:#d3869b;">0.0</span><span>, </span><span style="color:#d3869b;">2.0</span><span>, </span><span style="color:#d3869b;">4.0</span><span>);
+</span><span>    </span><span style="color:#fa5c4b;">let</span><span> coord </span><span style="color:#fe8019;">=</span><span> uv.</span><span style="color:#fabd2f;">extend</span><span>(uv.y)
+</span><span>        .</span><span style="color:#fabd2f;">add</span><span>(offset)
+</span><span>        .</span><span style="color:#fabd2f;">map</span><span>(</span><span style="color:#fa5c4b;">move </span><span style="color:#fe8019;">|</span><span>f</span><span style="color:#fe8019;">| </span><span style="color:#fa5c4b;">f32</span><span>::cos(time </span><span style="color:#fe8019;">+</span><span> f) </span><span style="color:#fe8019;">* </span><span style="color:#d3869b;">0.5</span><span>)
+</span><span>        .</span><span style="color:#fabd2f;">add</span><span>(Vec3::single(</span><span style="color:#d3869b;">0.5</span><span>))
+</span><span>        .</span><span style="color:#fabd2f;">extend</span><span>(</span><span style="color:#d3869b;">1.0</span><span>);
+</span><span>    Output::new(coord)
+</span><span>}
+</span><span>
+</span><span>#[</span><span style="color:#fdf4c1;">spirv</span><span>(vertex)]
+</span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">vertex</span><span>(
+</span><span>    </span><span style="color:#fdf4c1;">vertex</span><span>: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">mut</span><span> Vertex,
+</span><span>    </span><span style="color:#fdf4c1;">pos</span><span>: Input&lt;N0, Vec4&lt;</span><span style="color:#fa5c4b;">f32</span><span>&gt;&gt;,
+</span><span>    </span><span style="color:#fdf4c1;">uv</span><span>: Input&lt;N1, Vec2&lt;</span><span style="color:#fa5c4b;">f32</span><span>&gt;&gt;,
+</span><span>) -&gt; Output&lt;N0, Vec2&lt;</span><span style="color:#fa5c4b;">f32</span><span>&gt;&gt; {
+</span><span>    vertex.position </span><span style="color:#fe8019;">=</span><span> pos.data;
+</span><span>    Output::new(uv.data)
+</span><span>}
 </span></code></pre>
 <p>Today I reached the first milestone: translating the default shader from Shadertoy to rlsl.</p>
 <h2 id="input-variables">Input variables</h2>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">uv: Input&lt;N0, Vec2&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;&gt;
+<pre data-lang="Rust" style="background-color:#282828;color:#fdf4c1aa;" class="language-Rust "><code class="language-Rust" data-lang="Rust"><span>uv: Input&lt;N0, Vec2&lt;</span><span style="color:#fa5c4b;">f32</span><span>&gt;&gt;
 </span></code></pre>
 <p>Every entry point now specifies input and uniform buffers explicitly. <code>Input&lt;N0, Vec2&lt;f32&gt;&gt;</code> tells rlsl that there is an input variable at location 0 of type <code>Vec2&lt;f32&gt;</code>. The <code>N0</code> here is a custom struct that maps to the number <code>0</code> inside rlsl. When Rust gets <code>const-generics</code>, you will be able to write <code>Input&lt;0, Vec2&lt;f32&gt;</code>.</p>
 <h2 id="uniform-buffers-and-descriptor-sets">Uniform buffers and descriptor sets</h2>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">time: Descriptor&lt;N2, N0, </span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;,
+<pre data-lang="Rust" style="background-color:#282828;color:#fdf4c1aa;" class="language-Rust "><code class="language-Rust" data-lang="Rust"><span>time: Descriptor&lt;N2, N0, </span><span style="color:#fa5c4b;">f32</span><span>&gt;,
 </span></code></pre>
 <p>Similarly to input variables, you specify descriptor sets with <code>Descriptor&lt;N2, N0, f32&gt;</code>, where currently the first type parameter is the binding and the second type parameter is the set. Also rlsl now supports the <code>std140</code> layout, and custom structs as the type parameter are also supported <code>Descriptor&lt;N0, N0, SomeStruct&gt;</code>. In the future I will also implement seamless interop of uniforms structs between rlsl and rust. Currently you have to make sure that the struct in rust is aligned properly according to the rules in std140.</p>
 <h2 id="closures-and-pointers">Closures and pointers</h2>
 <p>rlsl now supports closures, and closures that own the captured variables. In the future I will also allow closures to capture variables by reference. Additionally rlsl now allows pointers as variables and function parameters. While this is not allowed in SPIR-V, rlsl optimizes those pointers away.</p>
 <h2 id="build-times">Build times</h2>
 <p>Build times are still quick, although the examples are still very small in terms of loc.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">➜  shader git:(master) time env </span><span style="color:#fdf4c1;">RUST_BACKTRACE</span><span style="color:#fe8019;">=</span><span style="color:#d3869b;">1 </span><span style="color:#fdf4c1;">RUSTC</span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;">rlsl cargo build
-   Compiling shader v0.</span><span style="color:#d3869b;">1.0 </span><span style="color:#fdf4c1aa;">(file:</span><span style="font-style:italic;color:#928374;">///home/maik/projects/rlsl/quad/shader)
-</span><span style="color:#fdf4c1aa;">    Finished dev [unoptimized </span><span style="color:#fe8019;">+</span><span style="color:#fdf4c1aa;"> debuginfo] </span><span style="color:#fabd2f;">target</span><span style="color:#fdf4c1aa;">(s) </span><span style="color:#fe8019;">in </span><span style="color:#d3869b;">0.11</span><span style="color:#fdf4c1aa;"> secs
-</span><span style="color:#d3869b;">0.19</span><span style="color:#fdf4c1aa;">user </span><span style="color:#d3869b;">0.05</span><span style="color:#fdf4c1aa;">system </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1aa;">:</span><span style="color:#d3869b;">00.25</span><span style="color:#fdf4c1aa;">elapsed </span><span style="color:#d3869b;">94</span><span style="color:#fe8019;">%</span><span style="color:#fdf4c1;">CPU </span><span style="color:#fdf4c1aa;">(0avgtext</span><span style="color:#fe8019;">+</span><span style="color:#fdf4c1aa;">0avgdata 77456maxresident)k
-0inputs</span><span style="color:#fe8019;">+</span><span style="color:#fdf4c1aa;">96outputs (0major</span><span style="color:#fe8019;">+</span><span style="color:#fdf4c1aa;">14998minor)pagefaults 0swaps
+<pre data-lang="Rust" style="background-color:#282828;color:#fdf4c1aa;" class="language-Rust "><code class="language-Rust" data-lang="Rust"><span>➜  shader git:(master) time env </span><span style="color:#fdf4c1;">RUST_BACKTRACE</span><span style="color:#fe8019;">=</span><span style="color:#d3869b;">1 </span><span style="color:#fdf4c1;">RUSTC</span><span style="color:#fe8019;">=</span><span>rlsl cargo build
+</span><span>   Compiling shader v0.</span><span style="color:#d3869b;">1.0 </span><span>(file:</span><span style="font-style:italic;color:#928374;">///home/maik/projects/rlsl/quad/shader)
+</span><span>    Finished dev [unoptimized </span><span style="color:#fe8019;">+</span><span> debuginfo] </span><span style="color:#fabd2f;">target</span><span>(s) </span><span style="color:#fe8019;">in </span><span style="color:#d3869b;">0.11</span><span> secs
+</span><span style="color:#d3869b;">0.19</span><span>user </span><span style="color:#d3869b;">0.05</span><span>system </span><span style="color:#d3869b;">0</span><span>:</span><span style="color:#d3869b;">00.25</span><span>elapsed </span><span style="color:#d3869b;">94</span><span style="color:#fe8019;">%</span><span style="color:#fdf4c1;">CPU </span><span>(0avgtext</span><span style="color:#fe8019;">+</span><span>0avgdata 77456maxresident)k
+</span><span>0inputs</span><span style="color:#fe8019;">+</span><span>96outputs (0major</span><span style="color:#fe8019;">+</span><span>14998minor)pagefaults 0swaps
 </span></code></pre>
+
 </div>
 
             </div>

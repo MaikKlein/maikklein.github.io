@@ -83,18 +83,17 @@
   
   </ul>
   <p>A few months ago I have written a small task system, it looks like this.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> res </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">TaskPool::submit(|| {
-    </span><span style="color:#fabd2f;">println!</span><span style="color:#fdf4c1aa;">(</span><span style="color:#b8bb26;">&quot;Before long running task&quot;</span><span style="color:#fdf4c1aa;">);
-    </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> r </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">TaskPool::submit(|| {
-        std::thread::sleep(Duration::from_secs(</span><span style="color:#d3869b;">10</span><span style="color:#fdf4c1aa;">));
-        </span><span style="color:#fa5c4b;">return </span><span style="color:#d3869b;">42</span><span style="color:#fdf4c1aa;">;
-    });
-    </span><span style="font-style:italic;color:#928374;">// Waits for the long running task to complete, does not block other tasks!
-    </span><span style="color:#fabd2f;">println!</span><span style="color:#fdf4c1aa;">(</span><span style="color:#b8bb26;">&quot;After long running task </span><span style="color:#fdf4c1;">{}</span><span style="color:#b8bb26;">&quot;</span><span style="color:#fdf4c1aa;">, r.</span><span style="color:#fabd2f;">await</span><span style="color:#fdf4c1aa;">());
-    </span><span style="color:#d3869b;">42
-</span><span style="color:#fdf4c1aa;">});
-</span><span style="color:#fabd2f;">println!</span><span style="color:#fdf4c1aa;">(</span><span style="color:#b8bb26;">&quot;</span><span style="color:#fdf4c1;">{}</span><span style="color:#b8bb26;">&quot;</span><span style="color:#fdf4c1aa;">, res.</span><span style="color:#fabd2f;">await</span><span style="color:#fdf4c1aa;">());
+<pre data-lang="Rust" style="background-color:#282828;color:#fdf4c1aa;" class="language-Rust "><code class="language-Rust" data-lang="Rust"><span style="color:#fa5c4b;">let</span><span> res </span><span style="color:#fe8019;">= </span><span>TaskPool::submit(|| {
+</span><span>    </span><span style="color:#fabd2f;">println!</span><span>(</span><span style="color:#b8bb26;">&quot;Before long running task&quot;</span><span>);
+</span><span>    </span><span style="color:#fa5c4b;">let</span><span> r </span><span style="color:#fe8019;">= </span><span>TaskPool::submit(|| {
+</span><span>        std::thread::sleep(Duration::from_secs(</span><span style="color:#d3869b;">10</span><span>));
+</span><span>        </span><span style="color:#fa5c4b;">return </span><span style="color:#d3869b;">42</span><span>;
+</span><span>    });
+</span><span>    </span><span style="font-style:italic;color:#928374;">// Waits for the long running task to complete, does not block other tasks!
+</span><span>    </span><span style="color:#fabd2f;">println!</span><span>(</span><span style="color:#b8bb26;">&quot;After long running task </span><span style="color:#fdf4c1;">{}</span><span style="color:#b8bb26;">&quot;</span><span>, r.</span><span style="color:#fabd2f;">await</span><span>());
+</span><span>    </span><span style="color:#d3869b;">42
+</span><span>});
+</span><span style="color:#fabd2f;">println!</span><span>(</span><span style="color:#b8bb26;">&quot;</span><span style="color:#fdf4c1;">{}</span><span style="color:#b8bb26;">&quot;</span><span>, res.</span><span style="color:#fabd2f;">await</span><span>());
 </span></code></pre>
 <ul>
 <li>It is possible to spawn tasks inside tasks</li>
@@ -103,135 +102,126 @@
 </ul>
 <p>The task system was inspired by <a href="http://www.gdcvault.com/play/1022186/Parallelizing-the-Naughty-Dog-Engine">Naughty Dog's Task system</a> but since then <code>future-rs</code> was released. Today I finally had time to test it out.</p>
 <p>Instead of spawning tasks inside tasks you create <code>futures</code>.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> some_future </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">futures::finished::&lt;</span><span style="color:#fa5c4b;">i32</span><span style="color:#fdf4c1aa;">, ()&gt;(</span><span style="color:#d3869b;">42</span><span style="color:#fdf4c1aa;">).</span><span style="color:#fabd2f;">map</span><span style="color:#fdf4c1aa;">(|</span><span style="color:#fdf4c1;">i</span><span style="color:#fdf4c1aa;">| i </span><span style="color:#fe8019;">+ </span><span style="color:#d3869b;">42</span><span style="color:#fdf4c1aa;">);
+<pre data-lang="Rust" style="background-color:#282828;color:#fdf4c1aa;" class="language-Rust "><code class="language-Rust" data-lang="Rust"><span style="color:#fa5c4b;">let</span><span> some_future </span><span style="color:#fe8019;">= </span><span>futures::finished::&lt;</span><span style="color:#fa5c4b;">i32</span><span>, ()&gt;(</span><span style="color:#d3869b;">42</span><span>).</span><span style="color:#fabd2f;">map</span><span>(|</span><span style="color:#fdf4c1;">i</span><span>| i </span><span style="color:#fe8019;">+ </span><span style="color:#d3869b;">42</span><span>);
 </span></code></pre>
 <p>You can think of them as a finite state machine.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> pool </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">CpuPool::new(</span><span style="color:#d3869b;">3</span><span style="color:#fdf4c1aa;">);
-</span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> some_future </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">futures::finished::&lt;</span><span style="color:#fa5c4b;">i32</span><span style="color:#fdf4c1aa;">, ()&gt;(</span><span style="color:#d3869b;">42</span><span style="color:#fdf4c1aa;">).</span><span style="color:#fabd2f;">map</span><span style="color:#fdf4c1aa;">(|</span><span style="color:#fdf4c1;">i</span><span style="color:#fdf4c1aa;">| i </span><span style="color:#fe8019;">+ </span><span style="color:#d3869b;">42</span><span style="color:#fdf4c1aa;">);
-</span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> cpu_future </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> pool.</span><span style="color:#fabd2f;">spawn</span><span style="color:#fdf4c1aa;">(some_future);
-</span><span style="color:#fabd2f;">println!</span><span style="color:#fdf4c1aa;">(</span><span style="color:#b8bb26;">&quot;</span><span style="color:#fdf4c1;">{}</span><span style="color:#b8bb26;">&quot;</span><span style="color:#fdf4c1aa;">, cpu_future.</span><span style="color:#fabd2f;">wait</span><span style="color:#fdf4c1aa;">().</span><span style="color:#fabd2f;">unwrap</span><span style="color:#fdf4c1aa;">());
+<pre data-lang="Rust" style="background-color:#282828;color:#fdf4c1aa;" class="language-Rust "><code class="language-Rust" data-lang="Rust"><span style="color:#fa5c4b;">let</span><span> pool </span><span style="color:#fe8019;">= </span><span>CpuPool::new(</span><span style="color:#d3869b;">3</span><span>);
+</span><span style="color:#fa5c4b;">let</span><span> some_future </span><span style="color:#fe8019;">= </span><span>futures::finished::&lt;</span><span style="color:#fa5c4b;">i32</span><span>, ()&gt;(</span><span style="color:#d3869b;">42</span><span>).</span><span style="color:#fabd2f;">map</span><span>(|</span><span style="color:#fdf4c1;">i</span><span>| i </span><span style="color:#fe8019;">+ </span><span style="color:#d3869b;">42</span><span>);
+</span><span style="color:#fa5c4b;">let</span><span> cpu_future </span><span style="color:#fe8019;">=</span><span> pool.</span><span style="color:#fabd2f;">spawn</span><span>(some_future);
+</span><span style="color:#fabd2f;">println!</span><span>(</span><span style="color:#b8bb26;">&quot;</span><span style="color:#fdf4c1;">{}</span><span style="color:#b8bb26;">&quot;</span><span>, cpu_future.</span><span style="color:#fabd2f;">wait</span><span>().</span><span style="color:#fabd2f;">unwrap</span><span>());
 </span></code></pre>
 <p>The biggest difference here is that submitting and creating work is completely separated.</p>
 <p><code>Futures</code> can be composed together</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">future_test</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">id</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fa5c4b;">i32</span><span style="color:#fdf4c1aa;">) -&gt; impl futures::Future&lt;Item=</span><span style="color:#fa5c4b;">i32</span><span style="color:#fdf4c1aa;">, Error=()&gt; {
-    futures::finished::&lt;</span><span style="color:#fa5c4b;">i32</span><span style="color:#fdf4c1aa;">, ()&gt;(</span><span style="color:#d3869b;">42</span><span style="color:#fdf4c1aa;">)
-        .</span><span style="color:#fabd2f;">map</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">move </span><span style="color:#fe8019;">|</span><span style="color:#fdf4c1aa;">i</span><span style="color:#fe8019;">| </span><span style="color:#fdf4c1aa;">{
-            </span><span style="color:#fabd2f;">println!</span><span style="color:#fdf4c1aa;">(</span><span style="color:#b8bb26;">&quot;1st map id </span><span style="color:#fdf4c1;">{}  {:?}</span><span style="color:#b8bb26;">&quot;</span><span style="color:#fdf4c1aa;">, id, thread_id::get());
-            i </span><span style="color:#fe8019;">+ </span><span style="color:#d3869b;">1
-        </span><span style="color:#fdf4c1aa;">})
-        .</span><span style="color:#fabd2f;">map</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">move </span><span style="color:#fe8019;">|</span><span style="color:#fdf4c1aa;">i</span><span style="color:#fe8019;">| </span><span style="color:#fdf4c1aa;">{
-            </span><span style="color:#fabd2f;">println!</span><span style="color:#fdf4c1aa;">(</span><span style="color:#b8bb26;">&quot;2nd map id </span><span style="color:#fdf4c1;">{}  {:?}</span><span style="color:#b8bb26;">&quot;</span><span style="color:#fdf4c1aa;">, id, thread_id::get());
-            i </span><span style="color:#fe8019;">+ </span><span style="color:#d3869b;">2
-        </span><span style="color:#fdf4c1aa;">})
-        .</span><span style="color:#fabd2f;">map</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">move </span><span style="color:#fe8019;">|</span><span style="color:#fdf4c1aa;">i</span><span style="color:#fe8019;">| </span><span style="color:#fdf4c1aa;">{
-            </span><span style="color:#fabd2f;">println!</span><span style="color:#fdf4c1aa;">(</span><span style="color:#b8bb26;">&quot;3rd map id </span><span style="color:#fdf4c1;">{}  {:?}</span><span style="color:#b8bb26;">&quot;</span><span style="color:#fdf4c1aa;">, id, thread_id::get());
-            i </span><span style="color:#fe8019;">+ </span><span style="color:#d3869b;">3
-        </span><span style="color:#fdf4c1aa;">})
-}
+<pre data-lang="Rust" style="background-color:#282828;color:#fdf4c1aa;" class="language-Rust "><code class="language-Rust" data-lang="Rust"><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">future_test</span><span>(</span><span style="color:#fdf4c1;">id</span><span>: </span><span style="color:#fa5c4b;">i32</span><span>) -&gt; impl futures::Future&lt;Item=</span><span style="color:#fa5c4b;">i32</span><span>, Error=()&gt; {
+</span><span>    futures::finished::&lt;</span><span style="color:#fa5c4b;">i32</span><span>, ()&gt;(</span><span style="color:#d3869b;">42</span><span>)
+</span><span>        .</span><span style="color:#fabd2f;">map</span><span>(</span><span style="color:#fa5c4b;">move </span><span style="color:#fe8019;">|</span><span>i</span><span style="color:#fe8019;">| </span><span>{
+</span><span>            </span><span style="color:#fabd2f;">println!</span><span>(</span><span style="color:#b8bb26;">&quot;1st map id </span><span style="color:#fdf4c1;">{}  {:?}</span><span style="color:#b8bb26;">&quot;</span><span>, id, thread_id::get());
+</span><span>            i </span><span style="color:#fe8019;">+ </span><span style="color:#d3869b;">1
+</span><span>        })
+</span><span>        .</span><span style="color:#fabd2f;">map</span><span>(</span><span style="color:#fa5c4b;">move </span><span style="color:#fe8019;">|</span><span>i</span><span style="color:#fe8019;">| </span><span>{
+</span><span>            </span><span style="color:#fabd2f;">println!</span><span>(</span><span style="color:#b8bb26;">&quot;2nd map id </span><span style="color:#fdf4c1;">{}  {:?}</span><span style="color:#b8bb26;">&quot;</span><span>, id, thread_id::get());
+</span><span>            i </span><span style="color:#fe8019;">+ </span><span style="color:#d3869b;">2
+</span><span>        })
+</span><span>        .</span><span style="color:#fabd2f;">map</span><span>(</span><span style="color:#fa5c4b;">move </span><span style="color:#fe8019;">|</span><span>i</span><span style="color:#fe8019;">| </span><span>{
+</span><span>            </span><span style="color:#fabd2f;">println!</span><span>(</span><span style="color:#b8bb26;">&quot;3rd map id </span><span style="color:#fdf4c1;">{}  {:?}</span><span style="color:#b8bb26;">&quot;</span><span>, id, thread_id::get());
+</span><span>            i </span><span style="color:#fe8019;">+ </span><span style="color:#d3869b;">3
+</span><span>        })
+</span><span>}
 </span></code></pre>
 <p>Though you probably want to make use of <code>impl trait</code> if you compose multiple futures together. Above I used the <code>thread-id</code> crate to see on which thread the future will execute.</p>
 <p>I am currently writing a rendering engine in Vulkan and I need to record <code>CommandBuffers</code> on different threads. This means I have to figure out how I actually submit futures onto different threads.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> c: </span><span style="color:#fabd2f;">Vec</span><span style="color:#fdf4c1aa;">&lt;</span><span style="color:#fe8019;">_</span><span style="color:#fdf4c1aa;">&gt; </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">(</span><span style="color:#d3869b;">0 </span><span style="color:#fe8019;">.. </span><span style="color:#d3869b;">10</span><span style="color:#fdf4c1aa;">).</span><span style="color:#fabd2f;">map</span><span style="color:#fdf4c1aa;">(|</span><span style="color:#fdf4c1;">i</span><span style="color:#fdf4c1aa;">| </span><span style="color:#fabd2f;">future_test</span><span style="color:#fdf4c1aa;">(i)).</span><span style="color:#fabd2f;">collect</span><span style="color:#fdf4c1aa;">();
-</span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> r </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> pool.</span><span style="color:#fabd2f;">spawn</span><span style="color:#fdf4c1aa;">(futures::collect(c));
-</span><span style="color:#fabd2f;">println!</span><span style="color:#fdf4c1aa;">(</span><span style="color:#b8bb26;">&quot;</span><span style="color:#fdf4c1;">{:?}</span><span style="color:#b8bb26;">&quot;</span><span style="color:#fdf4c1aa;">, r.</span><span style="color:#fabd2f;">wait</span><span style="color:#fdf4c1aa;">());
+<pre data-lang="Rust" style="background-color:#282828;color:#fdf4c1aa;" class="language-Rust "><code class="language-Rust" data-lang="Rust"><span style="color:#fa5c4b;">let</span><span> c: </span><span style="color:#fabd2f;">Vec</span><span>&lt;</span><span style="color:#fe8019;">_</span><span>&gt; </span><span style="color:#fe8019;">= </span><span>(</span><span style="color:#d3869b;">0 </span><span style="color:#fe8019;">.. </span><span style="color:#d3869b;">10</span><span>).</span><span style="color:#fabd2f;">map</span><span>(|</span><span style="color:#fdf4c1;">i</span><span>| </span><span style="color:#fabd2f;">future_test</span><span>(i)).</span><span style="color:#fabd2f;">collect</span><span>();
+</span><span style="color:#fa5c4b;">let</span><span> r </span><span style="color:#fe8019;">=</span><span> pool.</span><span style="color:#fabd2f;">spawn</span><span>(futures::collect(c));
+</span><span style="color:#fabd2f;">println!</span><span>(</span><span style="color:#b8bb26;">&quot;</span><span style="color:#fdf4c1;">{:?}</span><span style="color:#b8bb26;">&quot;</span><span>, r.</span><span style="color:#fabd2f;">wait</span><span>());
 </span></code></pre>
 <p>This will print:</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">1st map id </span><span style="color:#d3869b;">0  140444805625600
-</span><span style="color:#fdf4c1aa;">2nd map id </span><span style="color:#d3869b;">0  140444805625600
-</span><span style="color:#fdf4c1aa;">3rd map id </span><span style="color:#d3869b;">0  140444805625600
-</span><span style="color:#fdf4c1aa;">1st map id </span><span style="color:#d3869b;">1  140444805625600
-</span><span style="color:#fdf4c1aa;">2nd map id </span><span style="color:#d3869b;">1  140444805625600
-</span><span style="color:#fdf4c1aa;">3rd map id </span><span style="color:#d3869b;">1  140444805625600
-</span><span style="color:#fdf4c1aa;">1st map id </span><span style="color:#d3869b;">2  140444805625600
-</span><span style="color:#fdf4c1aa;">2nd map id </span><span style="color:#d3869b;">2  140444805625600
-</span><span style="color:#fdf4c1aa;">3rd map id </span><span style="color:#d3869b;">2  140444805625600
-</span><span style="color:#fdf4c1aa;">1st map id </span><span style="color:#d3869b;">3  140444805625600
-</span><span style="color:#fdf4c1aa;">2nd map id </span><span style="color:#d3869b;">3  140444805625600
-</span><span style="color:#fdf4c1aa;">3rd map id </span><span style="color:#d3869b;">3  140444805625600
-</span><span style="color:#fdf4c1aa;">1st map id </span><span style="color:#d3869b;">4  140444805625600
-</span><span style="color:#fdf4c1aa;">2nd map id </span><span style="color:#d3869b;">4  140444805625600
-</span><span style="color:#fdf4c1aa;">3rd map id </span><span style="color:#d3869b;">4  140444805625600
-</span><span style="color:#fdf4c1aa;">1st map id </span><span style="color:#d3869b;">5  140444805625600
-</span><span style="color:#fdf4c1aa;">2nd map id </span><span style="color:#d3869b;">5  140444805625600
-</span><span style="color:#fdf4c1aa;">3rd map id </span><span style="color:#d3869b;">5  140444805625600
-</span><span style="color:#fdf4c1aa;">1st map id </span><span style="color:#d3869b;">6  140444805625600
-</span><span style="color:#fdf4c1aa;">2nd map id </span><span style="color:#d3869b;">6  140444805625600
-</span><span style="color:#fdf4c1aa;">3rd map id </span><span style="color:#d3869b;">6  140444805625600
-</span><span style="color:#fdf4c1aa;">1st map id </span><span style="color:#d3869b;">7  140444805625600
-</span><span style="color:#fdf4c1aa;">2nd map id </span><span style="color:#d3869b;">7  140444805625600
-</span><span style="color:#fdf4c1aa;">3rd map id </span><span style="color:#d3869b;">7  140444805625600
-</span><span style="color:#fdf4c1aa;">1st map id </span><span style="color:#d3869b;">8  140444805625600
-</span><span style="color:#fdf4c1aa;">2nd map id </span><span style="color:#d3869b;">8  140444805625600
-</span><span style="color:#fdf4c1aa;">3rd map id </span><span style="color:#d3869b;">8  140444805625600
-</span><span style="color:#fdf4c1aa;">1st map id </span><span style="color:#d3869b;">9  140444805625600
-</span><span style="color:#fdf4c1aa;">2nd map id </span><span style="color:#d3869b;">9  140444805625600
-</span><span style="color:#fdf4c1aa;">3rd map id </span><span style="color:#d3869b;">9  140444805625600
-</span><span style="color:#fabd2f;">Ok</span><span style="color:#fdf4c1aa;">([</span><span style="color:#d3869b;">48</span><span style="color:#fdf4c1aa;">, </span><span style="color:#d3869b;">48</span><span style="color:#fdf4c1aa;">, </span><span style="color:#d3869b;">48</span><span style="color:#fdf4c1aa;">, </span><span style="color:#d3869b;">48</span><span style="color:#fdf4c1aa;">, </span><span style="color:#d3869b;">48</span><span style="color:#fdf4c1aa;">, </span><span style="color:#d3869b;">48</span><span style="color:#fdf4c1aa;">, </span><span style="color:#d3869b;">48</span><span style="color:#fdf4c1aa;">, </span><span style="color:#d3869b;">48</span><span style="color:#fdf4c1aa;">, </span><span style="color:#d3869b;">48</span><span style="color:#fdf4c1aa;">, </span><span style="color:#d3869b;">48</span><span style="color:#fdf4c1aa;">])
+<pre data-lang="Rust" style="background-color:#282828;color:#fdf4c1aa;" class="language-Rust "><code class="language-Rust" data-lang="Rust"><span>1st map id </span><span style="color:#d3869b;">0  140444805625600
+</span><span>2nd map id </span><span style="color:#d3869b;">0  140444805625600
+</span><span>3rd map id </span><span style="color:#d3869b;">0  140444805625600
+</span><span>1st map id </span><span style="color:#d3869b;">1  140444805625600
+</span><span>2nd map id </span><span style="color:#d3869b;">1  140444805625600
+</span><span>3rd map id </span><span style="color:#d3869b;">1  140444805625600
+</span><span>1st map id </span><span style="color:#d3869b;">2  140444805625600
+</span><span>2nd map id </span><span style="color:#d3869b;">2  140444805625600
+</span><span>3rd map id </span><span style="color:#d3869b;">2  140444805625600
+</span><span>1st map id </span><span style="color:#d3869b;">3  140444805625600
+</span><span>2nd map id </span><span style="color:#d3869b;">3  140444805625600
+</span><span>3rd map id </span><span style="color:#d3869b;">3  140444805625600
+</span><span>1st map id </span><span style="color:#d3869b;">4  140444805625600
+</span><span>2nd map id </span><span style="color:#d3869b;">4  140444805625600
+</span><span>3rd map id </span><span style="color:#d3869b;">4  140444805625600
+</span><span>1st map id </span><span style="color:#d3869b;">5  140444805625600
+</span><span>2nd map id </span><span style="color:#d3869b;">5  140444805625600
+</span><span>3rd map id </span><span style="color:#d3869b;">5  140444805625600
+</span><span>1st map id </span><span style="color:#d3869b;">6  140444805625600
+</span><span>2nd map id </span><span style="color:#d3869b;">6  140444805625600
+</span><span>3rd map id </span><span style="color:#d3869b;">6  140444805625600
+</span><span>1st map id </span><span style="color:#d3869b;">7  140444805625600
+</span><span>2nd map id </span><span style="color:#d3869b;">7  140444805625600
+</span><span>3rd map id </span><span style="color:#d3869b;">7  140444805625600
+</span><span>1st map id </span><span style="color:#d3869b;">8  140444805625600
+</span><span>2nd map id </span><span style="color:#d3869b;">8  140444805625600
+</span><span>3rd map id </span><span style="color:#d3869b;">8  140444805625600
+</span><span>1st map id </span><span style="color:#d3869b;">9  140444805625600
+</span><span>2nd map id </span><span style="color:#d3869b;">9  140444805625600
+</span><span>3rd map id </span><span style="color:#d3869b;">9  140444805625600
+</span><span style="color:#fabd2f;">Ok</span><span>([</span><span style="color:#d3869b;">48</span><span>, </span><span style="color:#d3869b;">48</span><span>, </span><span style="color:#d3869b;">48</span><span>, </span><span style="color:#d3869b;">48</span><span>, </span><span style="color:#d3869b;">48</span><span>, </span><span style="color:#d3869b;">48</span><span>, </span><span style="color:#d3869b;">48</span><span>, </span><span style="color:#d3869b;">48</span><span>, </span><span style="color:#d3869b;">48</span><span>, </span><span style="color:#d3869b;">48</span><span>])
 </span></code></pre>
 <p>You may notice that the thread id is always the same. This is because a <code>future</code> will currently execute only on 1 thread. This is not what I wanted to achieve.</p>
 <p>If you want parallelism you should probably not submit one giant future but more smaller ones.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> c: </span><span style="color:#fabd2f;">Vec</span><span style="color:#fdf4c1aa;">&lt;</span><span style="color:#fa5c4b;">i32</span><span style="color:#fdf4c1aa;">&gt; </span><span style="color:#fe8019;">=
-    </span><span style="color:#fdf4c1aa;">(</span><span style="color:#d3869b;">0</span><span style="color:#fe8019;">..</span><span style="color:#d3869b;">10</span><span style="color:#fdf4c1aa;">).</span><span style="color:#fabd2f;">map</span><span style="color:#fdf4c1aa;">(|</span><span style="color:#fdf4c1;">i</span><span style="color:#fdf4c1aa;">| pool.</span><span style="color:#fabd2f;">spawn</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fabd2f;">future_test</span><span style="color:#fdf4c1aa;">(i))).collect::&lt;</span><span style="color:#fabd2f;">Vec</span><span style="color:#fdf4c1aa;">&lt;</span><span style="color:#fe8019;">_</span><span style="color:#fdf4c1aa;">&gt;&gt;().</span><span style="color:#fabd2f;">into_iter</span><span style="color:#fdf4c1aa;">()
-           .</span><span style="color:#fabd2f;">map</span><span style="color:#fdf4c1aa;">(|</span><span style="color:#fdf4c1;">f</span><span style="color:#fdf4c1aa;">| f.</span><span style="color:#fabd2f;">wait</span><span style="color:#fdf4c1aa;">().</span><span style="color:#fabd2f;">unwrap</span><span style="color:#fdf4c1aa;">()).</span><span style="color:#fabd2f;">collect</span><span style="color:#fdf4c1aa;">();
+<pre data-lang="Rust" style="background-color:#282828;color:#fdf4c1aa;" class="language-Rust "><code class="language-Rust" data-lang="Rust"><span style="color:#fa5c4b;">let</span><span> c: </span><span style="color:#fabd2f;">Vec</span><span>&lt;</span><span style="color:#fa5c4b;">i32</span><span>&gt; </span><span style="color:#fe8019;">=
+</span><span>    (</span><span style="color:#d3869b;">0</span><span style="color:#fe8019;">..</span><span style="color:#d3869b;">10</span><span>).</span><span style="color:#fabd2f;">map</span><span>(|</span><span style="color:#fdf4c1;">i</span><span>| pool.</span><span style="color:#fabd2f;">spawn</span><span>(</span><span style="color:#fabd2f;">future_test</span><span>(i))).collect::&lt;</span><span style="color:#fabd2f;">Vec</span><span>&lt;</span><span style="color:#fe8019;">_</span><span>&gt;&gt;().</span><span style="color:#fabd2f;">into_iter</span><span>()
+</span><span>           .</span><span style="color:#fabd2f;">map</span><span>(|</span><span style="color:#fdf4c1;">f</span><span>| f.</span><span style="color:#fabd2f;">wait</span><span>().</span><span style="color:#fabd2f;">unwrap</span><span>()).</span><span style="color:#fabd2f;">collect</span><span>();
 </span></code></pre>
 <p>This code will print:</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">1st map id </span><span style="color:#d3869b;">0  139959187011328
-</span><span style="color:#fdf4c1aa;">2nd map id </span><span style="color:#d3869b;">0  139959187011328
-</span><span style="color:#fdf4c1aa;">3rd map id </span><span style="color:#d3869b;">0  139959187011328
-</span><span style="color:#fdf4c1aa;">1st map id </span><span style="color:#d3869b;">1  139959184910080
-</span><span style="color:#fdf4c1aa;">2nd map id </span><span style="color:#d3869b;">1  139959184910080
-</span><span style="color:#fdf4c1aa;">3rd map id </span><span style="color:#d3869b;">1  139959184910080
-</span><span style="color:#fdf4c1aa;">1st map id </span><span style="color:#d3869b;">2  139959182808832
-</span><span style="color:#fdf4c1aa;">2nd map id </span><span style="color:#d3869b;">2  139959182808832
-</span><span style="color:#fdf4c1aa;">3rd map id </span><span style="color:#d3869b;">2  139959182808832
-</span><span style="color:#fdf4c1aa;">1st map id </span><span style="color:#d3869b;">3  139959187011328
-</span><span style="color:#fdf4c1aa;">2nd map id </span><span style="color:#d3869b;">3  139959187011328
-</span><span style="color:#fdf4c1aa;">3rd map id </span><span style="color:#d3869b;">3  139959187011328
-</span><span style="color:#fdf4c1aa;">1st map id </span><span style="color:#d3869b;">4  139959184910080
-</span><span style="color:#fdf4c1aa;">2nd map id </span><span style="color:#d3869b;">4  139959184910080
-</span><span style="color:#fdf4c1aa;">3rd map id </span><span style="color:#d3869b;">4  139959184910080
-</span><span style="color:#fdf4c1aa;">1st map id </span><span style="color:#d3869b;">5  139959182808832
-</span><span style="color:#fdf4c1aa;">2nd map id </span><span style="color:#d3869b;">5  139959182808832
-</span><span style="color:#fdf4c1aa;">3rd map id </span><span style="color:#d3869b;">5  139959182808832
-</span><span style="color:#fdf4c1aa;">1st map id </span><span style="color:#d3869b;">6  139959187011328
-</span><span style="color:#fdf4c1aa;">2nd map id </span><span style="color:#d3869b;">6  139959187011328
-</span><span style="color:#fdf4c1aa;">3rd map id </span><span style="color:#d3869b;">6  139959187011328
-</span><span style="color:#fdf4c1aa;">1st map id </span><span style="color:#d3869b;">7  139959184910080
-</span><span style="color:#fdf4c1aa;">2nd map id </span><span style="color:#d3869b;">7  139959184910080
-</span><span style="color:#fdf4c1aa;">3rd map id </span><span style="color:#d3869b;">7  139959184910080
-</span><span style="color:#fdf4c1aa;">1st map id </span><span style="color:#d3869b;">8  139959182808832
-</span><span style="color:#fdf4c1aa;">2nd map id </span><span style="color:#d3869b;">8  139959182808832
-</span><span style="color:#fdf4c1aa;">3rd map id </span><span style="color:#d3869b;">8  139959182808832
-</span><span style="color:#fdf4c1aa;">1st map id </span><span style="color:#d3869b;">9  139959187011328
-</span><span style="color:#fdf4c1aa;">2nd map id </span><span style="color:#d3869b;">9  139959187011328
-</span><span style="color:#fdf4c1aa;">3rd map id </span><span style="color:#d3869b;">9  139959187011328
+<pre data-lang="Rust" style="background-color:#282828;color:#fdf4c1aa;" class="language-Rust "><code class="language-Rust" data-lang="Rust"><span>1st map id </span><span style="color:#d3869b;">0  139959187011328
+</span><span>2nd map id </span><span style="color:#d3869b;">0  139959187011328
+</span><span>3rd map id </span><span style="color:#d3869b;">0  139959187011328
+</span><span>1st map id </span><span style="color:#d3869b;">1  139959184910080
+</span><span>2nd map id </span><span style="color:#d3869b;">1  139959184910080
+</span><span>3rd map id </span><span style="color:#d3869b;">1  139959184910080
+</span><span>1st map id </span><span style="color:#d3869b;">2  139959182808832
+</span><span>2nd map id </span><span style="color:#d3869b;">2  139959182808832
+</span><span>3rd map id </span><span style="color:#d3869b;">2  139959182808832
+</span><span>1st map id </span><span style="color:#d3869b;">3  139959187011328
+</span><span>2nd map id </span><span style="color:#d3869b;">3  139959187011328
+</span><span>3rd map id </span><span style="color:#d3869b;">3  139959187011328
+</span><span>1st map id </span><span style="color:#d3869b;">4  139959184910080
+</span><span>2nd map id </span><span style="color:#d3869b;">4  139959184910080
+</span><span>3rd map id </span><span style="color:#d3869b;">4  139959184910080
+</span><span>1st map id </span><span style="color:#d3869b;">5  139959182808832
+</span><span>2nd map id </span><span style="color:#d3869b;">5  139959182808832
+</span><span>3rd map id </span><span style="color:#d3869b;">5  139959182808832
+</span><span>1st map id </span><span style="color:#d3869b;">6  139959187011328
+</span><span>2nd map id </span><span style="color:#d3869b;">6  139959187011328
+</span><span>3rd map id </span><span style="color:#d3869b;">6  139959187011328
+</span><span>1st map id </span><span style="color:#d3869b;">7  139959184910080
+</span><span>2nd map id </span><span style="color:#d3869b;">7  139959184910080
+</span><span>3rd map id </span><span style="color:#d3869b;">7  139959184910080
+</span><span>1st map id </span><span style="color:#d3869b;">8  139959182808832
+</span><span>2nd map id </span><span style="color:#d3869b;">8  139959182808832
+</span><span>3rd map id </span><span style="color:#d3869b;">8  139959182808832
+</span><span>1st map id </span><span style="color:#d3869b;">9  139959187011328
+</span><span>2nd map id </span><span style="color:#d3869b;">9  139959187011328
+</span><span>3rd map id </span><span style="color:#d3869b;">9  139959187011328
 </span></code></pre>
 <p>The code creates 10 <code>Futures</code> from <code>future_test</code> and immediately spawns them with <code>pool.spawn(future_test(i))</code> which returns a <code>CpuFuture</code>. It then waits sequentially on the result and writes its result into a vector.</p>
 <p>You might also notice that every <code>Future</code> from <code>future_test</code> will execute on the same thread.</p>
 <p>I haven't spent too much time with <code>Future-rs</code> but it looks very promising. The next thing I will look into is how I can safely share stack references inside <code>Futures</code>. This was one part where I struggled with my <code>TaskPool</code> implementation and I will probably run into the same issues with <code>Future-rs</code> and <code>TaskPool</code> because <code>spawn</code> has <code>'static</code> lifetime requirements.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">spawn</span><span style="color:#fdf4c1aa;">&lt;F&gt;(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">f</span><span style="color:#fdf4c1aa;">: F) -&gt; CpuFuture&lt;</span><span style="color:#fa5c4b;">F::</span><span style="color:#fdf4c1aa;">Item, </span><span style="color:#fa5c4b;">F::</span><span style="color:#fdf4c1aa;">Error&gt;
-</span><span style="color:#fa5c4b;">where</span><span style="color:#fdf4c1aa;"> F: Future + Send + </span><span style="color:#fa5c4b;">&#39;static</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fa5c4b;">F::</span><span style="color:#fdf4c1aa;">Item: Send + </span><span style="color:#fa5c4b;">&#39;static</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fa5c4b;">F::</span><span style="color:#fdf4c1aa;">Error: Send + </span><span style="color:#fa5c4b;">&#39;static
+<pre data-lang="Rust" style="background-color:#282828;color:#fdf4c1aa;" class="language-Rust "><code class="language-Rust" data-lang="Rust"><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">spawn</span><span>&lt;F&gt;(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1;">self</span><span>, </span><span style="color:#fdf4c1;">f</span><span>: F) -&gt; CpuFuture&lt;</span><span style="color:#fa5c4b;">F::</span><span>Item, </span><span style="color:#fa5c4b;">F::</span><span>Error&gt;
+</span><span style="color:#fa5c4b;">where</span><span> F: Future + Send + </span><span style="color:#fa5c4b;">&#39;static</span><span>, </span><span style="color:#fa5c4b;">F::</span><span>Item: Send + </span><span style="color:#fa5c4b;">&#39;static</span><span>, </span><span style="color:#fa5c4b;">F::</span><span>Error: Send + </span><span style="color:#fa5c4b;">&#39;static
 </span></code></pre>
 <p><a href="https://github.com/nikomatsakis/rayon">Rayon</a> does seem to offer this</p>
-<pre style="background-color:#282828;">
-<code><span style="font-style:italic;color:#928374;">/// Increment all values in slice.
-</span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">increment_all</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">slice</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">mut</span><span style="color:#fdf4c1aa;"> [</span><span style="color:#fa5c4b;">i32</span><span style="color:#fdf4c1aa;">]) {
-    </span><span style="color:#fa5c4b;">if</span><span style="color:#fdf4c1aa;"> slice.</span><span style="color:#fabd2f;">len</span><span style="color:#fdf4c1aa;">() </span><span style="color:#fe8019;">&lt; </span><span style="color:#d3869b;">1000 </span><span style="color:#fdf4c1aa;">{
-        </span><span style="color:#fa5c4b;">for</span><span style="color:#fdf4c1aa;"> p </span><span style="color:#fe8019;">in</span><span style="color:#fdf4c1aa;"> slice { </span><span style="color:#fe8019;">*</span><span style="color:#fdf4c1aa;">p </span><span style="color:#fe8019;">+= </span><span style="color:#d3869b;">1</span><span style="color:#fdf4c1aa;">; }
-    } </span><span style="color:#fa5c4b;">else </span><span style="color:#fdf4c1aa;">{
-        </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> mid_point </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> slice.</span><span style="color:#fabd2f;">len</span><span style="color:#fdf4c1aa;">() </span><span style="color:#fe8019;">/ </span><span style="color:#d3869b;">2</span><span style="color:#fdf4c1aa;">;
-        </span><span style="color:#fa5c4b;">let </span><span style="color:#fdf4c1aa;">(left, right) </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> slice.</span><span style="color:#fabd2f;">split_at_mut</span><span style="color:#fdf4c1aa;">(mid_point);
-        rayon::join(|| </span><span style="color:#fabd2f;">increment_all</span><span style="color:#fdf4c1aa;">(left), || </span><span style="color:#fabd2f;">increment_all</span><span style="color:#fdf4c1aa;">(right));
-    }
-}
+<pre data-lang="Rust" style="background-color:#282828;color:#fdf4c1aa;" class="language-Rust "><code class="language-Rust" data-lang="Rust"><span style="font-style:italic;color:#928374;">/// Increment all values in slice.
+</span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">increment_all</span><span>(</span><span style="color:#fdf4c1;">slice</span><span>: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">mut</span><span> [</span><span style="color:#fa5c4b;">i32</span><span>]) {
+</span><span>    </span><span style="color:#fa5c4b;">if</span><span> slice.</span><span style="color:#fabd2f;">len</span><span>() </span><span style="color:#fe8019;">&lt; </span><span style="color:#d3869b;">1000 </span><span>{
+</span><span>        </span><span style="color:#fa5c4b;">for</span><span> p </span><span style="color:#fe8019;">in</span><span> slice { </span><span style="color:#fe8019;">*</span><span>p </span><span style="color:#fe8019;">+= </span><span style="color:#d3869b;">1</span><span>; }
+</span><span>    } </span><span style="color:#fa5c4b;">else </span><span>{
+</span><span>        </span><span style="color:#fa5c4b;">let</span><span> mid_point </span><span style="color:#fe8019;">=</span><span> slice.</span><span style="color:#fabd2f;">len</span><span>() </span><span style="color:#fe8019;">/ </span><span style="color:#d3869b;">2</span><span>;
+</span><span>        </span><span style="color:#fa5c4b;">let </span><span>(left, right) </span><span style="color:#fe8019;">=</span><span> slice.</span><span style="color:#fabd2f;">split_at_mut</span><span>(mid_point);
+</span><span>        rayon::join(|| </span><span style="color:#fabd2f;">increment_all</span><span>(left), || </span><span style="color:#fabd2f;">increment_all</span><span>(right));
+</span><span>    }
+</span><span>}
 </span></code></pre>
 <p>Luckily <code>futures-cpupool</code> is only a few 100 lines and therefore easy to make changes. I might have to remove the <code>Send</code> requirement from <code>.spawn</code> in order to have stack borrows. Mostly because it would be very bad if you create a future that has a borrow on the stack and you send it to a different thread. But it should be safe if it only gets send to the taskpool because you will get back another future which also doesn't implement <code>Send</code>. Then you could call <code>.wait()</code> in the destructor but I see I
 am already getting ahead of myself.</p>
