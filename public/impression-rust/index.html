@@ -91,77 +91,69 @@
 <p>The last time I was using Rust was in version 0.6 - 0.7, which was roughly 2 years ago. I decided to come back to take another look.</p>
 <p>I decided to write two small libraries over the weekend. An n-dimensional, generic and typesafe linear algebra library and a task pool implementation with fibers based on naughty dogs <a href="http://www.gdcvault.com/play/1022186/Parallelizing-the-Naughty-Dog-Engine">GDC talk</a>.</p>
 <p>But I came from D where I could easily create a nice vector library with templates.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">alias </span><span style="color:#8ec07c;">Vec3f </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">Vector</span><span style="color:#fe8019;">&lt;</span><span style="color:#fa5c4b;">float</span><span style="color:#fdf4c1aa;">, </span><span style="background-color:#932b1e;color:#fdf4c1;">3&gt;</span><span style="color:#fdf4c1aa;">;
-</span></code></pre>
+<pre data-lang="D" class="language-D "><code class="language-D" data-lang="D">alias Vec3f = Vector&lt;float, 3&gt;;
+</code></pre>
 <p>I kinda wanted to do the same thing, but the problem is that Rust doesn't have type level integers. This is probably why cgmath and nalgebra create their types manually and implement functionality with macros. Luckily I found <a href="https://github.com/paholg/typenum">typenum</a>, which is sort of hack to emulate type level integers.</p>
 <p>Before I go on, I want to demonstrate some ergonomics of my experimental vector library. The vector types are defined like this:</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">pub type </span><span style="color:#8ec07c;">Vec4</span><span style="color:#fe8019;">&lt;</span><span style="color:#fdf4c1aa;">T</span><span style="color:#fe8019;">&gt; = </span><span style="color:#fdf4c1aa;">Vector&lt;T, U4&gt;;
-</span><span style="color:#fa5c4b;">pub type </span><span style="color:#8ec07c;">Vec3</span><span style="color:#fe8019;">&lt;</span><span style="color:#fdf4c1aa;">T</span><span style="color:#fe8019;">&gt; = </span><span style="color:#fdf4c1aa;">Vector&lt;T, U3&gt;;
-</span><span style="color:#fa5c4b;">pub type </span><span style="color:#8ec07c;">Vec2</span><span style="color:#fe8019;">&lt;</span><span style="color:#fdf4c1aa;">T</span><span style="color:#fe8019;">&gt; = </span><span style="color:#fdf4c1aa;">Vector&lt;T, U2&gt;;
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">pub type Vec4&lt;T&gt; = Vector&lt;T, U4&gt;;
+pub type Vec3&lt;T&gt; = Vector&lt;T, U3&gt;;
+pub type Vec2&lt;T&gt; = Vector&lt;T, U2&gt;;
 
-</span><span style="color:#fa5c4b;">pub type </span><span style="color:#8ec07c;">Vec4f </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">Vec4&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;;
-</span><span style="color:#fa5c4b;">pub type </span><span style="color:#8ec07c;">Vec3f </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">Vec3&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;;
-</span><span style="color:#fa5c4b;">pub type </span><span style="color:#8ec07c;">Vec2f </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">Vec2&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;;
-</span></code></pre>
+pub type Vec4f = Vec4&lt;f32&gt;;
+pub type Vec3f = Vec3&lt;f32&gt;;
+pub type Vec2f = Vec2&lt;f32&gt;;
+</code></pre>
 <p>Vectors can be created like this</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> v1 </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">Vec2f::new(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">[</span><span style="color:#d3869b;">0.0</span><span style="color:#fdf4c1aa;">, </span><span style="color:#d3869b;">2.0</span><span style="color:#fdf4c1aa;">]);
-</span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> v2 </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">Vec2f::new(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">[</span><span style="color:#d3869b;">0.0</span><span style="color:#fdf4c1aa;">, </span><span style="color:#d3869b;">10.0</span><span style="color:#fdf4c1aa;">]);
-</span></code></pre>
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">let v1 = Vec2f::new(&amp;[0.0, 2.0]);
+let v2 = Vec2f::new(&amp;[0.0, 10.0]);
+</code></pre>
 <p>You can also create a vector with a lower dimensional vector + additional value like this:</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> v </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">Vec3f::from_one_less(Vec2f::new(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">[</span><span style="color:#d3869b;">1.0</span><span style="color:#fdf4c1aa;">, </span><span style="color:#d3869b;">2.0</span><span style="color:#fdf4c1aa;">]), </span><span style="color:#d3869b;">3.0</span><span style="color:#fdf4c1aa;">);
-</span><span style="color:#fabd2f;">assert!</span><span style="color:#fdf4c1aa;">(v </span><span style="color:#fe8019;">== </span><span style="color:#fdf4c1aa;">Vec3f::new(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">[</span><span style="color:#d3869b;">1.0</span><span style="color:#fdf4c1aa;">, </span><span style="color:#d3869b;">2.0</span><span style="color:#fdf4c1aa;">, </span><span style="color:#d3869b;">3.0</span><span style="color:#fdf4c1aa;">]));
-</span></code></pre>
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">let v = Vec3f::from_one_less(Vec2f::new(&amp;[1.0, 2.0]), 3.0);
+assert!(v == Vec3f::new(&amp;[1.0, 2.0, 3.0]));
+</code></pre>
 <p>It is not as ergonomic as my vector library in D where you can arbitrarily initialize a new vector but it is a start. You may wonder how I implemented it. The type signature looks like this</p>
-<pre style="background-color:#282828;">
-<code><span style="font-style:italic;color:#928374;">// I left out the type constrains for readability
-</span><span style="color:#fa5c4b;">pub fn </span><span style="color:#8ec07c;">from_one_less</span><span style="color:#fdf4c1aa;">&lt;&gt;(</span><span style="color:#fdf4c1;">first</span><span style="color:#fdf4c1aa;">: Vector&lt;T, Sub1&lt;N&gt;&gt;, </span><span style="color:#fdf4c1;">val</span><span style="color:#fdf4c1aa;">: T) -&gt; Vector&lt;T, N&gt;{</span><span style="color:#fe8019;">...</span><span style="color:#fdf4c1aa;">}
-</span></code></pre>
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">&#x2F;&#x2F; I left out the type constrains for readability
+pub fn from_one_less&lt;&gt;(first: Vector&lt;T, Sub1&lt;N&gt;&gt;, val: T) -&gt; Vector&lt;T, N&gt;{...}
+</code></pre>
 <p>It breaks down for a <code>Vec2</code> because then it would want a <code>Vec1</code> + a value, which would be a verbose way of writing just two values.</p>
 <p>I don't think that I can restrict implementations for specific <code>typenum</code> traits. Also it would have also been nice to have one generic function that can accept arbitrary vectors, but that would require at least type level integers + variadic function, which Rust doesn't have.</p>
 <p>Because I used <code>typenum</code> to express n-dimensional vectors, it made it very easy to implement functions like dot</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">pub fn </span><span style="color:#8ec07c;">dot</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">other</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fa5c4b;">Self</span><span style="color:#fdf4c1aa;">) -&gt; T {
-    </span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">.data
-        .</span><span style="color:#fabd2f;">into_iter</span><span style="color:#fdf4c1aa;">()
-        .</span><span style="color:#fabd2f;">zip</span><span style="color:#fdf4c1aa;">(other.data.</span><span style="color:#fabd2f;">into_iter</span><span style="color:#fdf4c1aa;">())
-        .</span><span style="color:#fabd2f;">fold</span><span style="color:#fdf4c1aa;">(T::zero(), |</span><span style="color:#fdf4c1;">acc</span><span style="color:#fdf4c1aa;">, (</span><span style="color:#fdf4c1;">x</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">y</span><span style="color:#fdf4c1aa;">)| acc </span><span style="color:#fe8019;">+</span><span style="color:#fdf4c1aa;"> x </span><span style="color:#fe8019;">*</span><span style="color:#fdf4c1aa;"> y)
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">pub fn dot(self, other: Self) -&gt; T {
+    self.data
+        .into_iter()
+        .zip(other.data.into_iter())
+        .fold(T::zero(), |acc, (x, y)| acc + x * y)
 }
-</span></code></pre>
+</code></pre>
 <p>I really like that Rust has pattern matching on tuples, I think this really adds to readability.</p>
 <p>Now is probably a good time to show the initial definition of a <code>Vector</code>.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">#[</span><span style="color:#fdf4c1;">derive</span><span style="color:#fdf4c1aa;">(PartialEq, Eq, Copy, Debug)]
-</span><span style="color:#fa5c4b;">pub struct </span><span style="color:#8ec07c;">Vector</span><span style="color:#fdf4c1aa;">&lt;T: Float, N: ArrayLength&lt;T&gt;&gt;
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">#[derive(PartialEq, Eq, Copy, Debug)]
+pub struct Vector&lt;T: Float, N: ArrayLength&lt;T&gt;&gt;
     where N::ArrayType: Copy
 {
-    </span><span style="color:#fa5c4b;">pub </span><span style="color:#fdf4c1;">data</span><span style="color:#fdf4c1aa;">: GenericArray&lt;T, N&gt;,
+    pub data: GenericArray&lt;T, N&gt;,
 }
-</span></code></pre>
+</code></pre>
 <p>I implemented copy on this type because this library is intended for game devs which means that the dimensions will probably not bigger than 4. I also don't think I can specialize structs at the moment to allow bigger vectors to be heap allocated. I also auto implemented PartialEq and Eq because I am lazy. Comparison should probably be implemented with <code>abs(a - b) &lt; eps</code>.</p>
 <p>Implementing operators was a bit more verbose in Rust compared to D. I used macros to make it less verbose.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fabd2f;">macro_rules! </span><span style="color:#8ec07c;">as_expr </span><span style="color:#fdf4c1aa;">{ (</span><span style="color:#fdf4c1;">$e</span><span style="color:#fdf4c1aa;">:</span><span style="color:#fa5c4b;">expr</span><span style="color:#fdf4c1aa;">) </span><span style="color:#fe8019;">=&gt; </span><span style="color:#fdf4c1aa;">{</span><span style="color:#fdf4c1;">$e</span><span style="color:#fdf4c1aa;">} }
-</span><span style="color:#fabd2f;">macro_rules! </span><span style="color:#8ec07c;">impl_op_vec</span><span style="color:#fdf4c1aa;">{
-    ($trait_name: ident, $fn_name: ident, $op: tt) </span><span style="color:#fe8019;">=&gt; </span><span style="color:#fdf4c1aa;">{
-        </span><span style="color:#fa5c4b;">impl</span><span style="color:#fdf4c1aa;">&lt;T, N&gt; </span><span style="color:#fdf4c1;">$trait_name </span><span style="color:#fa5c4b;">for </span><span style="color:#8ec07c;">Vector</span><span style="color:#fdf4c1aa;">&lt;T, N&gt;
-            </span><span style="color:#fa5c4b;">where N::</span><span style="color:#fdf4c1aa;">ArrayType: Copy,
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">macro_rules! as_expr { ($e:expr) =&gt; {$e} }
+macro_rules! impl_op_vec{
+    ($trait_name: ident, $fn_name: ident, $op: tt) =&gt; {
+        impl&lt;T, N&gt; $trait_name for Vector&lt;T, N&gt;
+            where N::ArrayType: Copy,
                   N: ArrayLength&lt;T&gt;,
                   T: Float
         {
-            </span><span style="color:#fa5c4b;">type </span><span style="color:#8ec07c;">Output </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">Vector&lt;T, N&gt;;
-            </span><span style="color:#fa5c4b;">fn </span><span style="color:#fdf4c1;">$fn_name</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">, other: </span><span style="color:#fa5c4b;">Self</span><span style="color:#fdf4c1aa;">) -&gt; </span><span style="color:#fa5c4b;">Self::</span><span style="color:#fdf4c1aa;">Output {
-                </span><span style="color:#fa5c4b;">unsafe </span><span style="color:#fdf4c1aa;">{
-                    </span><span style="color:#fa5c4b;">let mut</span><span style="color:#fdf4c1aa;"> new_data: GenericArray&lt;T, N&gt; </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">mem::uninitialized();
-                    </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> iter </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">.data
-                        .</span><span style="color:#fabd2f;">iter</span><span style="color:#fdf4c1aa;">()
-                        .</span><span style="color:#fabd2f;">zip</span><span style="color:#fdf4c1aa;">(other.data.</span><span style="color:#fabd2f;">iter</span><span style="color:#fdf4c1aa;">())
-                        .</span><span style="color:#fabd2f;">map</span><span style="color:#fdf4c1aa;">(|(</span><span style="color:#fdf4c1;">a</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">b</span><span style="color:#fdf4c1aa;">)| </span><span style="color:#fabd2f;">as_expr!</span><span style="color:#fdf4c1aa;">( </span><span style="color:#fe8019;">*</span><span style="color:#fdf4c1aa;">a </span><span style="color:#fdf4c1;">$op </span><span style="color:#fe8019;">*</span><span style="color:#fdf4c1aa;">b));
-                    </span><span style="color:#fa5c4b;">for </span><span style="color:#fdf4c1aa;">(index, val) </span><span style="color:#fe8019;">in</span><span style="color:#fdf4c1aa;"> iter.</span><span style="color:#fabd2f;">enumerate</span><span style="color:#fdf4c1aa;">() {
-                        new_data[index] </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> val;
+            type Output = Vector&lt;T, N&gt;;
+            fn $fn_name(self, other: Self) -&gt; Self::Output {
+                unsafe {
+                    let mut new_data: GenericArray&lt;T, N&gt; = mem::uninitialized();
+                    let iter = self.data
+                        .iter()
+                        .zip(other.data.iter())
+                        .map(|(a, b)| as_expr!( *a $op *b));
+                    for (index, val) in iter.enumerate() {
+                        new_data[index] = val;
                     }
                     Vector::&lt;T, N&gt; { data: new_data }
                 }
@@ -170,27 +162,27 @@
     }
 }
 
-</span><span style="color:#fabd2f;">impl_op_vec!</span><span style="color:#fdf4c1aa;">(Sub, sub, </span><span style="color:#fe8019;">-</span><span style="color:#fdf4c1aa;">);
-</span><span style="color:#fabd2f;">impl_op_vec!</span><span style="color:#fdf4c1aa;">(Add, add, </span><span style="color:#fe8019;">+</span><span style="color:#fdf4c1aa;">);
-</span><span style="color:#fabd2f;">impl_op_vec!</span><span style="color:#fdf4c1aa;">(Mul, mul, </span><span style="color:#fe8019;">*</span><span style="color:#fdf4c1aa;">);
-</span><span style="color:#fabd2f;">impl_op_vec!</span><span style="color:#fdf4c1aa;">(Div, div, </span><span style="color:#fe8019;">/</span><span style="color:#fdf4c1aa;">);
+impl_op_vec!(Sub, sub, -);
+impl_op_vec!(Add, add, +);
+impl_op_vec!(Mul, mul, *);
+impl_op_vec!(Div, div, &#x2F;);
 
-</span><span style="color:#fabd2f;">macro_rules! </span><span style="color:#8ec07c;">impl_op_vec_un</span><span style="color:#fdf4c1aa;">{
-    ($trait_name: ident, $fn_name: ident, $op: tt) </span><span style="color:#fe8019;">=&gt; </span><span style="color:#fdf4c1aa;">{
-        </span><span style="color:#fa5c4b;">impl</span><span style="color:#fdf4c1aa;">&lt;T, N&gt; </span><span style="color:#fdf4c1;">$trait_name</span><span style="color:#fdf4c1aa;">&lt;T&gt; </span><span style="color:#fa5c4b;">for </span><span style="color:#8ec07c;">Vector</span><span style="color:#fdf4c1aa;">&lt;T, N&gt;
-            </span><span style="color:#fa5c4b;">where N::</span><span style="color:#fdf4c1aa;">ArrayType: Copy,
+macro_rules! impl_op_vec_un{
+    ($trait_name: ident, $fn_name: ident, $op: tt) =&gt; {
+        impl&lt;T, N&gt; $trait_name&lt;T&gt; for Vector&lt;T, N&gt;
+            where N::ArrayType: Copy,
                   N: ArrayLength&lt;T&gt;,
                   T: Float
         {
-            </span><span style="color:#fa5c4b;">type </span><span style="color:#8ec07c;">Output </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">Vector&lt;T, N&gt;;
-            </span><span style="color:#fa5c4b;">fn </span><span style="color:#fdf4c1;">$fn_name</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">, other: T) -&gt; </span><span style="color:#fa5c4b;">Self::</span><span style="color:#fdf4c1aa;">Output {
-                </span><span style="color:#fa5c4b;">unsafe </span><span style="color:#fdf4c1aa;">{
-                    </span><span style="color:#fa5c4b;">let mut</span><span style="color:#fdf4c1aa;"> new_data: GenericArray&lt;T, N&gt; </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">mem::uninitialized();
-                    </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> iter </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">.data
-                        .</span><span style="color:#fabd2f;">iter</span><span style="color:#fdf4c1aa;">()
-                        .</span><span style="color:#fabd2f;">map</span><span style="color:#fdf4c1aa;">(|</span><span style="color:#fdf4c1;">a</span><span style="color:#fdf4c1aa;">| </span><span style="color:#fabd2f;">as_expr!</span><span style="color:#fdf4c1aa;">( </span><span style="color:#fe8019;">*</span><span style="color:#fdf4c1aa;">a </span><span style="color:#fdf4c1;">$op</span><span style="color:#fdf4c1aa;"> other));
-                    </span><span style="color:#fa5c4b;">for </span><span style="color:#fdf4c1aa;">(index, val) </span><span style="color:#fe8019;">in</span><span style="color:#fdf4c1aa;"> iter.</span><span style="color:#fabd2f;">enumerate</span><span style="color:#fdf4c1aa;">() {
-                        new_data[index] </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> val;
+            type Output = Vector&lt;T, N&gt;;
+            fn $fn_name(self, other: T) -&gt; Self::Output {
+                unsafe {
+                    let mut new_data: GenericArray&lt;T, N&gt; = mem::uninitialized();
+                    let iter = self.data
+                        .iter()
+                        .map(|a| as_expr!( *a $op other));
+                    for (index, val) in iter.enumerate() {
+                        new_data[index] = val;
                     }
                     Vector::&lt;T, N&gt; { data: new_data }
                 }
@@ -199,157 +191,147 @@
     }
 }
 
-</span><span style="color:#fabd2f;">impl_op_vec_un!</span><span style="color:#fdf4c1aa;">(Mul, mul, </span><span style="color:#fe8019;">*</span><span style="color:#fdf4c1aa;">);
-</span><span style="color:#fabd2f;">impl_op_vec_un!</span><span style="color:#fdf4c1aa;">(Add, add, </span><span style="color:#fe8019;">+</span><span style="color:#fdf4c1aa;">);
-</span><span style="color:#fabd2f;">impl_op_vec_un!</span><span style="color:#fdf4c1aa;">(Sub, sub, </span><span style="color:#fe8019;">-</span><span style="color:#fdf4c1aa;">);
-</span><span style="color:#fabd2f;">impl_op_vec_un!</span><span style="color:#fdf4c1aa;">(Div, div, </span><span style="color:#fe8019;">/</span><span style="color:#fdf4c1aa;">);
-</span></code></pre>
+impl_op_vec_un!(Mul, mul, *);
+impl_op_vec_un!(Add, add, +);
+impl_op_vec_un!(Sub, sub, -);
+impl_op_vec_un!(Div, div, &#x2F;);
+</code></pre>
 <p>I am not a Rust programmer so this macro is probably not as nice as it should be, but basically all I am doing is a simple text substitution. The only hiccup that I encountered was the substitution for the <code>operator</code>. For some reason I had to create a helper macro <code>as_expr</code>. Not sure why this was necessary, but I assume that this might be a bug?</p>
 <p>In general I am not sure I like macros in Rust, because macros can accept almost arbitrary syntax. I think this makes macros very powerful but also painful for other people to use. As a client you probably always have to either read the documentation or look at the macro implementation yourself, so that you know how to invoke the macro correctly.</p>
 <p>Also you might notice that I am using unsafe here. I basically do this almost anywhere because of <code>mem::unitialzed()</code>. The reason I am doing this is that I don't think that it is possible to collect into a fixed length array / GenericArray from an iterator.</p>
 <p>The documentation engine is pretty nice in Rust, for example you can write</p>
-<pre style="background-color:#282828;">
-<code><span style="font-style:italic;color:#928374;">/// Builds a `Vector&lt;T, N &gt;` from a `Vector&lt;T, N-1&gt;` with an additional value.
-/// # Example
-/// ```
-/// use rla::vector::*;
-/// let v = Vec3f::from_one_less(Vec2f::new(&amp;[1.0, 2.0]), 3.0);
-/// assert!(v == Vec3f::new(&amp;[1.0, 2.0, 3.0]));
-/// ```
-</span><span style="color:#fa5c4b;">pub fn </span><span style="color:#8ec07c;">from_one_less</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">first</span><span style="color:#fdf4c1aa;">: Vector&lt;T, Sub1&lt;N&gt;&gt;, </span><span style="color:#fdf4c1;">val</span><span style="color:#fdf4c1aa;">: T) -&gt; Vector&lt;T, N&gt;{</span><span style="color:#fe8019;">..</span><span style="color:#fdf4c1aa;">}
-</span></code></pre>
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">&#x2F;&#x2F;&#x2F; Builds a `Vector&lt;T, N &gt;` from a `Vector&lt;T, N-1&gt;` with an additional value.
+&#x2F;&#x2F;&#x2F; # Example
+&#x2F;&#x2F;&#x2F; ```
+&#x2F;&#x2F;&#x2F; use rla::vector::*;
+&#x2F;&#x2F;&#x2F; let v = Vec3f::from_one_less(Vec2f::new(&amp;[1.0, 2.0]), 3.0);
+&#x2F;&#x2F;&#x2F; assert!(v == Vec3f::new(&amp;[1.0, 2.0, 3.0]));
+&#x2F;&#x2F;&#x2F; ```
+pub fn from_one_less(first: Vector&lt;T, Sub1&lt;N&gt;&gt;, val: T) -&gt; Vector&lt;T, N&gt;{..}
+</code></pre>
 <p>and it will parse the comments as markdown. It also recognizes codeblocks, compiles and executes them.</p>
 <p>I currently haven't implemented vector swizzling nor  individual member access like</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">v.x </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">25</span><span style="color:#fdf4c1aa;">;
-</span></code></pre>
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">v.x = 25;
+</code></pre>
 <p>The problem is that I don't know how I would implement this in an ergonomic and clean way. For example in D you can have this</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">
-auto x </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> v.x;
-v.x </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">24</span><span style="color:#fdf4c1aa;">;
-</span></code></pre>
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">
+auto x = v.x;
+v.x = 24;
+</code></pre>
 <p>where <code>x</code> is a overloaded function <code>ref T x(){..}</code> and <code>void x(T val){}</code>, although I have implemented it a bit differently in D. I am posting the D implementation because I don't think a lot of Rust programmers really know how metaprogramming looks like.</p>
 <p><a href="https://github.com/BreezeEngine/breeze/blob/master/source/breeze/math/vector.d#L67+L86">Implementation</a></p>
 <p>Feel free to skip this part if you are not interested in D.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">Vector</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">T</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fa5c4b;">size_t </span><span style="color:#fdf4c1;">_dimension</span><span style="color:#fdf4c1aa;">){
-    </span><span style="color:#fa5c4b;">private enum </span><span style="color:#8ec07c;">vectorCords </span><span style="color:#fe8019;">= </span><span style="color:#b8bb26;">&quot;xyzw&quot;</span><span style="color:#fdf4c1aa;">;
-    .</span><span style="background-color:#932b1e;color:#fdf4c1;">.</span><span style="color:#fdf4c1aa;">.
-    </span><span style="color:#fdf4c1;">ref </span><span style="background-color:#932b1e;color:#fdf4c1;">auto</span><span style="color:#fdf4c1aa;"> </span><span style="color:#fdf4c1;">opDispatch(</span><span style="color:#fa5c4b;">string </span><span style="background-color:#932b1e;color:#fdf4c1;">op)</span><span style="color:#fdf4c1aa;">() </span><span style="color:#fa5c4b;">inout
-    </span><span style="background-color:#932b1e;color:#fdf4c1;">if</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">op</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">length </span><span style="color:#fe8019;">is </span><span style="color:#d3869b;">1</span><span style="color:#fdf4c1aa;">){
-        </span><span style="color:#fa5c4b;">import </span><span style="color:#fdf4c1;">std</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">string</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fdf4c1;">indexOf</span><span style="color:#fdf4c1aa;">;
-        </span><span style="color:#fa5c4b;">import </span><span style="color:#fdf4c1;">std</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">algorithm</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">iteration</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fdf4c1;">map</span><span style="color:#fdf4c1aa;">;
-        </span><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">index </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">vectorCords</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">indexOf(op)</span><span style="color:#fdf4c1aa;">;
-        </span><span style="color:#fa5c4b;">return </span><span style="color:#fdf4c1;">data</span><span style="color:#fdf4c1aa;">[</span><span style="color:#fdf4c1;">index</span><span style="color:#fdf4c1aa;">];
+<pre data-lang="D" class="language-D "><code class="language-D" data-lang="D">struct Vector(T, size_t _dimension){
+    private enum vectorCords = &quot;xyzw&quot;;
+    ...
+    ref auto opDispatch(string op)() inout
+    if(op.length is 1){
+        import std.string: indexOf;
+        import std.algorithm.iteration: map;
+        enum index = vectorCords.indexOf(op);
+        return data[index];
     }
-    </span><span style="background-color:#932b1e;color:#fdf4c1;">auto</span><span style="color:#fdf4c1aa;"> </span><span style="color:#fdf4c1;">opDispatch(</span><span style="color:#fa5c4b;">string </span><span style="background-color:#932b1e;color:#fdf4c1;">op)</span><span style="color:#fdf4c1aa;">() </span><span style="color:#fa5c4b;">const
-    </span><span style="background-color:#932b1e;color:#fdf4c1;">if</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">op</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">length </span><span style="color:#fe8019;">&gt; </span><span style="color:#d3869b;">1 </span><span style="color:#fe8019;">&amp;&amp; </span><span style="color:#fdf4c1;">op</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">length </span><span style="color:#fe8019;">&lt;= </span><span style="color:#fdf4c1;">dimension</span><span style="color:#fdf4c1aa;">){
-        </span><span style="color:#fa5c4b;">import </span><span style="color:#fdf4c1;">std</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">string</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fdf4c1;">indexOf</span><span style="color:#fdf4c1aa;">;
-        </span><span style="color:#fa5c4b;">import </span><span style="color:#fdf4c1;">std</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">algorithm</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">iteration</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fdf4c1;">map</span><span style="color:#fdf4c1aa;">;
-        </span><span style="color:#fa5c4b;">import </span><span style="color:#fdf4c1;">std</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">range</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fdf4c1;">array</span><span style="color:#fdf4c1aa;">;
-        </span><span style="color:#fa5c4b;">import </span><span style="color:#fdf4c1;">std</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">algorithm</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">mutation</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fdf4c1;">copy</span><span style="color:#fdf4c1aa;">;
-        </span><span style="color:#fa5c4b;">import </span><span style="color:#fdf4c1;">std</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">algorithm</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">searching</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fdf4c1;">count</span><span style="color:#fdf4c1aa;">;
-        </span><span style="color:#fa5c4b;">static immutable </span><span style="color:#fdf4c1;">indices </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">op</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">map!(c </span><span style="color:#fa5c4b;">=&gt; </span><span style="color:#fdf4c1;">vectorCords.indexOf(c))</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">array</span><span style="color:#fdf4c1aa;">;
-        </span><span style="color:#fa5c4b;">static assert</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">indices</span><span style="color:#fdf4c1aa;">[].</span><span style="color:#fdf4c1;">count(</span><span style="color:#fe8019;">-</span><span style="color:#d3869b;">1</span><span style="color:#fdf4c1;">) </span><span style="color:#fe8019;">== </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1aa;">, </span><span style="color:#b8bb26;">&quot;Combination of &quot; </span><span style="color:#fe8019;">~</span><span style="color:#fdf4c1;">op</span><span style="color:#fe8019;">~</span><span style="color:#b8bb26;">&quot; does not exist.&quot;</span><span style="color:#fdf4c1aa;">);
-        </span><span style="color:#fdf4c1;">T</span><span style="color:#fdf4c1aa;">[</span><span style="color:#fdf4c1;">op</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">length</span><span style="color:#fdf4c1aa;">] </span><span style="color:#fdf4c1;">_data</span><span style="color:#fdf4c1aa;">;
-        </span><span style="color:#fdf4c1;">indices</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">map</span><span style="color:#fe8019;">!</span><span style="color:#fdf4c1;">(i </span><span style="color:#fa5c4b;">=&gt; </span><span style="color:#fdf4c1;">data[i])</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">copy(_data[])</span><span style="color:#fdf4c1aa;">;
-        </span><span style="color:#fa5c4b;">return </span><span style="color:#fdf4c1;">Vector!(T,op.length)(_data)</span><span style="color:#fdf4c1aa;">;
+    auto opDispatch(string op)() const
+    if(op.length &gt; 1 &amp;&amp; op.length &lt;= dimension){
+        import std.string: indexOf;
+        import std.algorithm.iteration: map;
+        import std.range: array;
+        import std.algorithm.mutation: copy;
+        import std.algorithm.searching: count;
+        static immutable indices = op.map!(c =&gt; vectorCords.indexOf(c)).array;
+        static assert(indices[].count(-1) == 0, &quot;Combination of &quot; ~op~&quot; does not exist.&quot;);
+        T[op.length] _data;
+        indices.map!(i =&gt; data[i]).copy(_data[]);
+        return Vector!(T,op.length)(_data);
     }
-    </span><span style="background-color:#932b1e;color:#fdf4c1;">.</span><span style="color:#fdf4c1aa;">.</span><span style="background-color:#932b1e;color:#fdf4c1;">.</span><span style="color:#fdf4c1aa;">
+    ...
 }
-</span></code></pre>
+</code></pre>
 <p>For example <code>v.x</code> here returns a value but <code>v.xy</code> returns a Vec2. It is also possible to do <code>v.xyzzyzyy</code> which would return a Vec8 but it is probably not really practical.</p>
 <p>The code works like this:
 <code>private enum vectorCords = &quot;xyzw&quot;;</code> is a compile time string. opDispatch receives the string behind the dot for an object at compile time. For example calling <code>v.xyz</code>, opDispatch would receive the string <code>xyz</code> at compile time. You then map this string at compile time to the index from <code>vectorCords</code>. For this example it would map <code>&quot;xyz&quot;</code> to <code>[0, 1, 2]</code> at compile time. Then you simply look up the values and return the vector. The Vector will have the dimension of the length of the received
 string which in this case is <code>xyz</code>, so it will return a Vector3.</p>
 <p>Let us get back to Rust. Implementing this will be probably a bit harder. I will probably create 4 traits with a macro. <code>x</code> , <code>xy</code>, <code>xyz</code> and <code>xyzw</code>. <code>xy</code> will inherit from <code>x</code>, <code>xyz</code> from <code>xy</code> an so on. I will then create default implementations with a macro for all possible combinations. And then I will implement the traits manually for Vector2 - Vector4. I really wish that Rust would get a bit more metaprogramming support in the future.</p>
 <p>Matrices are implemented in a similar fashion.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">type </span><span style="color:#8ec07c;">Mat4x4</span><span style="color:#fe8019;">&lt;</span><span style="color:#fdf4c1aa;">T</span><span style="color:#fe8019;">&gt; = </span><span style="color:#fdf4c1aa;">Matrix&lt;T, U4, U4&gt;;
-</span><span style="color:#fa5c4b;">type </span><span style="color:#8ec07c;">Mat3x3</span><span style="color:#fe8019;">&lt;</span><span style="color:#fdf4c1aa;">T</span><span style="color:#fe8019;">&gt; = </span><span style="color:#fdf4c1aa;">Matrix&lt;T, U3, U3&gt;;
-</span><span style="color:#fa5c4b;">type </span><span style="color:#8ec07c;">Mat3x2</span><span style="color:#fe8019;">&lt;</span><span style="color:#fdf4c1aa;">T</span><span style="color:#fe8019;">&gt; = </span><span style="color:#fdf4c1aa;">Matrix&lt;T, U3, U2&gt;;
-</span><span style="color:#fa5c4b;">type </span><span style="color:#8ec07c;">Mat2x3</span><span style="color:#fe8019;">&lt;</span><span style="color:#fdf4c1aa;">T</span><span style="color:#fe8019;">&gt; = </span><span style="color:#fdf4c1aa;">Matrix&lt;T, U2, U3&gt;;
-</span><span style="color:#fa5c4b;">type </span><span style="color:#8ec07c;">Mat2x2</span><span style="color:#fe8019;">&lt;</span><span style="color:#fdf4c1aa;">T</span><span style="color:#fe8019;">&gt; = </span><span style="color:#fdf4c1aa;">Matrix&lt;T, U2, U2&gt;;
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">type Mat4x4&lt;T&gt; = Matrix&lt;T, U4, U4&gt;;
+type Mat3x3&lt;T&gt; = Matrix&lt;T, U3, U3&gt;;
+type Mat3x2&lt;T&gt; = Matrix&lt;T, U3, U2&gt;;
+type Mat2x3&lt;T&gt; = Matrix&lt;T, U2, U3&gt;;
+type Mat2x2&lt;T&gt; = Matrix&lt;T, U2, U2&gt;;
 
-</span><span style="color:#fa5c4b;">type </span><span style="color:#8ec07c;">Mat3x2f </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">Mat3x2&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;;
-</span><span style="color:#fa5c4b;">type </span><span style="color:#8ec07c;">Mat2x3f </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">Mat2x3&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;;
-</span><span style="color:#fa5c4b;">type </span><span style="color:#8ec07c;">Mat2x2f </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">Mat2x2&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;;
-</span></code></pre>
+type Mat3x2f = Mat3x2&lt;f32&gt;;
+type Mat2x3f = Mat2x3&lt;f32&gt;;
+type Mat2x2f = Mat2x2&lt;f32&gt;;
+</code></pre>
 <p>But implementing matrices was much harder than a simple vector. For example let us implement matrix multiplication. In case you are not familiar it looks like this
 <a href="https://en.wikipedia.org/wiki/Matrix_multiplication">Matrix multiplication</a></p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">N, M, N1, M1 &gt; 0
+<pre><code>N, M, N1, M1 &gt; 0
 N == N1
 Matrix&lt;N, M&gt; * Matrix&lt;N1, M1&gt; = Matrix&lt;M, N1&gt;
-</span></code></pre><pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">impl</span><span style="color:#fdf4c1aa;">&lt;T, N, M&gt; </span><span style="color:#8ec07c;">Matrix</span><span style="color:#fdf4c1aa;">&lt;T, N, M&gt;
-    </span><span style="color:#fa5c4b;">where</span><span style="color:#fdf4c1aa;"> ...
+</code></pre>
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">impl&lt;T, N, M&gt; Matrix&lt;T, N, M&gt;
+    where ...
 {
-    </span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">mul</span><span style="color:#fdf4c1aa;">&lt;N1&gt;(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">other</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">Matrix&lt;T, N1, N&gt;) -&gt; Matrix&lt;T, M, N1&gt;{</span><span style="color:#fe8019;">...</span><span style="color:#fdf4c1aa;">}
+    fn mul&lt;N1&gt;(&amp;self, other: &amp;Matrix&lt;T, N1, N&gt;) -&gt; Matrix&lt;T, M, N1&gt;{...}
 }
-</span></code></pre>
+</code></pre>
 <p>Without type constrains this looks rather elegant. We implement <code>mul</code> only on matrices that can be multiplied together, and then we return the correct matrix.</p>
 <p>My only gripe with this approach is that I don't think it is possible to return a user defined error.</p>
 <p>For example a client might try to multiply <code>Matrix&lt;f32, 3, 2&gt; * Matrix&lt;f32, 3, 2&gt;</code> which is not possible. It would be nice to output a custom error message to the user, something like this</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">Error: Tried to multiply Matrix&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">, 3, 2&gt;,  Matrix&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">, 3, 2&gt;, but the dimesions of
-Matrix&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">, 3, 2&gt;,  Matrix&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">, 3, 2&gt;  don</span><span style="color:#fa5c4b;">&#39;t match</span><span style="color:#fdf4c1aa;">.
-            </span><span style="color:#fe8019;">^</span><span style="color:#fdf4c1aa;">`````````````````````</span><span style="color:#fe8019;">~^
-</span></code></pre>
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">Error: Tried to multiply Matrix&lt;f32, 3, 2&gt;,  Matrix&lt;f32, 3, 2&gt;, but the dimesions of
+Matrix&lt;f32, 3, 2&gt;,  Matrix&lt;f32, 3, 2&gt;  don&#x27;t match.
+            ^`````````````````````~^
+</code></pre>
 <p>This is possible in D but I don't think something like this can currently be implemented in Rust. Another occurrence would be <code>identity</code>.</p>
 <p>An <a href="https://en.wikipedia.org/wiki/Identity_matrix">identity matrix</a> can only implemented on a matrix of type <code>Matrix&lt;T, N, N&gt;</code>.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">impl</span><span style="color:#fdf4c1aa;">&lt;T, N&gt; </span><span style="color:#8ec07c;">Matrix</span><span style="color:#fdf4c1aa;">&lt;T, N, N&gt;
-    </span><span style="color:#fa5c4b;">where</span><span style="color:#fdf4c1aa;"> ...
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">impl&lt;T, N&gt; Matrix&lt;T, N, N&gt;
+    where ...
 {
-    </span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">identity</span><span style="color:#fdf4c1aa;">() -&gt; Matrix&lt;T, N, N&gt; {
-        </span><span style="color:#fe8019;">...
-    </span><span style="color:#fdf4c1aa;">}
+    fn identity() -&gt; Matrix&lt;T, N, N&gt; {
+        ...
+    }
 }
-</span></code></pre>
+</code></pre>
 <p>It then would be nice to also output a custom error message if the user wants to call <code>identity</code> on a non-square matrix.</p>
 <p>If we look at this code again, we see that I have left out the type constrains. I did this on purpose because they look quite hilariously verbose.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">impl</span><span style="color:#fdf4c1aa;">&lt;T, N, M&gt; </span><span style="color:#8ec07c;">Matrix</span><span style="color:#fdf4c1aa;">&lt;T, N, M&gt;
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">impl&lt;T, N, M&gt; Matrix&lt;T, N, M&gt;
 {
-    </span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">mul</span><span style="color:#fdf4c1aa;">&lt;N1&gt;(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">other</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">Matrix&lt;T, N1, N&gt;) -&gt; Matrix&lt;T, M, N1&gt;{</span><span style="color:#fe8019;">...</span><span style="color:#fdf4c1aa;">}
+    fn mul&lt;N1&gt;(&amp;self, other: &amp;Matrix&lt;T, N1, N&gt;) -&gt; Matrix&lt;T, M, N1&gt;{...}
 }
-</span></code></pre>
+</code></pre>
 <p>But it was a good exercise to see how good Rust's error messages really are.</p>
-<pre style="background-color:#282828;">
-<code><span style="font-style:italic;color:#928374;">// funny stuff is happening here
-</span><span style="color:#fa5c4b;">impl</span><span style="color:#fdf4c1aa;">&lt;T, N, M&gt; </span><span style="color:#8ec07c;">Matrix</span><span style="color:#fdf4c1aa;">&lt;T, N, M&gt;
-    </span><span style="color:#fa5c4b;">where</span><span style="color:#fdf4c1aa;"> T: Float,
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">&#x2F;&#x2F; funny stuff is happening here
+impl&lt;T, N, M&gt; Matrix&lt;T, N, M&gt;
+    where T: Float,
           N: ArrayLength&lt;T&gt; + ArrayLength&lt;Vector&lt;T, M&gt;&gt;,
           M: ArrayLength&lt;T&gt; + ArrayLength&lt;Vector&lt;T, N&gt;&gt;,
-          &lt;N </span><span style="color:#fe8019;">as </span><span style="color:#fdf4c1aa;">ArrayLength&lt;Vector&lt;T, M&gt;&gt;&gt;::ArrayType: Copy,
-          &lt;M </span><span style="color:#fe8019;">as </span><span style="color:#fdf4c1aa;">ArrayLength&lt;Vector&lt;T, N&gt;&gt;&gt;::ArrayType: Copy,
-          &lt;N </span><span style="color:#fe8019;">as </span><span style="color:#fdf4c1aa;">ArrayLength&lt;T&gt;&gt;::ArrayType: Copy,
-          &lt;M </span><span style="color:#fe8019;">as </span><span style="color:#fdf4c1aa;">ArrayLength&lt;T&gt;&gt;::ArrayType: Copy
+          &lt;N as ArrayLength&lt;Vector&lt;T, M&gt;&gt;&gt;::ArrayType: Copy,
+          &lt;M as ArrayLength&lt;Vector&lt;T, N&gt;&gt;&gt;::ArrayType: Copy,
+          &lt;N as ArrayLength&lt;T&gt;&gt;::ArrayType: Copy,
+          &lt;M as ArrayLength&lt;T&gt;&gt;::ArrayType: Copy
 {
-    </span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">mul</span><span style="color:#fdf4c1aa;">&lt;N1&gt;(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">other</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">Matrix&lt;T, N1, N&gt;) -&gt; Matrix&lt;T, M, N1&gt;
-        </span><span style="color:#fa5c4b;">where</span><span style="color:#fdf4c1aa;"> N1: ArrayLength&lt;T&gt; + ArrayLength&lt;Vector&lt;T, M&gt;&gt; + ArrayLength&lt;Vector&lt;T, N&gt;&gt;,
-              &lt;N1 </span><span style="color:#fe8019;">as </span><span style="color:#fdf4c1aa;">ArrayLength&lt;T&gt;&gt;::ArrayType: Copy,
-              &lt;N1 </span><span style="color:#fe8019;">as </span><span style="color:#fdf4c1aa;">ArrayLength&lt;Vector&lt;T, M&gt;&gt;&gt;::ArrayType: Copy,
-              &lt;N1 </span><span style="color:#fe8019;">as </span><span style="color:#fdf4c1aa;">ArrayLength&lt;Vector&lt;T, N&gt;&gt;&gt;::ArrayType: Copy,
+    fn mul&lt;N1&gt;(&amp;self, other: &amp;Matrix&lt;T, N1, N&gt;) -&gt; Matrix&lt;T, M, N1&gt;
+        where N1: ArrayLength&lt;T&gt; + ArrayLength&lt;Vector&lt;T, M&gt;&gt; + ArrayLength&lt;Vector&lt;T, N&gt;&gt;,
+              &lt;N1 as ArrayLength&lt;T&gt;&gt;::ArrayType: Copy,
+              &lt;N1 as ArrayLength&lt;Vector&lt;T, M&gt;&gt;&gt;::ArrayType: Copy,
+              &lt;N1 as ArrayLength&lt;Vector&lt;T, N&gt;&gt;&gt;::ArrayType: Copy,
               N: ArrayLength&lt;Vector&lt;T, N1&gt;&gt;,
-              &lt;N </span><span style="color:#fe8019;">as </span><span style="color:#fdf4c1aa;">ArrayLength&lt;Vector&lt;T, N1&gt;&gt;&gt;::ArrayType: Copy,
+              &lt;N as ArrayLength&lt;Vector&lt;T, N1&gt;&gt;&gt;::ArrayType: Copy,
               Vector&lt;T, N&gt;: Copy
     {
-        </span><span style="color:#fa5c4b;">unsafe </span><span style="color:#fdf4c1aa;">{
-            </span><span style="color:#fa5c4b;">let mut</span><span style="color:#fdf4c1aa;"> new_matrix: Matrix&lt;T, M, N1&gt; </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1aa;">mem::uninitialized();
-            </span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> other_transposed: Matrix&lt;T, N, N1&gt; </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> other.</span><span style="color:#fabd2f;">transpose</span><span style="color:#fdf4c1aa;">();
-            </span><span style="color:#fa5c4b;">for</span><span style="color:#fdf4c1aa;"> j </span><span style="color:#fe8019;">in </span><span style="color:#d3869b;">0</span><span style="color:#fe8019;">..</span><span style="color:#fdf4c1;">N1</span><span style="color:#fdf4c1aa;">::to_usize() {
-                </span><span style="color:#fa5c4b;">for</span><span style="color:#fdf4c1aa;"> i </span><span style="color:#fe8019;">in </span><span style="color:#d3869b;">0</span><span style="color:#fe8019;">..</span><span style="color:#fdf4c1aa;">M::to_usize() {
-                    new_matrix.data[j].data[i] </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">self</span><span style="color:#fdf4c1aa;">.data[j].</span><span style="color:#fabd2f;">dot</span><span style="color:#fdf4c1aa;">(other_transposed.data[i]);
+        unsafe {
+            let mut new_matrix: Matrix&lt;T, M, N1&gt; = mem::uninitialized();
+            let other_transposed: Matrix&lt;T, N, N1&gt; = other.transpose();
+            for j in 0..N1::to_usize() {
+                for i in 0..M::to_usize() {
+                    new_matrix.data[j].data[i] = self.data[j].dot(other_transposed.data[i]);
                 }
             }
             new_matrix
         }
     }
 }
-</span></code></pre>
+</code></pre>
 <p>Obviously this looks horrendous and I am not even sure I had to write it like that. It was really annoying to repeatedly specify the copy constrain.</p>
 <p>The only good part was that it was super trivial to write. I did 0 thinking about any constrains, I just looked at the error messages and copy pasted the constrain. I did this until Rust stopped complaining. I was really surprised that how easy this was and it would probably not be too unreasonable to think that the constrains could possibly be generated with some external tool.</p>
 <p>My experience with cargo and crates.io was flawless so far. I didn't run into any issue at all. I really like how intuitive it was to get up and running. Publishing a crate was also pretty simple, you can find it <a href="https://crates.io/crates/rla">here</a>. Please note that the library is completely experimental and will probably never be finished.</p>

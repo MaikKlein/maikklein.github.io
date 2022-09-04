@@ -86,131 +86,125 @@
 <p>We will parse a glsl shader and extract the types as a string at compile time, then we use those strings to create actual types. After we have obtained the types we will generate a wrapper for that glsl shader at compile time.</p>
 <p>The benefit is that we will get a nice interface that won't allow you to make any mistakes. Another benefit will be that if the glsl shader changes the wrapper will change too, which helps you to keep the code in sync by generating helpful compiler errors.</p>
 <p>In this blog post we will learn how we can turn strings into actual types at compile time.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">.</span><span style="background-color:#932b1e;color:#fdf4c1;">.</span><span style="color:#fdf4c1aa;">.
-</span><span style="color:#fdf4c1;">in </span><span style="background-color:#932b1e;color:#fdf4c1;">vec2</span><span style="color:#fdf4c1aa;"> </span><span style="background-color:#932b1e;color:#fdf4c1;">fragTexCoord</span><span style="color:#fdf4c1aa;">;
-</span><span style="color:#fa5c4b;">in </span><span style="color:#fdf4c1;">vec3 </span><span style="background-color:#932b1e;color:#fdf4c1;">fragNormal</span><span style="color:#fdf4c1aa;">;
-</span><span style="color:#fa5c4b;">in </span><span style="color:#fdf4c1;">vec3 </span><span style="background-color:#932b1e;color:#fdf4c1;">fragVert</span><span style="color:#fdf4c1aa;">;
-.</span><span style="background-color:#932b1e;color:#fdf4c1;">.</span><span style="color:#fdf4c1aa;">.
-</span><span style="background-color:#932b1e;color:#fdf4c1;">[&quot;</span><span style="color:#fdf4c1;">vec2</span><span style="background-color:#932b1e;color:#fdf4c1;">&quot;,&quot;</span><span style="color:#fdf4c1;">vec3</span><span style="background-color:#932b1e;color:#fdf4c1;">&quot;,&quot;</span><span style="color:#fdf4c1;">vec3</span><span style="background-color:#932b1e;color:#fdf4c1;">&quot;]</span><span style="color:#fdf4c1aa;"> </span><span style="color:#fa5c4b;">to </span><span style="color:#fdf4c1;">AliasSeq</span><span style="background-color:#932b1e;color:#fdf4c1;">!</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">Vector2</span><span style="color:#fdf4c1aa;">,</span><span style="color:#fdf4c1;">Vector2</span><span style="color:#fdf4c1aa;">,</span><span style="color:#fdf4c1;">Vector3</span><span style="color:#fdf4c1aa;">)
-</span></code></pre>
+<pre data-lang="d" class="language-d "><code class="language-d" data-lang="d">...
+in vec2 fragTexCoord;
+in vec3 fragNormal;
+in vec3 fragVert;
+...
+[&quot;vec2&quot;,&quot;vec3&quot;,&quot;vec3&quot;] to AliasSeq!(Vector2,Vector2,Vector3)
+</code></pre>
 <p>Converting strings to types is very easy in D</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">template </span><span style="color:#8ec07c;">glslStringtoTypeV1</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">string </span><span style="color:#fdf4c1;">stringType</span><span style="color:#fdf4c1aa;">){
-  </span><span style="color:#fa5c4b;">static if</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">stringType </span><span style="color:#fe8019;">== </span><span style="color:#b8bb26;">&quot;int&quot;</span><span style="color:#fdf4c1aa;">){
-    </span><span style="color:#fa5c4b;">alias </span><span style="color:#8ec07c;">glslStringtoTypeV1 </span><span style="color:#fe8019;">= </span><span style="color:#fa5c4b;">int</span><span style="color:#fdf4c1aa;">;
+<pre data-lang="d" class="language-d "><code class="language-d" data-lang="d">template glslStringtoTypeV1(string stringType){
+  static if(stringType == &quot;int&quot;){
+    alias glslStringtoTypeV1 = int;
   }
-  </span><span style="color:#fa5c4b;">else static if</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">stringType </span><span style="color:#fe8019;">== </span><span style="color:#b8bb26;">&quot;float&quot;</span><span style="color:#fdf4c1aa;">){
-    </span><span style="color:#fa5c4b;">alias </span><span style="color:#8ec07c;">glslStringtoTypeV1 </span><span style="color:#fe8019;">= </span><span style="color:#fa5c4b;">float</span><span style="color:#fdf4c1aa;">;
+  else static if(stringType == &quot;float&quot;){
+    alias glslStringtoTypeV1 = float;
   }
 }
-</span><span style="color:#fa5c4b;">void </span><span style="color:#8ec07c;">main</span><span style="color:#fdf4c1aa;">()
+void main()
 {
-  </span><span style="color:#fdf4c1;">glslStringtoTypeV1</span><span style="color:#fe8019;">!</span><span style="color:#b8bb26;">&quot;float&quot; </span><span style="color:#fdf4c1;">f</span><span style="color:#fdf4c1aa;">; </span><span style="font-style:italic;color:#928374;">//f is of type float
-</span><span style="color:#fdf4c1aa;">}
-</span></code></pre>
+  glslStringtoTypeV1!&quot;float&quot; f; &#x2F;&#x2F;f is of type float
+}
+</code></pre>
 <p>But <a href="https://www.opengl.org/registry/doc/GLSLangSpec.4.40.pdf">glsl has actually quite a few types</a> and it would be annoying to  write that many <code>static if</code> blocks.</p>
 <p>D also has template specializations like C++, maybe this would make the code easier to write?</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">template </span><span style="color:#8ec07c;">glslStringtoTypeV2</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">string </span><span style="color:#fdf4c1;">s</span><span style="color:#fdf4c1aa;">){
-  </span><span style="color:#fa5c4b;">static assert</span><span style="color:#fdf4c1aa;">(</span><span style="color:#d3869b;">false</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">s </span><span style="color:#fe8019;">~ </span><span style="color:#b8bb26;">&quot; is not a GLSL type&quot;</span><span style="color:#fdf4c1aa;">);
+<pre data-lang="d" class="language-d "><code class="language-d" data-lang="d">template glslStringtoTypeV2(string s){
+  static assert(false, s ~ &quot; is not a GLSL type&quot;);
 }
-</span><span style="color:#fa5c4b;">template </span><span style="color:#8ec07c;">glslStringtoTypeV2</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">string </span><span style="color:#fdf4c1;">s</span><span style="color:#fe8019;">: </span><span style="color:#b8bb26;">&quot;int&quot;</span><span style="color:#fdf4c1aa;">){
-  </span><span style="color:#fa5c4b;">alias </span><span style="color:#8ec07c;">glslStringtoTypeV2 </span><span style="color:#fe8019;">= </span><span style="color:#fa5c4b;">int</span><span style="color:#fdf4c1aa;">;
+template glslStringtoTypeV2(string s: &quot;int&quot;){
+  alias glslStringtoTypeV2 = int;
 }
-</span><span style="color:#fa5c4b;">template </span><span style="color:#8ec07c;">glslStringtoTypeV2</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">string </span><span style="color:#fdf4c1;">s</span><span style="color:#fe8019;">: </span><span style="color:#b8bb26;">&quot;float&quot;</span><span style="color:#fdf4c1aa;">){
-  </span><span style="color:#fa5c4b;">alias </span><span style="color:#8ec07c;">glslStringtoTypeV2 </span><span style="color:#fe8019;">= </span><span style="color:#fa5c4b;">float</span><span style="color:#fdf4c1aa;">;
+template glslStringtoTypeV2(string s: &quot;float&quot;){
+  alias glslStringtoTypeV2 = float;
 }
-</span><span style="color:#fa5c4b;">void </span><span style="color:#8ec07c;">main</span><span style="color:#fdf4c1aa;">()
+void main()
 {
-  </span><span style="color:#fdf4c1;">glslStringtoTypeV2</span><span style="color:#fe8019;">!</span><span style="color:#b8bb26;">&quot;float&quot; </span><span style="color:#fdf4c1;">f</span><span style="color:#fdf4c1aa;">; </span><span style="font-style:italic;color:#928374;">//f is of type float
-</span><span style="color:#fdf4c1aa;">}
-</span></code></pre>
+  glslStringtoTypeV2!&quot;float&quot; f; &#x2F;&#x2F;f is of type float
+}
+</code></pre>
 <p>The nice thing about D is that we can pass almost any value into a template, in this case we use <code>string</code>. I think the code already looks much easier to write and read but it still has a lot of noise. Maybe we can reduce the noise with <code>template mixins</code>.</p>
 <p><code>Template mixins</code> allow you to expand a template with the <code>mixin</code> keyword.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">mixin template </span><span style="color:#8ec07c;">AddShader</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">T</span><span style="color:#fdf4c1aa;">,</span><span style="color:#fa5c4b;">string </span><span style="color:#fdf4c1;">stringType</span><span style="color:#fdf4c1aa;">){
-  </span><span style="color:#fa5c4b;">template </span><span style="color:#8ec07c;">glslStringtoTypeV2</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">string </span><span style="color:#fdf4c1;">s</span><span style="color:#fe8019;">: </span><span style="color:#fdf4c1;">stringType</span><span style="color:#fdf4c1aa;">){
-    </span><span style="color:#fa5c4b;">alias </span><span style="color:#8ec07c;">glslStringtoTypeV2 </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">T</span><span style="color:#fdf4c1aa;">;
+<pre data-lang="d" class="language-d "><code class="language-d" data-lang="d">mixin template AddShader(T,string stringType){
+  template glslStringtoTypeV2(string s: stringType){
+    alias glslStringtoTypeV2 = T;
   }
 }
-</span><span style="color:#fa5c4b;">template </span><span style="color:#8ec07c;">glslStringtoTypeV2</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">string </span><span style="color:#fdf4c1;">s</span><span style="color:#fdf4c1aa;">){
-  </span><span style="color:#fa5c4b;">static assert</span><span style="color:#fdf4c1aa;">(</span><span style="color:#d3869b;">false</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">s </span><span style="color:#fe8019;">~ </span><span style="color:#b8bb26;">&quot; is not a GLSL type&quot;</span><span style="color:#fdf4c1aa;">);
+template glslStringtoTypeV2(string s){
+  static assert(false, s ~ &quot; is not a GLSL type&quot;);
 }
-</span><span style="color:#fa5c4b;">mixin </span><span style="color:#fdf4c1;">AddShader!(</span><span style="color:#fa5c4b;">int</span><span style="color:#fdf4c1;">,</span><span style="color:#b8bb26;">&quot;int&quot;</span><span style="color:#fdf4c1;">)</span><span style="color:#fdf4c1aa;">;
-</span><span style="color:#fa5c4b;">mixin </span><span style="color:#fdf4c1;">AddShader!(</span><span style="color:#fa5c4b;">int</span><span style="color:#fdf4c1;">,</span><span style="color:#b8bb26;">&quot;float&quot;</span><span style="color:#fdf4c1;">)</span><span style="color:#fdf4c1aa;">;
-</span><span style="color:#fa5c4b;">void </span><span style="color:#8ec07c;">main</span><span style="color:#fdf4c1aa;">()
+mixin AddShader!(int,&quot;int&quot;);
+mixin AddShader!(int,&quot;float&quot;);
+void main()
 {
-  </span><span style="color:#fdf4c1;">glslStringtoTypeV2</span><span style="color:#fe8019;">!</span><span style="color:#b8bb26;">&quot;float&quot; </span><span style="color:#fdf4c1;">f</span><span style="color:#fdf4c1aa;">; </span><span style="font-style:italic;color:#928374;">//err
-</span><span style="color:#fdf4c1aa;">}
-</span></code></pre>
+  glslStringtoTypeV2!&quot;float&quot; f; &#x2F;&#x2F;err
+}
+</code></pre>
 <p>This looks much better unfortunately this doesn't compile because <code>template mixins</code> expand into a different scope. D also allows us to insert strings at compile time with <code>mixins</code>. You can think of them like macros from C but they are more powerful because they are ordinary strings which can be manipulated.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">template </span><span style="color:#8ec07c;">AddShader</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">T</span><span style="color:#fdf4c1aa;">,</span><span style="color:#fa5c4b;">string </span><span style="color:#fdf4c1;">stringType</span><span style="color:#fdf4c1aa;">){
-  </span><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">AddShader </span><span style="color:#fe8019;">= 
-    </span><span style="color:#b8bb26;">&quot;template glslStringtoTypeV2(string s: &quot;</span><span style="color:#fe8019;">~</span><span style="color:#fdf4c1;">stringType</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">stringof</span><span style="color:#fe8019;">~</span><span style="color:#b8bb26;">&quot;){
-         alias glslStringtoTypeV2 = &quot; </span><span style="color:#fe8019;">~ </span><span style="color:#fdf4c1;">T</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">stringof </span><span style="color:#fe8019;">~ </span><span style="color:#b8bb26;">&quot;;&quot; </span><span style="color:#fe8019;">~
-    </span><span style="color:#b8bb26;">&quot;}&quot;</span><span style="color:#fdf4c1aa;">;
+<pre data-lang="d" class="language-d "><code class="language-d" data-lang="d">template AddShader(T,string stringType){
+  enum AddShader = 
+    &quot;template glslStringtoTypeV2(string s: &quot;~stringType.stringof~&quot;){
+         alias glslStringtoTypeV2 = &quot; ~ T.stringof ~ &quot;;&quot; ~
+    &quot;}&quot;;
 }
-</span><span style="color:#fa5c4b;">template </span><span style="color:#8ec07c;">glslStringtoTypeV2</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">string </span><span style="color:#fdf4c1;">s</span><span style="color:#fdf4c1aa;">){
-  </span><span style="color:#fa5c4b;">static assert</span><span style="color:#fdf4c1aa;">(</span><span style="color:#d3869b;">false</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">s </span><span style="color:#fe8019;">~ </span><span style="color:#b8bb26;">&quot; is not a GLSL type&quot;</span><span style="color:#fdf4c1aa;">);
+template glslStringtoTypeV2(string s){
+  static assert(false, s ~ &quot; is not a GLSL type&quot;);
 }
-</span><span style="color:#fa5c4b;">mixin</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">AddShader!(</span><span style="color:#fa5c4b;">int</span><span style="color:#fdf4c1;">,</span><span style="color:#b8bb26;">&quot;int&quot;</span><span style="color:#fdf4c1;">)</span><span style="color:#fdf4c1aa;">);
-</span><span style="color:#fa5c4b;">mixin</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">AddShader!(</span><span style="color:#fa5c4b;">float</span><span style="color:#fdf4c1;">,</span><span style="color:#b8bb26;">&quot;float&quot;</span><span style="color:#fdf4c1;">)</span><span style="color:#fdf4c1aa;">);
+mixin(AddShader!(int,&quot;int&quot;));
+mixin(AddShader!(float,&quot;float&quot;));
 
-</span><span style="color:#fa5c4b;">void </span><span style="color:#8ec07c;">main</span><span style="color:#fdf4c1aa;">()
+void main()
 {
-  </span><span style="color:#fdf4c1;">glslStringtoTypeV2</span><span style="color:#fe8019;">!</span><span style="color:#b8bb26;">&quot;float&quot; </span><span style="color:#fdf4c1;">f</span><span style="color:#fdf4c1aa;">; </span><span style="font-style:italic;color:#928374;">//f is of type float
-</span><span style="color:#fdf4c1aa;">}
-</span></code></pre>
+  glslStringtoTypeV2!&quot;float&quot; f; &#x2F;&#x2F;f is of type float
+}
+</code></pre>
 <p>This is almost as nice as <code>template mixins</code> but I am not the biggest fan of writing source code as a string. Maybe there is still some room for improvement.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">ShaderType</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">T</span><span style="color:#fdf4c1aa;">,</span><span style="color:#fa5c4b;">string </span><span style="color:#fdf4c1;">s</span><span style="color:#fdf4c1aa;">){
-  </span><span style="color:#fa5c4b;">alias </span><span style="color:#8ec07c;">Type </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">T</span><span style="color:#fdf4c1aa;">;
-  </span><span style="color:#fa5c4b;">enum string </span><span style="color:#8ec07c;">stringType </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">s</span><span style="color:#fdf4c1aa;">;
+<pre data-lang="d" class="language-d "><code class="language-d" data-lang="d">struct ShaderType(T,string s){
+  alias Type = T;
+  enum string stringType = s;
 }
-</span><span style="color:#fa5c4b;">enum </span><span style="color:#8ec07c;">isShaderType</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">T</span><span style="color:#fdf4c1aa;">) </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">std</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">traits</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">isInstanceOf!(ShaderType,T)</span><span style="color:#fdf4c1aa;">;
+enum isShaderType(T) = std.traits.isInstanceOf!(ShaderType,T);
 
-</span><span style="color:#fa5c4b;">template </span><span style="color:#8ec07c;">StringTypeGen</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">string </span><span style="color:#fdf4c1;">stringType</span><span style="color:#fdf4c1aa;">, </span><span style="color:#fdf4c1;">ShaderTypes</span><span style="color:#fe8019;">...</span><span style="color:#fdf4c1aa;">)
-  </span><span style="color:#fa5c4b;">if</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">allSatisfy!(isShaderType, ShaderTypes)
-     </span><span style="color:#fe8019;">&amp;&amp; </span><span style="color:#fdf4c1;">ShaderTypes</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">length </span><span style="color:#fe8019;">&gt; </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1aa;">)
+template StringTypeGen(string stringType, ShaderTypes...)
+  if(allSatisfy!(isShaderType, ShaderTypes)
+     &amp;&amp; ShaderTypes.length &gt; 0)
 {
-  </span><span style="color:#fa5c4b;">static if</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">ShaderTypes</span><span style="color:#fdf4c1aa;">[</span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1aa;">].</span><span style="color:#fdf4c1;">stringType </span><span style="color:#fe8019;">== </span><span style="color:#fdf4c1;">stringType </span><span style="color:#fdf4c1aa;">){
-    </span><span style="color:#fa5c4b;">alias </span><span style="color:#8ec07c;">StringTypeGen </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">ShaderTypes</span><span style="color:#fdf4c1aa;">[</span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1aa;">].</span><span style="color:#fdf4c1;">Type</span><span style="color:#fdf4c1aa;">;
+  static if(ShaderTypes[0].stringType == stringType ){
+    alias StringTypeGen = ShaderTypes[0].Type;
   }
-  </span><span style="color:#fa5c4b;">else static if</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">ShaderTypes</span><span style="color:#fdf4c1aa;">.</span><span style="color:#fdf4c1;">length </span><span style="color:#fe8019;">== </span><span style="color:#d3869b;">1</span><span style="color:#fdf4c1aa;">){
-    </span><span style="color:#fa5c4b;">static assert</span><span style="color:#fdf4c1aa;">(</span><span style="color:#d3869b;">false</span><span style="color:#fdf4c1aa;">,</span><span style="color:#fdf4c1;">stringType </span><span style="color:#fe8019;">~ </span><span style="color:#b8bb26;">&quot; is not a recognized type.&quot;</span><span style="color:#fdf4c1aa;">);
+  else static if(ShaderTypes.length == 1){
+    static assert(false,stringType ~ &quot; is not a recognized type.&quot;);
   }
-  </span><span style="color:#fa5c4b;">else</span><span style="color:#fdf4c1aa;">{
-    </span><span style="color:#fa5c4b;">alias </span><span style="color:#8ec07c;">StringTypeGen </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">StringTypeGen!(stringType, ShaderTypes[</span><span style="color:#d3869b;">1</span><span style="color:#fe8019;">..</span><span style="color:#fdf4c1;">$])</span><span style="color:#fdf4c1aa;">;
+  else{
+    alias StringTypeGen = StringTypeGen!(stringType, ShaderTypes[1..$]);
   }
 }
-</span><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">Matrix3</span><span style="color:#fdf4c1aa;">{}
-</span><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">Vector3</span><span style="color:#fdf4c1aa;">{}
-</span><span style="color:#fa5c4b;">alias </span><span style="color:#8ec07c;">glslStringToType</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fa5c4b;">string </span><span style="color:#fdf4c1;">s</span><span style="color:#fdf4c1aa;">) </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">StringTypeGen!(s
-    ,ShaderType!(</span><span style="color:#fa5c4b;">int</span><span style="color:#fdf4c1;">, </span><span style="color:#b8bb26;">&quot;int&quot;</span><span style="color:#fdf4c1;">)
-    ,ShaderType!(</span><span style="color:#fa5c4b;">float</span><span style="color:#fdf4c1;">, </span><span style="color:#b8bb26;">&quot;float&quot;</span><span style="color:#fdf4c1;">)
-    ,ShaderType!(</span><span style="color:#fa5c4b;">double</span><span style="color:#fdf4c1;">, </span><span style="color:#b8bb26;">&quot;double&quot;</span><span style="color:#fdf4c1;">)
-    ,ShaderType!(</span><span style="color:#fa5c4b;">uint</span><span style="color:#fdf4c1;">, </span><span style="color:#b8bb26;">&quot;uint&quot;</span><span style="color:#fdf4c1;">)
-    ,ShaderType!(</span><span style="color:#fa5c4b;">bool</span><span style="color:#fdf4c1;">, </span><span style="color:#b8bb26;">&quot;bool&quot;</span><span style="color:#fdf4c1;">)
-    ,ShaderType!(Matrix3, </span><span style="color:#b8bb26;">&quot;mat3&quot;</span><span style="color:#fdf4c1;">)
-    ,ShaderType!(Vector3, </span><span style="color:#b8bb26;">&quot;vec3&quot;</span><span style="color:#fdf4c1;">)
-    </span><span style="font-style:italic;color:#928374;">//....
-</span><span style="color:#fdf4c1;">)</span><span style="color:#fdf4c1aa;">;
-</span><span style="color:#fa5c4b;">void </span><span style="color:#8ec07c;">main</span><span style="color:#fdf4c1aa;">()
+struct Matrix3{}
+struct Vector3{}
+alias glslStringToType(string s) = StringTypeGen!(s
+    ,ShaderType!(int, &quot;int&quot;)
+    ,ShaderType!(float, &quot;float&quot;)
+    ,ShaderType!(double, &quot;double&quot;)
+    ,ShaderType!(uint, &quot;uint&quot;)
+    ,ShaderType!(bool, &quot;bool&quot;)
+    ,ShaderType!(Matrix3, &quot;mat3&quot;)
+    ,ShaderType!(Vector3, &quot;vec3&quot;)
+    &#x2F;&#x2F;....
+);
+void main()
 {
-  </span><span style="color:#fdf4c1;">glslStringToType</span><span style="color:#fe8019;">!</span><span style="color:#b8bb26;">&quot;float&quot; </span><span style="color:#fdf4c1;">f</span><span style="color:#fdf4c1aa;">; </span><span style="font-style:italic;color:#928374;">//f is of type float
-</span><span style="color:#fdf4c1aa;">}
-</span></code></pre>
+  glslStringToType!&quot;float&quot; f; &#x2F;&#x2F;f is of type float
+}
+</code></pre>
 <p>This is the final version which was a bit more work to create but it's easy to add glsl types, has nice error messages and is reusable. The last missing part is how we can turn a list of strings into a list of types.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">void </span><span style="color:#8ec07c;">main</span><span style="color:#fdf4c1aa;">()
+<pre data-lang="d" class="language-d "><code class="language-d" data-lang="d">void main()
 {
-  </span><span style="color:#fa5c4b;">alias </span><span style="color:#8ec07c;">VertexInput </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">AliasSeq!(</span><span style="color:#b8bb26;">&quot;mat3&quot;</span><span style="color:#fdf4c1;">,</span><span style="color:#b8bb26;">&quot;int&quot;</span><span style="color:#fdf4c1;">,</span><span style="color:#b8bb26;">&quot;vec3&quot;</span><span style="color:#fdf4c1;">,</span><span style="color:#b8bb26;">&quot;double&quot;</span><span style="color:#fdf4c1;">)</span><span style="color:#fdf4c1aa;">;
-  </span><span style="color:#fa5c4b;">alias </span><span style="color:#8ec07c;">VertexInputTypes </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">staticMap!(glslStringToType,VertexInput)</span><span style="color:#fdf4c1aa;">;
-  </span><span style="font-style:italic;color:#928374;">//VertexInputTypes is of type AliasSeq!(Matrix3,int,Vector3,double)
-</span><span style="color:#fdf4c1aa;">}
-</span></code></pre>
+  alias VertexInput = AliasSeq!(&quot;mat3&quot;,&quot;int&quot;,&quot;vec3&quot;,&quot;double&quot;);
+  alias VertexInputTypes = staticMap!(glslStringToType,VertexInput);
+  &#x2F;&#x2F;VertexInputTypes is of type AliasSeq!(Matrix3,int,Vector3,double)
+}
+</code></pre>
+
 </div>
 
             </div>

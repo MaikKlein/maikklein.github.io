@@ -148,184 +148,176 @@
 <li>Testing: RLSL is a subset of Rust. If your code compiles in RLSL, it will also compile in Rust. This means that you can run your shader code on the CPU.</li>
 </ul>
 <h1 id="showcase">Showcase</h1>
-<div style='position:relative; padding-bottom:56.25%'>
+<p><div style='position:relative; padding-bottom:56.25%'>
     <iframe src='https://gfycat.com/ifr/PersonalAdventurousInganue' frameborder='0' scrolling='no' width='100%' height='100%' style='position:absolute;top:0;left:0;' allowfullscreen></iframe>
 </div>
-<p><a href="https://gfycat.com/PersonalAdventurousInganue">Link to gif</a></p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">#![</span><span style="color:#fdf4c1;">feature</span><span style="color:#fdf4c1aa;">(custom_attribute)]
-</span><span style="color:#fa5c4b;">extern crate</span><span style="color:#fdf4c1aa;"> rlsl_math;
-</span><span style="color:#fa5c4b;">use </span><span style="color:#fdf4c1aa;">rlsl_math::{Vec4, Vertex};
 
-#[</span><span style="color:#fdf4c1;">spirv</span><span style="color:#fdf4c1aa;">(fragment)]
-</span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">frag</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">color</span><span style="color:#fdf4c1aa;">: Vec4&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;) -&gt; Vec4&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt; {
+<a href="https://gfycat.com/PersonalAdventurousInganue">Link to gif</a></p>
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">#![feature(custom_attribute)]
+extern crate rlsl_math;
+use rlsl_math::{Vec4, Vertex};
+
+#[spirv(fragment)]
+fn frag(color: Vec4&lt;f32&gt;) -&gt; Vec4&lt;f32&gt; {
     color
 }
 
-#[</span><span style="color:#fdf4c1;">spirv</span><span style="color:#fdf4c1aa;">(vertex)]
-</span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">vertex</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">vertex</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">mut</span><span style="color:#fdf4c1aa;"> Vertex, </span><span style="color:#fdf4c1;">pos</span><span style="color:#fdf4c1aa;">: Vec4&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;, </span><span style="color:#fdf4c1;">color</span><span style="color:#fdf4c1aa;">: Vec4&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;) -&gt; Vec4&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt; {
-    vertex.position </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> pos;
+#[spirv(vertex)]
+fn vertex(vertex: &amp;mut Vertex, pos: Vec4&lt;f32&gt;, color: Vec4&lt;f32&gt;) -&gt; Vec4&lt;f32&gt; {
+    vertex.position = pos;
     color
 }
-</span></code></pre>
+</code></pre>
 <p>I recompile the RLSL code after every change, which produces a new <code>.spv</code> file. This is a modified version of the triangle example from <a href="https://github.com/MaikKlein/ash">ash</a>. Essentially I just recreate the graphics pipeline if the <code>.spv</code> file changes.</p>
 <p>And this is how the <code>.spv</code> file looks in text form.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">; SPIR</span><span style="color:#fe8019;">-</span><span style="color:#fdf4c1aa;">V
-; Version</span><span style="color:#fe8019;">: </span><span style="color:#d3869b;">1.2
-</span><span style="color:#fdf4c1aa;">; Generator</span><span style="color:#fe8019;">:</span><span style="color:#fdf4c1aa;"> Google rspirv; </span><span style="color:#d3869b;">0
-</span><span style="color:#fdf4c1aa;">; Bound</span><span style="color:#fe8019;">: </span><span style="color:#d3869b;">29
-</span><span style="color:#fdf4c1aa;">; Schema</span><span style="color:#fe8019;">: </span><span style="color:#d3869b;">0
-</span><span style="color:#fdf4c1aa;">               OpCapability </span><span style="color:#8ec07c;">Shader
-          </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">1 </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> OpExtInstImport </span><span style="color:#b8bb26;">&quot;GLSL.std.450&quot;
-</span><span style="color:#fdf4c1aa;">               OpMemoryModel Logical GLSL450
-               OpEntryPoint Fragment </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">2 </span><span style="color:#b8bb26;">&quot;frag&quot; </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">9 </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">12
-</span><span style="color:#fdf4c1aa;">               OpEntryPoint Vertex </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">5 </span><span style="color:#b8bb26;">&quot;vertex&quot; </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">9 </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">10 </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">12
-</span><span style="color:#fdf4c1aa;">               OpExecutionMode </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">2</span><span style="color:#fdf4c1aa;"> OriginUpperLeft
-               OpExecutionMode </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">5</span><span style="color:#fdf4c1aa;"> OriginUpperLeft
-               OpMemberName </span><span style="color:#fe8019;">%</span><span style="color:#fdf4c1aa;">Vertex </span><span style="color:#d3869b;">0 </span><span style="color:#b8bb26;">&quot;position&quot;
-</span><span style="color:#fdf4c1aa;">               OpMemberName </span><span style="color:#fe8019;">%</span><span style="color:#fdf4c1aa;">Vertex </span><span style="color:#d3869b;">1 </span><span style="color:#b8bb26;">&quot;point_size&quot;
-</span><span style="color:#fdf4c1aa;">               OpName </span><span style="color:#fe8019;">%</span><span style="color:#fdf4c1aa;">Vertex </span><span style="color:#b8bb26;">&quot;Vertex&quot;
-</span><span style="color:#fdf4c1aa;">               OpDecorate </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">9</span><span style="color:#fdf4c1aa;"> Location </span><span style="color:#d3869b;">0
-</span><span style="color:#fdf4c1aa;">               OpDecorate </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">10</span><span style="color:#fdf4c1aa;"> Location </span><span style="color:#d3869b;">1
-</span><span style="color:#fdf4c1aa;">               OpDecorate </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">12</span><span style="color:#fdf4c1aa;"> Location </span><span style="color:#d3869b;">0
-</span><span style="color:#fdf4c1aa;">               OpMemberDecorate </span><span style="color:#fe8019;">%</span><span style="color:#fdf4c1aa;">Vertex </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1aa;"> BuiltIn Position
-               OpMemberDecorate </span><span style="color:#fe8019;">%</span><span style="color:#fdf4c1aa;">Vertex </span><span style="color:#d3869b;">1</span><span style="color:#fdf4c1aa;"> BuiltIn PointSize
-      </span><span style="color:#fe8019;">%</span><span style="color:#fa5c4b;">float </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> OpTypeFloat </span><span style="color:#d3869b;">32
-    </span><span style="color:#fe8019;">%</span><span style="color:#fdf4c1aa;">v4float </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> OpTypeVector </span><span style="color:#fe8019;">%</span><span style="color:#fa5c4b;">float </span><span style="color:#d3869b;">4
-</span><span style="color:#fe8019;">%</span><span style="color:#fdf4c1aa;">_ptr_Input_v4float </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> OpTypePointer Input </span><span style="color:#fe8019;">%</span><span style="color:#fdf4c1aa;">v4float
-          </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">9 </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> OpVariable </span><span style="color:#fe8019;">%</span><span style="color:#fdf4c1aa;">_ptr_Input_v4float Input
-         </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">10 </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> OpVariable </span><span style="color:#fe8019;">%</span><span style="color:#fdf4c1aa;">_ptr_Input_v4float Input
-</span><span style="color:#fe8019;">%</span><span style="color:#fdf4c1aa;">_ptr_Output_v4float </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> OpTypePointer Output </span><span style="color:#fe8019;">%</span><span style="color:#fdf4c1aa;">v4float
-         </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">12 </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> OpVariable </span><span style="color:#fe8019;">%</span><span style="color:#fdf4c1aa;">_ptr_Output_v4float Output
-       </span><span style="color:#fe8019;">%</span><span style="color:#fa5c4b;">void </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> OpTypeVoid
-         </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">14 </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> OpTypeFunction </span><span style="color:#fe8019;">%</span><span style="color:#fa5c4b;">void
-     </span><span style="color:#fe8019;">%</span><span style="color:#fdf4c1aa;">Vertex </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> OpTypeStruct </span><span style="color:#fe8019;">%</span><span style="color:#fdf4c1aa;">v4float </span><span style="color:#fe8019;">%</span><span style="color:#fa5c4b;">float
-</span><span style="color:#fe8019;">%</span><span style="color:#fdf4c1aa;">_ptr_Output_Vertex </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> OpTypePointer Output </span><span style="color:#fe8019;">%</span><span style="color:#fdf4c1aa;">Vertex
-         </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">20 </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> OpVariable </span><span style="color:#fe8019;">%</span><span style="color:#fdf4c1aa;">_ptr_Output_Vertex Output
-</span><span style="color:#fe8019;">%</span><span style="color:#fdf4c1aa;">_ptr_Function_v4float </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> OpTypePointer Function </span><span style="color:#fe8019;">%</span><span style="color:#fdf4c1aa;">v4float
-       </span><span style="color:#fe8019;">%</span><span style="color:#fabd2f;">uint </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> OpTypeInt </span><span style="color:#d3869b;">32 0
-     </span><span style="color:#fe8019;">%</span><span style="color:#fdf4c1aa;">uint_0 </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> OpConstant </span><span style="color:#fe8019;">%</span><span style="color:#fabd2f;">uint </span><span style="color:#d3869b;">0
-          </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">2 </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> OpFunction </span><span style="color:#fe8019;">%</span><span style="color:#fa5c4b;">void</span><span style="color:#fdf4c1aa;"> None </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">14
-         </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">15 </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> OpLabel
-               OpBranch </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">16
-         </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">16 </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> OpLabel
-         </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">17 </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> OpLoad </span><span style="color:#fe8019;">%</span><span style="color:#fdf4c1aa;">v4float </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">9
-</span><span style="color:#fdf4c1aa;">               OpStore </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">12 </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">17
-</span><span style="color:#fdf4c1aa;">               OpReturn
-               </span><span style="color:#8ec07c;">OpFunctionEnd
-          </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">5 </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> OpFunction </span><span style="color:#fe8019;">%</span><span style="color:#fa5c4b;">void</span><span style="color:#fdf4c1aa;"> None </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">14
-         </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">21 </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> OpLabel
-               OpBranch </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">22
-         </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">22 </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> OpLabel
-         </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">23 </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> OpLoad </span><span style="color:#fe8019;">%</span><span style="color:#fdf4c1aa;">v4float </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">9
-         </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">27 </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> OpAccessChain </span><span style="color:#fe8019;">%</span><span style="color:#fdf4c1aa;">_ptr_Output_v4float </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">20 </span><span style="color:#fe8019;">%</span><span style="color:#fdf4c1aa;">uint_0
-               OpStore </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">27 </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">23
-         </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">28 </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> OpLoad </span><span style="color:#fe8019;">%</span><span style="color:#fdf4c1aa;">v4float </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">10
-</span><span style="color:#fdf4c1aa;">               OpStore </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">12 </span><span style="color:#fe8019;">%</span><span style="color:#d3869b;">28
-</span><span style="color:#fdf4c1aa;">               OpReturn
-               </span><span style="color:#8ec07c;">OpFunctionEnd
+<pre data-lang="C" class="language-C "><code class="language-C" data-lang="C">; SPIR-V
+; Version: 1.2
+; Generator: Google rspirv; 0
+; Bound: 29
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport &quot;GLSL.std.450&quot;
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %2 &quot;frag&quot; %9 %12
+               OpEntryPoint Vertex %5 &quot;vertex&quot; %9 %10 %12
+               OpExecutionMode %2 OriginUpperLeft
+               OpExecutionMode %5 OriginUpperLeft
+               OpMemberName %Vertex 0 &quot;position&quot;
+               OpMemberName %Vertex 1 &quot;point_size&quot;
+               OpName %Vertex &quot;Vertex&quot;
+               OpDecorate %9 Location 0
+               OpDecorate %10 Location 1
+               OpDecorate %12 Location 0
+               OpMemberDecorate %Vertex 0 BuiltIn Position
+               OpMemberDecorate %Vertex 1 BuiltIn PointSize
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+          %9 = OpVariable %_ptr_Input_v4float Input
+         %10 = OpVariable %_ptr_Input_v4float Input
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+         %12 = OpVariable %_ptr_Output_v4float Output
+       %void = OpTypeVoid
+         %14 = OpTypeFunction %void
+     %Vertex = OpTypeStruct %v4float %float
+%_ptr_Output_Vertex = OpTypePointer Output %Vertex
+         %20 = OpVariable %_ptr_Output_Vertex Output
+%_ptr_Function_v4float = OpTypePointer Function %v4float
+       %uint = OpTypeInt 32 0
+     %uint_0 = OpConstant %uint 0
+          %2 = OpFunction %void None %14
+         %15 = OpLabel
+               OpBranch %16
+         %16 = OpLabel
+         %17 = OpLoad %v4float %9
+               OpStore %12 %17
+               OpReturn
+               OpFunctionEnd
+          %5 = OpFunction %void None %14
+         %21 = OpLabel
+               OpBranch %22
+         %22 = OpLabel
+         %23 = OpLoad %v4float %9
+         %27 = OpAccessChain %_ptr_Output_v4float %20 %uint_0
+               OpStore %27 %23
+         %28 = OpLoad %v4float %10
+               OpStore %12 %28
+               OpReturn
+               OpFunctionEnd
 
-</span></code></pre><h1 id="entry-points">Entry points</h1>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">#[</span><span style="color:#fdf4c1;">spirv</span><span style="color:#fdf4c1aa;">(vertex)]
-</span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">vertex</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">vertex</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">mut</span><span style="color:#fdf4c1aa;"> Vertex, </span><span style="color:#fdf4c1;">pos</span><span style="color:#fdf4c1aa;">: Vec4&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;, </span><span style="color:#fdf4c1;">color</span><span style="color:#fdf4c1aa;">: Vec4&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;) -&gt; Vec4&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt; {
-    vertex.position </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> pos;
+</code></pre>
+<h1 id="entry-points">Entry points</h1>
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">#[spirv(vertex)]
+fn vertex(vertex: &amp;mut Vertex, pos: Vec4&lt;f32&gt;, color: Vec4&lt;f32&gt;) -&gt; Vec4&lt;f32&gt; {
+    vertex.position = pos;
     color
 }
-</span></code></pre><pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">vertex: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">mut</span><span style="color:#fdf4c1aa;"> Vertex
-</span></code></pre>
+</code></pre>
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">vertex: &amp;mut Vertex
+</code></pre>
 <p>This is the first argument in a vertex shader. This gives you mutable access to various PerVertex variables like  <code>gl_Position</code>, <code>gl_Pointsize</code> etc.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">pos: Vec4&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;, color: Vec4&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;
-</span></code></pre>
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">pos: Vec4&lt;f32&gt;, color: Vec4&lt;f32&gt;
+</code></pre>
 <p>The next two arguments are the input to the vertex shader. In the future I will also allow user defined structs. In Vulkan you can only pass SPIR-V primitives into the vertex shader. I will work around this problem by 'unrolling' the type into primitive types.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">struct </span><span style="color:#8ec07c;">Input</span><span style="color:#fdf4c1aa;">{
-    </span><span style="color:#fdf4c1;">pos</span><span style="color:#fdf4c1aa;">: Vec4&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;,
-    </span><span style="color:#fdf4c1;">uv</span><span style="color:#fdf4c1aa;">: Vec4&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;,
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">struct Input{
+    pos: Vec4&lt;f32&gt;,
+    uv: Vec4&lt;f32&gt;,
 }
-</span></code></pre>
+</code></pre>
 <p>will be unrolled into two variables <code>pos: Vec4&lt;f32&gt;, color: Vec4&lt;f32&gt;</code>.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">-&gt; Vec4&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;
-</span></code></pre>
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">-&gt; Vec4&lt;f32&gt;
+</code></pre>
 <p>The return type is the output of the vertex shader. Currently in RLSL you can only output one type, but this can be a composition of types.</p>
 <p>This is the resulting GLSL of the cross compiled <code>.spv</code> file with <code>spirv-cross</code>. <em>RLSL currently doesn't generate debug information for global variables</em></p>
-<pre style="background-color:#282828;">
-<code><span style="font-style:italic;color:#928374;">// vertex shader
-</span><span style="color:#fdf4c1aa;">#version </span><span style="color:#d3869b;">450
+<pre data-lang="C" class="language-C "><code class="language-C" data-lang="C">&#x2F;&#x2F; vertex shader
+#version 450
 
-</span><span style="color:#fdf4c1;">layout(location </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1;">)</span><span style="color:#fdf4c1aa;"> in vec4 _9;
-</span><span style="color:#fdf4c1;">layout(location </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">1</span><span style="color:#fdf4c1;">)</span><span style="color:#fdf4c1aa;"> in vec4 _10;
-</span><span style="color:#fdf4c1;">layout(location </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1;">)</span><span style="color:#fdf4c1aa;"> out vec4 _12;
+layout(location = 0) in vec4 _9;
+layout(location = 1) in vec4 _10;
+layout(location = 0) out vec4 _12;
 
-</span><span style="color:#fa5c4b;">void </span><span style="color:#8ec07c;">main</span><span style="color:#fdf4c1aa;">()
+void main()
 {
-    gl_Position </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> _9;
-    _12 </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> _10;
+    gl_Position = _9;
+    _12 = _10;
 }
-</span></code></pre><pre style="background-color:#282828;">
-<code><span style="font-style:italic;color:#928374;">// fragment shader
-</span><span style="color:#fdf4c1aa;">#version </span><span style="color:#d3869b;">450
+</code></pre>
+<pre data-lang="C" class="language-C "><code class="language-C" data-lang="C">&#x2F;&#x2F; fragment shader
+#version 450
 
-</span><span style="color:#fdf4c1;">layout(location </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1;">)</span><span style="color:#fdf4c1aa;"> in vec4 _8;
-</span><span style="color:#fdf4c1;">layout(location </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1;">)</span><span style="color:#fdf4c1aa;"> out vec4 _10;
+layout(location = 0) in vec4 _8;
+layout(location = 0) out vec4 _10;
 
-</span><span style="color:#fa5c4b;">void </span><span style="color:#8ec07c;">main</span><span style="color:#fdf4c1aa;">()
+void main()
 {
-    _10 </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> _8;
+    _10 = _8;
 }
-</span></code></pre>
+</code></pre>
 <p>Entry points are not allowed to contain any generics, but functions inside the body are allowed to be generic.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">some_generic_fn</span><span style="color:#fdf4c1aa;">&lt;V1: Vector, V2: Vector&gt;(</span><span style="color:#fdf4c1;">vertex</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">mut</span><span style="color:#fdf4c1aa;"> Vertex,
-                                           </span><span style="color:#fdf4c1;">pos</span><span style="color:#fdf4c1aa;">: V1,
-                                           </span><span style="color:#fdf4c1;">color</span><span style="color:#fdf4c1aa;">: V2) -&gt; Vec4&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;{
-    </span><span style="color:#fe8019;">...
-</span><span style="color:#fdf4c1aa;">}
-
-#[</span><span style="color:#fdf4c1;">spirv</span><span style="color:#fdf4c1aa;">(vertex)]
-</span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">vertex</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">vertex</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">mut</span><span style="color:#fdf4c1aa;"> Vertex, </span><span style="color:#fdf4c1;">pos</span><span style="color:#fdf4c1aa;">: Vec4&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;, </span><span style="color:#fdf4c1;">color</span><span style="color:#fdf4c1aa;">: Vec4&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;) -&gt; Vec4&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt; {
-    </span><span style="color:#fabd2f;">some_generic_fn</span><span style="color:#fdf4c1aa;">(vertex, pos, color)
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">fn some_generic_fn&lt;V1: Vector, V2: Vector&gt;(vertex: &amp;mut Vertex,
+                                           pos: V1,
+                                           color: V2) -&gt; Vec4&lt;f32&gt;{
+    ...
 }
 
-#[</span><span style="color:#fdf4c1;">spirv</span><span style="color:#fdf4c1aa;">(vertex)]
-</span><span style="color:#fa5c4b;">fn </span><span style="color:#8ec07c;">vertex2</span><span style="color:#fdf4c1aa;">(</span><span style="color:#fdf4c1;">vertex</span><span style="color:#fdf4c1aa;">: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fa5c4b;">mut</span><span style="color:#fdf4c1aa;"> Vertex, </span><span style="color:#fdf4c1;">pos</span><span style="color:#fdf4c1aa;">: Vec2&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;, </span><span style="color:#fdf4c1;">color</span><span style="color:#fdf4c1aa;">: Vec4&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt;) -&gt; Vec4&lt;</span><span style="color:#fa5c4b;">f32</span><span style="color:#fdf4c1aa;">&gt; {
-    </span><span style="color:#fabd2f;">some_generic_fn</span><span style="color:#fdf4c1aa;">(vertex, pos, color)
+#[spirv(vertex)]
+fn vertex(vertex: &amp;mut Vertex, pos: Vec4&lt;f32&gt;, color: Vec4&lt;f32&gt;) -&gt; Vec4&lt;f32&gt; {
+    some_generic_fn(vertex, pos, color)
 }
-</span></code></pre>
+
+#[spirv(vertex)]
+fn vertex2(vertex: &amp;mut Vertex, pos: Vec2&lt;f32&gt;, color: Vec4&lt;f32&gt;) -&gt; Vec4&lt;f32&gt; {
+    some_generic_fn(vertex, pos, color)
+}
+</code></pre>
 <p>It should be easy to create multiple entry points that share the same logic. This is especially useful for instancing where usually only the entry point changes.</p>
 <p>Entry points are roughly equivalent to the main function in Rust. The difference is that there can be multiple entry points, and that there are different types of entry points like the vertex and fragment shader.</p>
 <p>Currently I just look at every function that has the <code>#[spirv(vertex)]</code> or <code>#[spirv(fragment)]</code> attribute and I include it in the <code>.spv</code> file. In the future I want entry points to be defined outside of the <code>main.rs</code> file and I also need a way to specify which entry points should be included in the <code>.spv</code> file.</p>
 <p>Also you might have noticed that I don't explicitly specify the location of the input / output variables. This is all done behind the scene. This information is inside the <code>.spv</code> file, but I will also make this information available in an easier to parse format and I will also create the necessary library to retrieve this information.</p>
 <p>Some pseudo API</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> reflection: Reflection </span><span style="color:#fe8019;">= </span><span style="color:#fabd2f;">parse</span><span style="color:#fdf4c1aa;">(</span><span style="color:#b8bb26;">&quot;reflection.toml&quot;</span><span style="color:#fdf4c1aa;">);
-</span><span style="color:#fa5c4b;">let</span><span style="color:#fdf4c1aa;"> data: </span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1aa;">EntryPoint </span><span style="color:#fe8019;">=</span><span style="color:#fdf4c1aa;"> reflection.</span><span style="color:#fabd2f;">get</span><span style="color:#fdf4c1aa;">(some_entry_point).</span><span style="color:#fabd2f;">expect</span><span style="color:#fdf4c1aa;">(</span><span style="color:#b8bb26;">&quot;Entry point not found&quot;</span><span style="color:#fdf4c1aa;">);
-data.</span><span style="color:#fabd2f;">path</span><span style="color:#fdf4c1aa;">() </span><span style="font-style:italic;color:#928374;">// path to .spv file
-</span><span style="color:#fdf4c1aa;">data.</span><span style="color:#fabd2f;">inputs</span><span style="color:#fdf4c1aa;">() </span><span style="font-style:italic;color:#928374;">// Input information
-</span><span style="color:#fdf4c1aa;">data.</span><span style="color:#fabd2f;">output</span><span style="color:#fdf4c1aa;">() </span><span style="font-style:italic;color:#928374;">// Output information
-</span><span style="color:#fdf4c1aa;">data.</span><span style="color:#fabd2f;">constants</span><span style="color:#fdf4c1aa;">() </span><span style="font-style:italic;color:#928374;">// Constant information
-</span><span style="color:#fdf4c1aa;">reflection.</span><span style="color:#fabd2f;">entry_point_iter</span><span style="color:#fdf4c1aa;">() </span><span style="font-style:italic;color:#928374;">// iterator over every entry point
-</span><span style="color:#fe8019;">...
-</span></code></pre>
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">let reflection: Reflection = parse(&quot;reflection.toml&quot;);
+let data: &amp;EntryPoint = reflection.get(some_entry_point).expect(&quot;Entry point not found&quot;);
+data.path() &#x2F;&#x2F; path to .spv file
+data.inputs() &#x2F;&#x2F; Input information
+data.output() &#x2F;&#x2F; Output information
+data.constants() &#x2F;&#x2F; Constant information
+reflection.entry_point_iter() &#x2F;&#x2F; iterator over every entry point
+...
+</code></pre>
 <p>If necessary I might also introduce an API to set this information explicitly.</p>
 <h1 id="rlsl-is-a-subset-of-rust">RLSL is a subset of Rust</h1>
 <p>RLSL is a subset of Rust. If it compiles in RLSL it should compile in Rust, but not the other way around. SPIR-V has many limitations like  no pointers inside structs. This means a lot of iterators won't work in RLSL.</p>
 <p>One interesting design decision is that currently no shader primitives are inside the std library. RLSL ships with the std but only with a reduced version. All the necessary types and functions are defined in an external library called <code>rlsl_math</code>.</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;">#[</span><span style="color:#fdf4c1;">spirv</span><span style="color:#fdf4c1aa;">(Vec4)]
-#[</span><span style="color:#fdf4c1;">repr</span><span style="color:#fdf4c1aa;">(C)]
-#[</span><span style="color:#fdf4c1;">derive</span><span style="color:#fdf4c1aa;">(Debug, Clone, Copy, PartialEq)]
-</span><span style="color:#fa5c4b;">pub struct </span><span style="color:#8ec07c;">Vec4</span><span style="color:#fdf4c1aa;">&lt;T&gt; {
-    </span><span style="color:#fa5c4b;">pub </span><span style="color:#fdf4c1;">x</span><span style="color:#fdf4c1aa;">: T,
-    </span><span style="color:#fa5c4b;">pub </span><span style="color:#fdf4c1;">y</span><span style="color:#fdf4c1aa;">: T,
-    </span><span style="color:#fa5c4b;">pub </span><span style="color:#fdf4c1;">z</span><span style="color:#fdf4c1aa;">: T,
-    </span><span style="color:#fa5c4b;">pub </span><span style="color:#fdf4c1;">w</span><span style="color:#fdf4c1aa;">: T,
+<pre data-lang="Rust" class="language-Rust "><code class="language-Rust" data-lang="Rust">#[spirv(Vec4)]
+#[repr(C)]
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Vec4&lt;T&gt; {
+    pub x: T,
+    pub y: T,
+    pub z: T,
+    pub w: T,
 }
-</span></code></pre>
+</code></pre>
 <p>This is currently how a <code>Vec4&lt;T&gt;</code> is defined in <code>rlsl_math</code>.The <code>#[spirv(Vec4)]</code> attribute tells RLSL that this should map to the builtin <code>vec4</code> type in SPIR-V. Remember that <code>rlsl_math</code> is an external library, that means other math libraries like cgmath or nalgebra should be able to replace <code>rlsl_math</code> (maybe not completely). I will probably split common functionality into a separate crate.</p>
 <h1 id="optimizations">Optimizations</h1>
 <p>Currently RLSL takes the following steps. <code>Rust -&gt; HIR -&gt; MIR -&gt; SPIR-V</code>. There are a few optimizations implemented for MIR, but a lot of things are missing. <a href="https://github.com/KhronosGroup/SPIRV-Tools#optimizer">spirv-opt</a> can be used to further optimize the <code>.spv</code> file.</p>
@@ -336,8 +328,7 @@ data.</span><span style="color:#fabd2f;">path</span><span style="color:#fdf4c1aa
 <p>In the future you will be able to install RLSL with <code>cargo install rlsl</code>. To compile a project you just have to replace rustc with rlsl <code>RUSTC=rlsl cargo build</code>. Currently RLSL is completely unoptimized, but the hello triangle example compiles in 0.11s. At the moment RLSL is completely single threaded but that will soon change.</p>
 <p>Although I don't expect compile times to be an issue, considering that the amount of shader code should not be that high.</p>
 <p>To give you some estimation of the amount of shader code in a commercial engine (Unreal Engine 4)</p>
-<pre style="background-color:#282828;">
-<code><span style="color:#fdf4c1aa;"> Language            Files        Lines         Code     Comments       Blanks
+<pre data-lang="Markdown" class="language-Markdown "><code class="language-Markdown" data-lang="Markdown"> Language            Files        Lines         Code     Comments       Blanks
 -------------------------------------------------------------------------------
  ...
  C++                 13503      5973298      4361179       586000      1026119
@@ -347,7 +338,7 @@ data.</span><span style="color:#fabd2f;">path</span><span style="color:#fdf4c1aa
 -------------------------------------------------------------------------------
  Total               70491     21705869     15499494      3410894      2795481
 -------------------------------------------------------------------------------
-</span></code></pre>
+</code></pre>
 <p><code>Usf</code> is the shading language in Unreal Engine 4, which I think is based on HLSL.</p>
 <p>Currently RLSL is still tied to LLVM. If RLSL compiles a library it essentially falls back to rustc which then produces an <code>.rlib</code> file. This file includes the MIR which will be used to generate the SPIR-V. I am still hoping for <a href="https://github.com/rust-lang/rust/issues/38913">gh38913</a> but it should be easy to do this on my own.</p>
 <h1 id="future">Future</h1>
