@@ -160,7 +160,7 @@ pub struct MovementComponent {
 ```
 
 At which point do we automatically add the new `gravity_strength` field to all actors in the editor? We could do it during hot reload. You add the field, compile the code and then inside the editor we will update all of the `MovementComponents`.
-But after a few minutes to decided that was a bad idea and revert the code again, and remove the `gravity_strength` field. But all of the `MovementComponents` in the editor will still have the `gravity_strength` field in them. We need a way to remove them, or you might store too much unnecessary data in your editor components.
+But after a few minutes you decided that was a bad idea and revert the code again, and remove the `gravity_strength` field. But all of the `MovementComponents` in the editor will still have the `gravity_strength` field in them. We need a way to remove them, or you might store too much unnecessary data in your editor components.
 
 Also the components can be accessed within blueprint:
 
@@ -199,9 +199,9 @@ TL;DR: I just haven't made up my mind yet of how serialization should work in `u
 
 # What's next?
 
-While there are still a lot of problems, I do want to make `unreal-rust` into some thing real, it will just take a bit of time. There is an infinite todo list but the next big thing will be samples. I want to heavily drive this project through real world samples where I try to create some game mechanics like the Inscryption card game, God of War axe throwing etc.
+While there are still a lot of problems, I do want to make `unreal-rust` into something real, it will just take a bit of time. There is an infinite todo list but the next big thing will be samples. I want to heavily drive this project through real world samples where I try to create some game mechanics like the Inscryption card game, God of War axe throwing etc.
 
-There are a couple of reason for that:
+There are a couple of reasons for that:
 
 * This allows me to prioritize which APIs I need to expose next
 * I will quickly the discover pain points and can address them early
@@ -210,7 +210,7 @@ There are a couple of reason for that:
 # Closing words
 
 If you want to keep up to date with the project you can follow me or [twitter](https://twitter.com/MaikKlein_DEV), or follow the project on [github](https://github.com/MaikKlein/unreal-rust).
-If you want to try it out, I added some instruction [here](https://github.com/MaikKlein/unreal-rust#-getting-started).
+If you want to try it out, I added some instructions [here](https://github.com/MaikKlein/unreal-rust#-getting-started).
 
 Quick thank you 🥰 to:
 

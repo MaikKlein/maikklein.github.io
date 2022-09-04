@@ -283,7 +283,7 @@ Additionally you can access Rust <code>Components</code> from within Blueprint. 
 </span><span>}
 </span></code></pre>
 <p>At which point do we automatically add the new <code>gravity_strength</code> field to all actors in the editor? We could do it during hot reload. You add the field, compile the code and then inside the editor we will update all of the <code>MovementComponents</code>.
-But after a few minutes to decided that was a bad idea and revert the code again, and remove the <code>gravity_strength</code> field. But all of the <code>MovementComponents</code> in the editor will still have the <code>gravity_strength</code> field in them. We need a way to remove them, or you might store too much unnecessary data in your editor components.</p>
+But after a few minutes you decided that was a bad idea and revert the code again, and remove the <code>gravity_strength</code> field. But all of the <code>MovementComponents</code> in the editor will still have the <code>gravity_strength</code> field in them. We need a way to remove them, or you might store too much unnecessary data in your editor components.</p>
 <p>Also the components can be accessed within blueprint:</p>
 <p><img src="https://user-images.githubusercontent.com/1994306/188315246-0ada8989-4388-443c-9c9c-2027f91f459e.png" alt="" /></p>
 <p>What if we were to remove the <code>is_falling</code> field here? Do we remove the connection from <code>is_falling</code> to <code>is in air?</code>? If we do this might break all of your bluprints, and you might have to recreate the connection in the future. If we keep the connection, the blueprint will fail to compile.</p>
@@ -310,8 +310,8 @@ But after a few minutes to decided that was a bad idea and revert the code again
 <li>...</li>
 </ul>
 <h1 id="what-s-next">What's next?</h1>
-<p>While there are still a lot of problems, I do want to make <code>unreal-rust</code> into some thing real, it will just take a bit of time. There is an infinite todo list but the next big thing will be samples. I want to heavily drive this project through real world samples where I try to create some game mechanics like the Inscryption card game, God of War axe throwing etc.</p>
-<p>There are a couple of reason for that:</p>
+<p>While there are still a lot of problems, I do want to make <code>unreal-rust</code> into something real, it will just take a bit of time. There is an infinite todo list but the next big thing will be samples. I want to heavily drive this project through real world samples where I try to create some game mechanics like the Inscryption card game, God of War axe throwing etc.</p>
+<p>There are a couple of reasons for that:</p>
 <ul>
 <li>This allows me to prioritize which APIs I need to expose next</li>
 <li>I will quickly the discover pain points and can address them early</li>
@@ -319,7 +319,7 @@ But after a few minutes to decided that was a bad idea and revert the code again
 </ul>
 <h1 id="closing-words">Closing words</h1>
 <p>If you want to keep up to date with the project you can follow me or <a href="https://twitter.com/MaikKlein_DEV">twitter</a>, or follow the project on <a href="https://github.com/MaikKlein/unreal-rust">github</a>.
-If you want to try it out, I added some instruction <a href="https://github.com/MaikKlein/unreal-rust#-getting-started">here</a>.</p>
+If you want to try it out, I added some instructions <a href="https://github.com/MaikKlein/unreal-rust#-getting-started">here</a>.</p>
 <p>Quick thank you 🥰 to:</p>
 <ul>
 <li><a href="https://kenney.nl/">kenney</a>, <a href="https://www.patreon.com/quaternius">quaternius</a> for providing amazing CC0 assets</li>
