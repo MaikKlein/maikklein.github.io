@@ -226,3 +226,7 @@ Quick thank you 🥰 to:
 * Unreal <-> Rust FFI layer
 * ...
 
+# Discussions
+
+* https://twitter.com/MaikKlein_DEV/status/1566474392342757377
+* https://maikklein.github.io/unreal-rust-1/
