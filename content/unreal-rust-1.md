@@ -1,12 +1,15 @@
 +++
-title= "Unreal Rust"
-date        = 2022-08-28
+title= "Announcing Unreal Rust"
+date        = 2022-09-04
 +++
 
-
-
-
 ![unrealrustDirkremix](https://user-images.githubusercontent.com/1994306/187069523-1690b143-f42f-4db7-8512-0ac041b363bd.png)
+
+# Links
+
+* [unreal rust github](https://github.com/MaikKlein/unreal-rust)
+* [Devlog on Youtube](https://www.youtube.com/playlist?list=PLps1NSMUeqzicmTej83z-n1J383u1UVq1)
+
 # Introduction
 
 "What if I could write a game in Rust, but use Unreal as a renderer?". After a bit of thinking I came to the conclusion that exposing the Unreal renderer to Rust via C ffi was way more work than I was willing to do. But what if I could just build on top of Unreal instead? I could just move actors (Unreal gameobjects) around with Rust. That seemed much more managable, so I sat down and hacked something up.
@@ -15,7 +18,7 @@ After a week I exposed a few functions that allowed me to get inputs, and set an
 
 {{webmvideo(src="https://user-images.githubusercontent.com/1994306/187089570-557a4578-afc8-4063-b18d-3e2c2495354e.mp4")}}
 
-While exciting, it was quite boring to watch. What if I could play animations? I investigated how Unreal drives animations. And it this example the character here is already rigged with animations, and those animations are driven by an `AnimationBlueprint`. All I had to do is pipe in the velocity that the character is running at, and the `AnimationBlueprint` would to the rest. I just exposed an ffi function `GetRustVelocity` and my character  was running.
+While exciting, it was quite boring to watch. What if I could play animations? I investigated how Unreal drives animations. And in this example the character here is already rigged with animations, and those animations are driven by an `AnimationBlueprint`. All I had to do is pipe in the velocity that the character is running at, and the `AnimationBlueprint` would to the rest. I just exposed an ffi function `GetRustVelocity` and my character  was running.
 
 
 {{webmvideo(src="https://user-images.githubusercontent.com/1994306/187089573-3fa0583f-707b-4b1d-8842-ff8980a23297.mp4")}}
@@ -32,14 +35,17 @@ And `unreal-rust` was born.
 
 TL;DR `unreal-rust` allows you to write games with Unreal Engine in Rust.
 
-`unreal-rust` is an opinionated Rust integration for Unreal. Rust cares about ownership, mutability and lifetimes. Mapping Unreal concepts to Rust one to one would only cause a headache.
+`unreal-rust` is an opinionated Rust integration for Unreal. Rust cares about ownership, mutability and lifetimes. Mapping Unreal concepts to Rust 1 to 1 would only cause a headache.
 Instead `unreal-rust` will be written on top of the Unreal `AActor` and expose its API in a Rust friendly way.
 
-The first big change is that `unreal-rust` will use an Entity Component System (ECS). For `unreal-rust` I decided to use [bevy](https://bevyengine.org/) instead of rolling my own which allows me to focus more on the Unreal part. I might want to fork `bevy-ecs` in the future to adapt it my needs, but I am very happy with it so far. The folks at [bevy](https://bevyengine.org/) have done a wonderful work making the ECS user friendly.
+The first big change is that `unreal-rust` will use an Entity Component System (ECS). For `unreal-rust` I decided to use [bevy](https://bevyengine.org/) instead of rolling my own. I am just a single developer and I have to pick my battles. Writing and maintaining an ECS would distract me from doing actual work. The folks at [bevy](https://bevyengine.org/) have done a wonderful work making the ECS user friendly 🥰.
+
+I want to deeply integrate Rust into Unreal and everything should be accessible. You can add Rust `Components` to `AActor` in the editor. For example you can add a `CharacterConfigComponent` to the `PlayerActor`, which you can then access from within Rust. This allows to configure your character from Unreal without needing to touch any code.
+Additionally you can access Rust `Components` from within Blueprint. This allows you to drive Animation blueprints, or pass data into your UI.
 
 ## Editor components and reflection
 
-You can just add the `Component` derive, give it a unique UUID/GUID (_which your editor of choice can generate_) and register it with `register_components`. And if you want it to show up in the editor, you can just mark it with `#[reflect(editor)]`.
+To make your `Components` visible in the editor/blueprint all you have to do is to add the `Component` derive, give it a unique UUID/GUID (_which your editor of choice can generate_) and register it with `register_components`. And if you want it to show up in the editor, you can just mark it with `#[reflect(editor)]`.
 
 ```rust
 #[derive(Debug, Component)]
@@ -79,9 +85,9 @@ Now you can add any `Component` to an actor in the editor. This essentially give
 
 ## Blueprint
 
-`Blueprint` is Unreal's visual scripting system and it is heavily used in the engine. You can drive animations, materials, particles, sound, gameplay through it. If I wanted `unreal-rust` to become something real, I had to support blueprints somehow.
+`Blueprint` is Unreal's visual scripting system and it is heavily used in the engine. You can drive animations, materials, particles, sound, gameplay through it. It is important that `unreal-rust` can be used in Blueprint as well.
 
-I added a new node called `GetComponent(Rust)`, which gives you access to all of your components in Rust.
+I added a new node called `GetComponent(Rust)`, which gives you access to all of your Rust components.
 
 {{webmvideo(src="https://user-images.githubusercontent.com/1994306/187077333-c8fb34e6-899e-4e65-9809-cb72c815b7a7.webm")}}
 
@@ -98,174 +104,125 @@ pub struct MovementComponent {
 }
 ```
 
-We can now access the `MovementComponent` inside an animation blueprint to drive all of the animations. This is everything that is required to make the player character run, jump, and glide. The rest is handled inside the animation blueprint itself.
-
-## Example
-```rust
-#[derive(Debug, Component)]
-#[uuid = "b6addc7d-03b1-4b06-9328-f26c71997ee6"]
-#[reflect(editor)]
-pub struct PlaySoundOnImpactComponent {
-    pub sound: USound,
-}
-```
-```rust
-fn register_hit_events(mut query: Query<(&mut ActorComponent,
-                                         Added<PlaySoundOnImpactComponent>)>) {
-    for (mut actor, added) in &mut query {
-        if added {
-            actor.register_on_hit();
-        }
-    }
-}
-```
-
-```rust
-fn play_sound_on_hit(
-    api: Res<UnrealApi>,
-    mut events: EventReader<ActorHitEvent>,
-    query: Query<(&TransformComponent, &PlaySoundOnImpactComponent)>,
-    mut commands: Commands,
-) {
-    for event in events.iter() {
-        if event.normal_impulse.length() <= PlaySoundOnImpactComponent::MINIMUM_FORCE {
-            continue;
-        }
-
-        if let Some(&entity) = api.actor_to_entity.get(&event.self_actor) {
-            if let Ok((trans, sound)) = query.get(entity) {
-                play_sound_at_location(
-                    sound.sound,
-                    trans.position,
-                    trans.rotation,
-                    &SoundSettings::default(),
-                )
-            }
-            commands.add(Despawn { entity });
-        }
-    }
-}
-```
-
-```
-Begin Frame -> Rust tick -> Unreal tick ->  End Frame
-```
-
+We can now access the `MovementComponent` inside the animation blueprint and drive all of the animations. This is everything that is required to make the player character run, jump, and glide. The rest is handled inside the animation blueprint itself.
 
 ## Hot reloading
 
+This allows you to see your code changes in real time without needing to restart the editor.
+
 {{webmvideo(src="https://user-images.githubusercontent.com/1994306/187090400-19812611-f907-434d-88cd-363e4c3903e7.mp4")}}
 
+## Experimentation without crashing the editor
 
-# How does it work?
+C++ has one big flaw in Unreal. You can easily crash the editor, either by triggering an assert or accessing a nullptr. This makes it quite difficult to experiment with the engine, especially if you are new. In Rust however crashes or `panic` are well defined and can be caught. That means if you ever unwrap an `Option::None` or do out of bounds access, `unreal-rust` will simply catch the panic, exit play mode and log the error to the console. It will never crash the editor.
 
-We need to set up a communication scheme between Rust and Unreal, and we are going to use c ffi.
+# What is the current state?
 
-We will compile our Rust code into a C compatible dll via `crate-type = ["cdylib"]`, and then use dlopen inside Unreal to load our Rust code.
+The current state is `jank`. Almost nothing is implemented properly and you should not use `unreal-rust` in a real project yet. I will list some of the issues here.
+
+## No stable versioning / persitence
 
 
-Let's set up some data structures:
-
-* `UnrealBindings`: This will contain function pointers to Unreal and we will store this on the Rust side. This allows us to call into Unreal from within Rust, like getting the position of an actor.
-* `RustBindings`: This will contain function pointers to Rust and we will store this in Unreal. Sometimes Unreal has to call into Rust, eg call the `Tick` function of Rust, or getting reflection information out of Rust.
-
-First we will look at `UnrealBindings`.
-
+Lets say you wrote the following component:
 ```rust
-pub type GetSpatialDataFn = extern "C" fn(
-    actor: *const AActorOpaque,
-    position: &mut Vector3,
-    rotation: &mut Quaternion,
-    scale: &mut Vector3,
-);
-
-extern "C" {
-    pub fn GetSpatialData(
-        actor: *const AActorOpaque,
-        position: &mut Vector3,
-        rotation: &mut Quaternion,
-        scale: &mut Vector3,
-    );
-}
-
-#[repr(C)]
-pub struct ActorFns {
-    pub get_spatial_data: GetSpatialDataFn,
-    ...
-}
-
-#[repr(C)]
-pub struct UnrealBindings {
-    pub actor_fns: ActorFns,
-    ...
+#[derive(Default, Component)]
+#[uuid = "fc8bd668-fc0a-4ab7-8b3d-f0f22bb539e2"]
+pub struct MovementComponent {
+    pub gravity: f32,
 }
 ```
 
-We define an extern function `GetSpatialData` and the respective `GetSpatialDataFn` function pointer. With the help of [cbindgen](https://github.com/eqrion/cbindgen) we can translate the code above into a c header `Bindings.h`.
-
-Now we hop into Unreal and implement `GetSpatialData`
-
-```cpp
-void GetSpatialData(const AActorOpaque* actor,
-                    Vector3* position,
-                    Quaternion* rotation,
-                    Vector3* scale)
-{
-    const auto Transform = ToAActor(actor)->GetTransform();
-    *position = ToVector3(Transform.GetTranslation());
-    *rotation = ToQuaternion(Transform.GetRotation());
-    *scale = ToVector3(Transform.GetScale3D());
-}
-```
-
-Then we simply fill out the `UnrealBindings` struct with the function pointer to `GetSpatialData`.
-
-```cpp
-ActorFns actor_fns = {};
-actor_fns.get_spatial_data = &GetSpatialData;
-...
-
-UnrealBindings b = {};
-b.actor_fns = actor_fns;
-...
-
-```
-
-Now we have initialized `UnrealBindings` with some function pointers, but we need a way to get this struct into Rust. Going back to Rust we are going to define an entry point.
+Now you add this component to an actor in the editor and save it. But a few months later you realize that a simple float for the gravity is not enough and you want a direction as well. So you change the type.
 
 
 ```rust
-pub type EntryUnrealBindingsFn =
-    unsafe extern "C" fn(bindings: UnrealBindings, rust_bindings: *mut RustBindings) -> u32;
-
-#[no_mangle]
-pub unsafe extern "C" fn register_unreal_bindings(
-    bindings: UnrealBindings,
-    rust_bindings: *mut RustBindings,
-) -> u32 {
-    ...
+#[derive(Default, Component)]
+#[uuid = "fc8bd668-fc0a-4ab7-8b3d-f0f22bb539e2"]
+pub struct MovementComponent {
+    pub gravity: Vec3,
 }
-
 ```
 
-In Unreal we simply retrieve the `register_unreal_bindings` entry point
+But now all the actors in your editor have the gravity as a `f32`, but they should become a `Vec3` instead. How do you convert those?
 
-```Cpp
-void* LocalBindings = FPlatformProcess::GetDllExport(LocalHandle, TEXT("register_unreal_bindings\0"));
 
-```
+Next someone in your project renames `gravity` to `gravity_dir`. How do you tell the editor that this field was renamed?
 
-And then we pass the `UnrealBindings` into `register_unreal_bindings`. The `RustBindings` will follow the exact same procedure.
-
+Next you decide to split gravity into direction and strength
 ```rust
-pub type TickFn = unsafe extern "C" fn(dt: f32) -> ResultCode;
-
-#[repr(C)]
-pub struct RustBindings {
-    pub tick: TickFn,
-    ...
+#[derive(Default, Component)]
+#[uuid = "fc8bd668-fc0a-4ab7-8b3d-f0f22bb539e2"]
+pub struct MovementComponent {
+    pub gravity_strength: f32,
+    pub gravity_dir: Vec3,
 }
-
 ```
 
-We create a `RustBindings` struct will all the function pointers we want, we implement the function in Rust and pass them into `RustBindings`. Now we simply give Unreal those bindings inside 
+At which point do we automatically add the new `gravity_strength` field to all actors in the editor? We could do it during hot reload. You add the field, compile the code and then inside the editor we will update all of the `MovementComponents`.
+But after a few minutes to decided that was a bad idea and revert the code again, and remove the `gravity_strength` field. But all of the `MovementComponents` in the editor will still have the `gravity_strength` field in them. We need a way to remove them, or you might store too much unnecessary data in your editor components.
+
+Also the components can be accessed within blueprint 
+
+![](https://user-images.githubusercontent.com/1994306/188315246-0ada8989-4388-443c-9c9c-2027f91f459e.png)
+
+What if we were to remove the `is_falling` field here? Do we remove the connection from `is_falling` to `is in air?`? If we do this might break all of your bluprints, and you might have to recreate the connection in the future. If we keep the connection, the blueprint will fail to compile.
+
+I could go on, but hopefully you get the gist. None of this is particularly difficult to solve, but it requires a bit of engineering. And before that is solved, I do not recommend to use `unreal-rust` in a real project.
+
+I am loosely aware that Unreal Engine has similar issues and I still need to investigate how Unreal handles those cases itself.
+
+## No serialization
+
+Currently serialization is not implemented at all.
+
+Usually the way to implement hot reloading is:
+
+* compile the code, and create a new dll
+* Detect the change and initiate hot reloading
+* Serialize the current gamestate
+* Load the newly compiled dll
+* And then restore the gamestate with the newly loaded dll
+
+Because there is no serialization, we simply throw away the gamestate when loading the new dll.
+
+I could simply use [serde](https://serde.rs) and call it a day. But serde does add quite a bit of compile time. I could use `bevy_reflect` and or `mini_serde` but I lose some of the niceties of serde like renaming fields and doing data upgrades.
+
+TL;DR: I just haven't made up my mind yet of how serialization should work in `unreal-rust` and what problems it needs to solve. Losing gamestate during hot reload is not much of a blocker for myself.
+
+## Other
+
+* The character controller is pure jank
+* A lot of missing APIs like pathfinding, networking etc
+* Editor components are hacked on top of the unreal property system
+* ...
+
+# What's next?
+
+While there are still a lot of problems, I do want to make `unreal-rust` into some thing real, it will just take a bit of time. There is an infinite todo list but the next big thing will be samples. I want to heavily drive this project through real world samples where I try to create some game mechanics like the inscrpytion card game, god of war axe throwing etc.
+
+There are a couple of reason for that:
+
+* This allows me to prioritize which APIs I need to expose next
+* I will quickly the discover pain points and can address them early
+* It will make it easier for people to learn `unreal-rust` from those samples
+
+# Closing words
+
+If you want to keep up to date with the project you can follow me or [twitter](https://twitter.com/MaikKlein_DEV), or follow the project on [github](https://github.com/MaikKlein/unreal-rust).
+If you want to try it out, I added some instruction [here](https://github.com/MaikKlein/unreal-rust#-getting-started).
+
+Quick thank you 🥰 to:
+
+* [kenney](https://kenney.nl/), [quaternius](https://www.patreon.com/quaternius) for providing amazing CC0 assets
+* [bevy](https://bevyengine.org/) for providing the ECS
+* [Dirk](https://twitter.com/noshbar) for improving Keith the C++ rat in the banner.
+
+
+# Future blog posts
+
+* Multithreading: Can we do it?
+* Persistence, data upgrades
+* Hybrid ECS
+* Unreal <-> Rust FFI layer
+* ...
+
